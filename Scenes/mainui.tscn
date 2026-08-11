@@ -1,0 +1,256 @@
+[gd_scene format=3 uid="uid://brfgfmorhqu6d"]
+
+[ext_resource type="Script" uid="uid://d4iujl551rj8q" path="res://main_menu.gd" id="1_menu"]
+[ext_resource type="PackedScene" uid="uid://gy8vmp1cb6mg" path="res://player_preview.tscn" id="2_preview"]
+[ext_resource type="Script" uid="uid://bklwnxybmhimk" path="res://skin_picker.gd" id="3_skin"]
+[ext_resource type="PackedScene" path="res://drawer.tscn" id="4_drawer"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4gigx"]
+
+[sub_resource type="Sky" id="Sky_xrgmn"]
+sky_material = SubResource("ProceduralSkyMaterial_4gigx")
+
+[sub_resource type="Environment" id="Environment_2wvic"]
+background_mode = 2
+sky = SubResource("Sky_xrgmn")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_dj3i2"]
+size = Vector3(44, 1, 44)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.11, 0.12, 0.15, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_5f2a1"]
+top_radius = 0.5878906
+bottom_radius = 1.0878906
+height = 0.23837432
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stage"]
+albedo_color = Color(0.2, 0.22, 0.28, 1)
+metallic = 0.6
+roughness = 0.4
+
+[node name="MainMenu" type="Node3D" unique_id=799360974]
+script = ExtResource("1_menu")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=799361000]
+environment = SubResource("Environment_2wvic")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=799361001]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 15.159367, 0)
+light_energy = 0.81
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 6.778
+light_specular = 1.317
+shadow_enabled = true
+shadow_bias = 8.87
+shadow_normal_bias = 0.294
+shadow_opacity = 0.7
+shadow_blur = 8.262
+
+[node name="Podium" type="Node3D" parent="." unique_id=799361003]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Podium" unique_id=799361004]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_dj3i2")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="Stage" type="MeshInstance3D" parent="Podium" unique_id=799361005]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.127152, -0.009346768, -0.17358255)
+mesh = SubResource("CylinderMesh_5f2a1")
+surface_material_override/0 = SubResource("StandardMaterial3D_stage")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=799361006]
+transform = Transform3D(1, 0, 0, 0, 0.9887711, 0.14943814, 0, -0.14943814, 0.9887711, 0, 1.9, 4.6)
+
+[node name="PlayerPreview" parent="." unique_id=799361007 instance=ExtResource("2_preview")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1996603, 0.9691198, -0.17358255)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=799361008]
+
+[node name="Control" type="Control" parent="HUD" unique_id=1306054374]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/Control" unique_id=1152868721]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Control" type="Control" parent="HUD/Control/VBoxContainer" unique_id=237635020]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="HUD/Control/VBoxContainer" unique_id=799360976]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 37
+text = "RED LIGHT GREEN LIGHT"
+horizontal_alignment = 1
+
+[node name="MenuBox" type="VBoxContainer" parent="HUD/Control/VBoxContainer" unique_id=799361009]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 14
+
+[node name="NameLabel" type="Label" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=799360978]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+text = "YOUR NAME"
+
+[node name="PlayerNameEdit" type="LineEdit" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=901818721]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+placeholder_text = "Enter your name"
+max_length = 16
+
+[node name="Spacer" type="Control" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=799360979]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="CreateRoomButton" type="Button" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=6781090]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "CREATE ROOM"
+
+[node name="JoinRoomButton" type="Button" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=799360980]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "JOIN ROOM"
+
+[node name="SettingsButton" type="Button" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=799360986]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "SETTINGS"
+
+[node name="JoinPanel" type="VBoxContainer" parent="HUD/Control/VBoxContainer/MenuBox" unique_id=799360981]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RoomCodeLabel" type="Label" parent="HUD/Control/VBoxContainer/MenuBox/JoinPanel" unique_id=799360982]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+text = "ROOM CODE"
+
+[node name="RoomCodeEdit" type="LineEdit" parent="HUD/Control/VBoxContainer/MenuBox/JoinPanel" unique_id=799360983]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+placeholder_text = "A7K2Q"
+max_length = 5
+
+[node name="JoinButton" type="Button" parent="HUD/Control/VBoxContainer/MenuBox/JoinPanel" unique_id=799360984]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "JOIN"
+
+[node name="StatusLabel" type="Label" parent="HUD" unique_id=799360985]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -70.0
+offset_right = 400.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="SkinPicker" type="CanvasLayer" parent="." unique_id=799361010]
+script = ExtResource("3_skin")
+
+[node name="Root" type="Control" parent="SkinPicker" unique_id=799361011]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="OpenButton" type="Button" parent="SkinPicker/Root" unique_id=799361012]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -230.0
+offset_top = -110.0
+offset_right = -30.0
+offset_bottom = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 18
+text = "SKINS"
+
+[node name="SkinPanel" type="PanelContainer" parent="SkinPicker/Root" unique_id=799361013]
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -229.945
+offset_top = -190.405
+offset_right = -28.943726
+offset_bottom = 110.91489
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="SkinPicker/Root/SkinPanel" unique_id=799361014]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="SkinPicker/Root/SkinPanel/VBox" unique_id=799361015]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_font_sizes/font_size = 24
+text = "CHOOSE SKIN"
+horizontal_alignment = 1
+
+[node name="SkinList" type="VBoxContainer" parent="SkinPicker/Root/SkinPanel/VBox" unique_id=799361016]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Drawer" parent="." unique_id=799361020 instance=ExtResource("4_drawer")]
+
+[connection signal="pressed" from="HUD/Control/VBoxContainer/MenuBox/CreateRoomButton" to="." method="_on_create_room_pressed"]
+[connection signal="pressed" from="HUD/Control/VBoxContainer/MenuBox/JoinRoomButton" to="." method="_on_join_room_pressed"]
+[connection signal="pressed" from="HUD/Control/VBoxContainer/MenuBox/SettingsButton" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="HUD/Control/VBoxContainer/MenuBox/JoinPanel/JoinButton" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="SkinPicker/Root/OpenButton" to="SkinPicker" method="_on_open_pressed"]

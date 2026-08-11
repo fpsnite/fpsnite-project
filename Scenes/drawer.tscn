@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://btbpr7roxyd8q"]
+
+[ext_resource type="Script" uid="uid://chmh7xjpivvq4" path="res://drawer.gd" id="1_drawer"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
+bg_color = Color(0.07, 0.08, 0.11, 0.98)
+
+[node name="Drawer" type="CanvasLayer" unique_id=900000001]
+script = ExtResource("1_drawer")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=900000002]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=900000003]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 380.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
+
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=900000004]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Panel/VBox" unique_id=900000005]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_font_sizes/font_size = 36
+text = "MENU"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Panel/VBox" unique_id=900000006]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 14
+text = "click outside to close"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Panel/VBox" unique_id=900000007]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="QuitButton" type="Button" parent="Panel/VBox" unique_id=900000008]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 20
+text = "QUIT"
+
+[connection signal="pressed" from="Panel/VBox/QuitButton" to="." method="_on_quit_pressed"]

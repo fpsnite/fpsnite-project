@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://b8hb71bkx8sww" path="res://Scripts/player_preview.gd" id="1_preview"]
 [ext_resource type="Material" uid="uid://bsbux05305a7v" path="res://skins/default_skin.tres" id="2_skin"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="3_7qt6e"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="4_o5x1b"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dj3i2"]
 
@@ -20,10 +22,12 @@ surface_material_override/0 = ExtResource("2_skin")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.561123, 0)
 billboard = 1
 text = "Test"
-font_size = 64
+font = ExtResource("3_7qt6e")
+font_size = 70
 
 [node name="PlayerNameLabel2" type="Label3D" parent="." unique_id=716865528]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2401034, 0)
 billboard = 1
 text = "Not ready"
-font_size = 41
+font = ExtResource("4_o5x1b")
+font_size = 51

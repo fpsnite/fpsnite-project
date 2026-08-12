@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://32m82suhwi05"]
+
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="1_n538s"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="2_tpb7s"]
+[ext_resource type="Texture2D" uid="uid://djho1hlcorukq" path="res://Assets/back-arrow-icon.png" id="3_tpb7s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[node name="Control" type="Control" unique_id=1439514052]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackGround" type="ColorRect" parent="." unique_id=784781589]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.050980393, 0.05882353, 0.09019608, 1)
+
+[node name="TitleLabel" type="Label" parent="." unique_id=64162968]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 40.0
+offset_right = 300.0
+offset_bottom = 120.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("1_n538s")
+theme_override_font_sizes/font_size = 58
+text = "USER PROFILE"
+horizontal_alignment = 1
+
+[node name="TabContainer" type="TabContainer" parent="." unique_id=735156697]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 272.0
+offset_top = 140.0
+offset_right = -208.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8ft03")
+current_tab = 0
+
+[node name="User Info" type="VBoxContainer" parent="TabContainer" unique_id=410748843]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="User Name" type="HBoxContainer" parent="TabContainer/User Info" unique_id=1541660388]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="TabContainer/User Info/User Name" unique_id=1710703619]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_n538s")
+theme_override_font_sizes/font_size = 30
+text = "Enter UserName              "
+
+[node name="UserInput" type="LineEdit" parent="TabContainer/User Info/User Name" unique_id=1020776485]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_tpb7s")
+theme_override_font_sizes/font_size = 25
+alignment = 1
+max_length = 20
+expand_to_text_length = true
+
+[node name="User ID" type="HBoxContainer" parent="TabContainer/User Info" unique_id=1095008881]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="TabContainer/User Info/User ID" unique_id=186253736]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_n538s")
+theme_override_font_sizes/font_size = 30
+text = "User ID                 "
+
+[node name="BackButton" type="Button" parent="." unique_id=1418338354]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 30.0
+offset_right = 434.0
+offset_bottom = 203.0
+scale = Vector2(0.5, 0.5)
+theme_override_font_sizes/font_size = 20
+icon = ExtResource("3_tpb7s")

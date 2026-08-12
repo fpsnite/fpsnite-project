@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://c1a75k3nt0k1n"]
 
 [ext_resource type="Script" uid="uid://ec3y1mp1qqar" path="res://Scripts/chat_panel.gd" id="1_chat"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_a84i8"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_xdxew"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chat"]
 bg_color = Color(0.08, 0.1, 0.12, 0.45)
@@ -9,7 +11,7 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[node name="ChatPanel" type="Control"]
+[node name="ChatPanel" type="Control" unique_id=384104093]
 layout_mode = 3
 anchors_preset = 3
 anchor_left = 1.0
@@ -24,7 +26,7 @@ grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("1_chat")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=186567119]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,7 +35,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_chat")
 
-[node name="VBox" type="VBoxContainer" parent="Panel"]
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=53962935]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,19 +44,23 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 4
 
-[node name="History" type="RichTextLabel" parent="Panel/VBox"]
+[node name="History" type="RichTextLabel" parent="Panel/VBox" unique_id=1703426852]
 custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 2
+theme_override_fonts/normal_font = ExtResource("2_a84i8")
+theme_override_fonts/bold_italics_font = ExtResource("3_xdxew")
 bbcode_enabled = true
 scroll_following = true
 selection_enabled = true
 
-[node name="InputRow" type="HBoxContainer" parent="Panel/VBox"]
+[node name="InputRow" type="HBoxContainer" parent="Panel/VBox" unique_id=1533284837]
 layout_mode = 2
 
-[node name="Input" type="LineEdit" parent="Panel/VBox/InputRow"]
+[node name="Input" type="LineEdit" parent="Panel/VBox/InputRow" unique_id=713402190]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_xdxew")
 placeholder_text = "Message (Enter to send, Esc to close)"
 max_length = 200

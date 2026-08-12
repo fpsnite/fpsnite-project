@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://btbpr7roxyd8q"]
 
-[ext_resource type="Script" uid="uid://chmh7xjpivvq4" path="res://drawer.gd" id="1_drawer"]
+[ext_resource type="Script" uid="uid://chmh7xjpivvq4" path="res://Scripts/drawer.gd" id="1_drawer"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_y5fxu"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_e4b3x"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
 bg_color = Color(0.07, 0.08, 0.11, 0.98)
@@ -30,26 +32,35 @@ theme_override_constants/separation = 14
 [node name="Title" type="Label" parent="Panel/VBox" unique_id=900000005]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 40
 text = "MENU"
 horizontal_alignment = 1
 
 [node name="HintLabel" type="Label" parent="Panel/VBox" unique_id=900000006]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
-theme_override_font_sizes/font_size = 14
-text = "click outside to close"
+theme_override_fonts/font = ExtResource("3_e4b3x")
+theme_override_font_sizes/font_size = 30
+text = "Click Outside To Close"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Panel/VBox" unique_id=900000007]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
+[node name="Button" type="Button" parent="Panel/VBox" unique_id=770338463]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 30
+text = "User"
+
 [node name="QuitButton" type="Button" parent="Panel/VBox" unique_id=900000008]
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 20
-text = "QUIT"
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 30
+text = "Quit"
 
 [connection signal="pressed" from="Panel/VBox/QuitButton" to="." method="_on_quit_pressed"]

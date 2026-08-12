@@ -1,12 +1,26 @@
 [gd_scene format=3 uid="uid://d7s3t1n6gs"]
 
 [ext_resource type="Script" uid="uid://djxarpt2na12v" path="res://Scripts/settings_page.gd" id="1_sett"]
+[ext_resource type="Texture2D" uid="uid://djho1hlcorukq" path="res://Assets/back-arrow-icon.png" id="2_portb"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="3_3uamq"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_4nau8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ocvv"]
+bg_color = Color(0.28235295, 0.36862746, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4nau8"]
+bg_color = Color(0.28316778, 0.60521686, 0.98997265, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_giwlh"]
+bg_color = Color(0.28235295, 0.6039216, 0.9882353, 1)
 
 [node name="SettingsPage" type="Control" unique_id=800000001]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -9.0
+offset_right = -9.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_sett")
@@ -16,6 +30,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 9.0
+offset_top = -3.0
+offset_right = 9.0
+offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.06, 0.09, 1)
@@ -31,7 +49,8 @@ offset_right = 300.0
 offset_bottom = 120.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 58
 text = "SETTINGS"
 horizontal_alignment = 1
 
@@ -39,10 +58,11 @@ horizontal_alignment = 1
 layout_mode = 1
 offset_left = 30.0
 offset_top = 30.0
-offset_right = 150.0
-offset_bottom = 84.0
+offset_right = 434.0
+offset_bottom = 203.0
+scale = Vector2(0.5, 0.5)
 theme_override_font_sizes/font_size = 20
-text = "BACK"
+icon = ExtResource("2_portb")
 
 [node name="TabContainer" type="TabContainer" parent="." unique_id=800000005]
 layout_mode = 1
@@ -70,13 +90,17 @@ theme_override_constants/separation = 20
 unique_name_in_owner = true
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "FPS LIMIT"
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "FPS"
 
 [node name="FpsOption" type="OptionButton" parent="TabContainer/Graphics/FpsRow" unique_id=800000009]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 44)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_4nau8")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5ocvv")
 
 [node name="ResolutionRow" type="HBoxContainer" parent="TabContainer/Graphics" unique_id=800000010]
 layout_mode = 2
@@ -85,13 +109,16 @@ theme_override_constants/separation = 20
 [node name="ResolutionLabel" type="Label" parent="TabContainer/Graphics/ResolutionRow" unique_id=800000011]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "RESOLUTION"
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "Resolution"
 
 [node name="ResolutionOption" type="OptionButton" parent="TabContainer/Graphics/ResolutionRow" unique_id=800000012]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 44)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_4nau8")
+theme_override_font_sizes/font_size = 20
 
 [node name="FullscreenRow" type="HBoxContainer" parent="TabContainer/Graphics" unique_id=800000013]
 layout_mode = 2
@@ -100,8 +127,9 @@ theme_override_constants/separation = 20
 [node name="FullscreenLabel" type="Label" parent="TabContainer/Graphics/FullscreenRow" unique_id=800000014]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "FULLSCREEN"
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "FullScreen"
 
 [node name="FullscreenCheck" type="CheckButton" parent="TabContainer/Graphics/FullscreenRow" unique_id=800000015]
 unique_name_in_owner = true
@@ -114,13 +142,16 @@ theme_override_constants/separation = 20
 [node name="ScalingLabel" type="Label" parent="TabContainer/Graphics/ScalingRow" unique_id=800000021]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "3D RESOLUTION"
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "3D Resolution"
 
 [node name="ScalingSlider" type="HSlider" parent="TabContainer/Graphics/ScalingRow" unique_id=800000022]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
 min_value = 0.5
 max_value = 1.5
 step = 0.05
@@ -130,7 +161,8 @@ value = 1.0
 unique_name_in_owner = true
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
 text = "100%"
 
 [node name="Keybinds" type="VBoxContainer" parent="TabContainer" unique_id=800000016]
@@ -167,6 +199,7 @@ offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
+theme_override_fonts/font = ExtResource("3_3uamq")
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 

@@ -1,9 +1,14 @@
 [gd_scene format=3 uid="uid://ebbd8kgmlly4"]
 
 [ext_resource type="PackedScene" uid="uid://bqw2dggpo65v7" path="res://Scenes/GameModeItem.tscn" id="1_wvbee"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_gfoai"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_n0o7n"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
 font_size = 44
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
+bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dj3i2"]
 
@@ -19,6 +24,15 @@ font_color = Color(1, 1, 1, 0.49803922)
 
 [sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
 font_size = 34
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aunu8"]
+bg_color = Color(0.35003448, 0.5966517, 0.9766684, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_irlm8"]
+bg_color = Color(0.1995164, 0.3551537, 0.59478575, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2s04"]
+bg_color = Color(0.29203483, 0.50551265, 0.83106637, 1)
 
 [node name="HUD" type="CanvasLayer" unique_id=508334873]
 
@@ -87,7 +101,8 @@ script = null
 
 [node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
 layout_mode = 2
-text = "SELECT A GAME MODE TO PLAY"
+theme_override_fonts/font = ExtResource("3_n0o7n")
+text = "Select A Game Mode To Play!"
 label_settings = SubResource("LabelSettings_1qsen")
 horizontal_alignment = 1
 
@@ -95,8 +110,9 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 29
-text = "CLOSE"
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 40
+text = "   Close   "
 
 [node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
 custom_minimum_size = Vector2(0, 15)
@@ -125,6 +141,7 @@ theme_override_constants/separation = 0
 [node name="TopBar" type="PanelContainer" parent="Root/Overlay" unique_id=1588433006]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_n0o7n")
 
 [node name="MarginContainer" type="MarginContainer" parent="Root/Overlay/TopBar" unique_id=1492043584]
 layout_mode = 2
@@ -140,9 +157,15 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/tab_separation = 14
 theme_override_constants/icon_max_width = 41
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 30
 current_tab = 0
 tab_alignment = 1
 tab_count = 4
+tab_0/title = "Home"
+tab_1/title = "Locker"
+tab_2/title = "Shop"
+tab_3/title = "LeaderBoard"
 
 [node name="TabContainer" type="TabContainer" parent="Root/Overlay" unique_id=1997990476]
 layout_mode = 2
@@ -172,6 +195,8 @@ theme_override_constants/margin_bottom = 15
 [node name="RegionText" type="Label" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=1545735858]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_n0o7n")
+theme_override_font_sizes/font_size = 26
 text = "1000 ms  360"
 label_settings = SubResource("LabelSettings_en1b1")
 horizontal_alignment = 1
@@ -217,7 +242,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_en1b1")
 
 [node name="GameModeText" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/PanelContainer" unique_id=1469636232]
 layout_mode = 2
-text = "TEST MODE"
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 25
+text = "Test Mode"
 label_settings = SubResource("LabelSettings_dj3i2")
 horizontal_alignment = 1
 
@@ -227,8 +254,12 @@ size_flags_vertical = 3
 
 [node name="PlayButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/CenterContainer" unique_id=805843694]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "PLAY GAME"
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 50
+theme_override_styles/normal = SubResource("StyleBoxFlat_aunu8")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_irlm8")
+theme_override_styles/hover = SubResource("StyleBoxFlat_o2s04")
+text = "     PLAY     "
 
 [node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
 visible = false

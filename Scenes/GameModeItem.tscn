@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://bqw2dggpo65v7"]
 
-[ext_resource type="Script" uid="uid://pkyyq6y8dadl" path="res://scripts/game_mode_item.gd" id="1_cys8l"]
+[ext_resource type="Script" uid="uid://pkyyq6y8dadl" path="res://Scripts/game_mode_item.gd" id="1_cys8l"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_yarho"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_wlccl"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
 
@@ -30,6 +32,8 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
+theme_override_fonts/font = ExtResource("2_yarho")
+theme_override_font_sizes/font_size = 30
 text = "100K"
 label_settings = SubResource("LabelSettings_dj3i2")
 horizontal_alignment = 2
@@ -38,6 +42,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("3_wlccl")
 text = "GAME MODE"
 label_settings = SubResource("LabelSettings_en1b1")
 horizontal_alignment = 1

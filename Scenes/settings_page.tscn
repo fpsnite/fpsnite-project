@@ -75,9 +75,10 @@ offset_right = -240.0
 offset_bottom = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 0
+current_tab = 1
 
 [node name="Graphics" type="VBoxContainer" parent="TabContainer" unique_id=800000006]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 18
 metadata/_tab_index = 0
@@ -166,7 +167,6 @@ theme_override_font_sizes/font_size = 30
 text = "100%"
 
 [node name="Keybinds" type="VBoxContainer" parent="TabContainer" unique_id=800000016]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 metadata/_tab_index = 1

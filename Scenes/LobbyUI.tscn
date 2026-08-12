@@ -3,6 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://bqw2dggpo65v7" path="res://Scenes/GameModeItem.tscn" id="1_wvbee"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_gfoai"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_n0o7n"]
+[ext_resource type="Texture2D" uid="uid://bqimceq1wb2mx" path="res://Assets/locker-ver-2.png1.png" id="4_aunu8"]
+[ext_resource type="Texture2D" uid="uid://cjdfupttj4f4o" path="res://Assets/50738-home.png" id="4_xg1n4"]
+[ext_resource type="Texture2D" uid="uid://cr00snsa75wvx" path="res://Assets/daily-login-icon.png" id="5_60qhp"]
+[ext_resource type="Texture2D" uid="uid://o1r60wwriwyq" path="res://Assets/locker-ver-2.png5.png" id="5_o2s04"]
+[ext_resource type="Texture2D" uid="uid://db3ceg1nkyne7" path="res://Assets/lootbox-icon-channel.png" id="6_uqhmi"]
+[ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
 font_size = 44
@@ -33,6 +39,9 @@ bg_color = Color(0.1995164, 0.3551537, 0.59478575, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2s04"]
 bg_color = Color(0.29203483, 0.50551265, 0.83106637, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [node name="HUD" type="CanvasLayer" unique_id=508334873]
 
@@ -163,9 +172,13 @@ current_tab = 0
 tab_alignment = 1
 tab_count = 4
 tab_0/title = "Home"
+tab_0/icon = ExtResource("4_xg1n4")
 tab_1/title = "Locker"
+tab_1/icon = ExtResource("4_aunu8")
 tab_2/title = "Shop"
+tab_2/icon = ExtResource("5_60qhp")
 tab_3/title = "LeaderBoard"
+tab_3/icon = ExtResource("6_xg1n4")
 
 [node name="TabContainer" type="TabContainer" parent="Root/Overlay" unique_id=1997990476]
 layout_mode = 2
@@ -265,6 +278,83 @@ text = "     PLAY     "
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Root/Overlay/TabContainer/Locker" unique_id=494479048]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/Overlay/TabContainer/Locker/HBoxContainer" unique_id=1878008676]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer" unique_id=45902208]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8ft03")
+
+[node name="Button" type="Button" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer/Panel" unique_id=72134274]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 110.0
+offset_right = 115.0
+offset_bottom = 216.0
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 40
+text = "Skins"
+icon = ExtResource("4_aunu8")
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+
+[node name="Button2" type="Button" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer/Panel" unique_id=1039244636]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 285.0
+offset_right = 115.0
+offset_bottom = 391.0
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 40
+text = "Emojis"
+icon = ExtResource("5_o2s04")
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+
+[node name="Button3" type="Button" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer/Panel" unique_id=1630086147]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 15.0
+offset_top = 459.0
+offset_right = 146.0
+offset_bottom = 565.0
+scale = Vector2(0.8, 1)
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 40
+text = "Backlings"
+icon = ExtResource("6_uqhmi")
+icon_alignment = 1
+vertical_icon_alignment = 0
+expand_icon = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer" unique_id=442059151]
+custom_minimum_size = Vector2(1000, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer/VBoxContainer" unique_id=1505145720]
+layout_mode = 2
+
+[node name="TabBar" type="TabBar" parent="Root/Overlay/TabContainer/Locker/HBoxContainer/VBoxContainer/VBoxContainer/MarginContainer" unique_id=543330399]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/tab_separation = 5
+theme_override_constants/icon_max_width = 41
+theme_override_fonts/font = ExtResource("3_n0o7n")
+theme_override_font_sizes/font_size = 30
+current_tab = 0
+tab_alignment = 1
+tab_count = 4
+tab_0/title = "All"
+tab_1/title = "Rare "
+tab_2/title = "Epic"
+tab_3/title = "Legendary"
 
 [node name="Shop" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=953940256]
 visible = false

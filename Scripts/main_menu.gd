@@ -85,7 +85,7 @@ func _on_room_joined() -> void:
 		Network.leave()
 		return
 	status_label.text = "Entering lobby..."
-	get_tree().change_scene_to_file("res://lobby.tscn")
+	get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
 
 ## Rejects the join if another player in the room already uses this username
 ## (case-insensitive). The host can never collide: they join an empty room.
@@ -108,7 +108,7 @@ func _on_connection_failed(reason: String) -> void:
 	_creating = false
 
 func _on_settings_pressed() -> void:
-	get_tree().change_scene_to_file("res://settings_page.tscn")
+	get_tree().change_scene_to_file("res://Scenes/settings_page.tscn")
 
 func _valid_name() -> bool:
 	var name_text := player_name_edit.text.strip_edges()

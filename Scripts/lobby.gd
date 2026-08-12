@@ -3,7 +3,7 @@ extends Node3D
 ## (state authority: server, input authority: the matching player) and owns
 ## the authoritative skin registry, synced to everyone via broadcast RPCs.
 
-const PlayerScene := preload("res://player_instance.tscn")
+const PlayerScene := preload("res://Scenes/player_instance.tscn")
 
 const ROOM_HALF := 12.0  # usable spawn area inside the walls
 

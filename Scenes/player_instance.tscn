@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://kja3o0pjhd7b"]
 
-[ext_resource type="Script" uid="uid://bh6vphh02jxql" path="res://player_instance.gd" id="1_bai1d"]
+[ext_resource type="Script" uid="uid://bh6vphh02jxql" path="res://Scripts/player_instance.gd" id="1_bai1d"]
 [ext_resource type="Material" uid="uid://bsbux05305a7v" path="res://skins/default_skin.tres" id="2_tnxv2"]
-[ext_resource type="Script" uid="uid://dpkxtqkwv68ew" path="res://third_person_camera.gd" id="3_cam"]
+[ext_resource type="Script" uid="uid://dpkxtqkwv68ew" path="res://Scripts/third_person_camera.gd" id="3_cam"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dj3i2"]
 

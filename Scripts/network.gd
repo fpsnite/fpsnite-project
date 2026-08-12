@@ -75,7 +75,7 @@ func _on_connection_status_changed(status: int) -> void:
 
 ## Kicked out by a connection error: back to the main menu with a notice.
 func _redirect_to_menu() -> void:
-	get_tree().change_scene_to_file("res://mainui.tscn")
+	get_tree().change_scene_to_file("res://Scenes/mainui.tscn")
 
 func _status_name(status: int) -> String:
 	match status:

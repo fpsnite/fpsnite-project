@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://cydsij7oitmrg"]
+
+[ext_resource type="Script" uid="uid://cr5erd4i4hbkp" path="res://scripts/launcher_page.gd" id="1_4h4gw"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
+
+[node name="LauncherPage" type="Control" unique_id=641139545]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4h4gw")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1583824854]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer" unique_id=118500803]
+layout_mode = 2
+
+[node name="LoginPanel" type="VBoxContainer" parent="PanelContainer/CenterContainer" unique_id=983769955]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=991910836]
+layout_mode = 2
+text = "WELCOME BACK TO TRUENITE!"
+
+[node name="UserField" type="LineEdit" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=127579544]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "username"
+
+[node name="PassField" type="LineEdit" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=1166465536]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "password"
+
+[node name="Login" type="Button" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=89955798]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LOGIN"
+
+[node name="Register" type="Button" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=1888935160]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REGISTER"
+
+[node name="Status" type="Label" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=2108883891]
+unique_name_in_owner = true
+layout_mode = 2
+text = "{status text}"
+label_settings = SubResource("LabelSettings_dj3i2")
+horizontal_alignment = 1
+
+[node name="MainPanel" type="VBoxContainer" parent="PanelContainer/CenterContainer" unique_id=881531242]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Welcome" type="Label" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1510271210]
+unique_name_in_owner = true
+layout_mode = 2
+text = "WELCOME TO TRUENITE!"
+
+[node name="Play" type="Button" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1227598212]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PLAY"
+
+[node name="Logout" type="Button" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1592201817]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PLAY"
+
+[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=467655083]
+unique_name_in_owner = true
+
+[node name="HTTPRequestRegister" type="HTTPRequest" parent="." unique_id=2145387172]
+unique_name_in_owner = true
+
+[node name="HTTPRequestMe" type="HTTPRequest" parent="." unique_id=1842124983]
+unique_name_in_owner = true
+
+[node name="HTTPRequestLogout" type="HTTPRequest" parent="." unique_id=1126684564]
+unique_name_in_owner = true

@@ -127,6 +127,6 @@ func _update_scaling_label(value: float) -> void:
 func _on_back_pressed() -> void:
 	if Settings.return_to_lobby:
 		Settings.return_to_lobby = false
-		get_tree().change_scene_to_file("res://lobby.tscn")
+		get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
 	else:
-		get_tree().change_scene_to_file("res://mainui.tscn")
+		get_tree().change_scene_to_file("res://Scenes/mainui.tscn")

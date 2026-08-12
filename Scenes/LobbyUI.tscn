@@ -1,0 +1,258 @@
+[gd_scene format=3 uid="uid://ebbd8kgmlly4"]
+
+[ext_resource type="PackedScene" uid="uid://bqw2dggpo65v7" path="res://Scenes/GameModeItem.tscn" id="1_wvbee"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
+font_size = 44
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dj3i2"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_en1b1"]
+font_size = 24
+font_color = Color(1, 1, 1, 0.49803922)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dj3i2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jp1kc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_en1b1"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
+font_size = 34
+
+[node name="HUD" type="CanvasLayer" unique_id=508334873]
+
+[node name="PopupPanel" type="Control" parent="." unique_id=646265303]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Panel" type="Panel" parent="PopupPanel" unique_id=1135209849]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel" unique_id=1114822453]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="PopupPanel/VBoxContainer" unique_id=730050526]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="PopupPanel/VBoxContainer/CenterContainer" unique_id=2080925429]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="GameModeItem" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=567813932 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="GameModeItem2" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=898734579 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=332060781 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="GameModeItem4" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1461306034 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="GameModeItem5" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1327230798 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="GameModeItem6" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1461975193 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+script = null
+
+[node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
+layout_mode = 2
+text = "SELECT A GAME MODE TO PLAY"
+label_settings = SubResource("LabelSettings_1qsen")
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="PopupPanel/VBoxContainer" unique_id=1543505184]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 29
+text = "CLOSE"
+
+[node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+
+[node name="Root" type="Control" parent="." unique_id=1275617307]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Overlay" type="VBoxContainer" parent="Root" unique_id=260788825]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="TopBar" type="PanelContainer" parent="Root/Overlay" unique_id=1588433006]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Root/Overlay/TopBar" unique_id=1492043584]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="TabBar" type="TabBar" parent="Root/Overlay/TopBar/MarginContainer" unique_id=1384713408]
+custom_minimum_size = Vector2(48.5, 50)
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/tab_separation = 14
+theme_override_constants/icon_max_width = 41
+current_tab = 0
+tab_alignment = 1
+tab_count = 4
+
+[node name="TabContainer" type="TabContainer" parent="Root/Overlay" unique_id=1997990476]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dj3i2")
+current_tab = 0
+tabs_visible = false
+
+[node name="Screen" type="HBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1617358608]
+layout_mode = 2
+size_flags_vertical = 3
+metadata/_tab_index = 0
+
+[node name="LeftPanel" type="VBoxContainer" parent="Root/Overlay/TabContainer/Screen" unique_id=984665661]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="InfoBox" type="MarginContainer" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=1272716292]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="RegionText" type="Label" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=1545735858]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1000 ms  360"
+label_settings = SubResource("LabelSettings_en1b1")
+horizontal_alignment = 1
+
+[node name="Control" type="Control" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=330221404]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="RightPanel" type="VBoxContainer" parent="Root/Overlay/TabContainer/Screen" unique_id=1146959052]
+custom_minimum_size = Vector2(300, 0)
+propagate_maximum_size = false
+layout_mode = 2
+size_flags_horizontal = 10
+alignment = 2
+
+[node name="StartMenu" type="MarginContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel" unique_id=2026930046]
+layout_mode = 2
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Panel" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu" unique_id=75982010]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel" unique_id=852445665]
+layout_mode = 2
+
+[node name="Control" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1915774776]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxTexture_dj3i2")
+
+[node name="GameModeButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control" unique_id=1331182201]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_jp1kc")
+
+[node name="PanelContainer" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control" unique_id=2117112561]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_en1b1")
+
+[node name="GameModeText" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/PanelContainer" unique_id=1469636232]
+layout_mode = 2
+text = "TEST MODE"
+label_settings = SubResource("LabelSettings_dj3i2")
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=821886655]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlayButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/CenterContainer" unique_id=805843694]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "PLAY GAME"
+
+[node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Shop" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=953940256]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="Settings" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1836502263]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 3
+
+[node name="HTTPRequestStats" type="HTTPRequest" parent="Root" unique_id=1606727429]
+unique_name_in_owner = true
+
+[node name="StatsTimer" type="Timer" parent="Root" unique_id=1177418307]
+unique_name_in_owner = true
+
+[node name="FPSTimer" type="Timer" parent="Root" unique_id=1051395437]
+unique_name_in_owner = true
+
+[connection signal="pressed" from="PopupPanel/VBoxContainer/Button" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/GameModeButton" to="." method="_on_game_mode_button_pressed"]

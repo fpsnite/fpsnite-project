@@ -10,16 +10,16 @@ config_version=5
 
 [application]
 
-config/name="Red Light Green Light"
+config/name="FPS NITE"
 run/main_scene="uid://brfgfmorhqu6d"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Network="*res://network.gd"
-Settings="*res://settings.gd"
-Skins="*res://skins.gd"
+Network="*uid://cm70fylr8dqde"
+Settings="*uid://dcjvxa2eujqdw"
+Skins="*uid://c8yyygjq05owq"
 
 [display]
 

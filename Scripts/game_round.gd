@@ -5,7 +5,7 @@ extends Node
 ## Elimination persists across rounds: only win-zone finishers survive a round.
 ## Clients mirror state + light via broadcast RPCs for the HUD and the freeze.
 
-const MENU_SCENE := "res://mainui.tscn"
+const MENU_SCENE := "res://Scenes/mainui.tscn"
 
 enum State { WAITING = 0, STARTING = 1, PLAYING = 2, INTERMISSION = 3, VICTORY = 4 }
 

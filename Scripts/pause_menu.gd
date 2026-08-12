@@ -67,13 +67,13 @@ func _on_settings_pressed() -> void:
 	Settings.open_drawer_on_return = true
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://settings_page.tscn")
+	get_tree().change_scene_to_file("res://Scenes/settings_page.tscn")
 
 func _on_leave_pressed() -> void:
 	get_tree().paused = false
 	Network.leave()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().change_scene_to_file("res://mainui.tscn")
+	get_tree().change_scene_to_file("res://Scenes/mainui.tscn")
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

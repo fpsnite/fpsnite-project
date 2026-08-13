@@ -123,3 +123,8 @@ chat={
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[network]
+
+backend_url="http://127.0.0.1:8000"
+

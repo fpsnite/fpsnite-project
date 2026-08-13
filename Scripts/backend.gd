@@ -4,11 +4,22 @@ extends Node
 ## validated on every launch via /auth/me and stored in Settings.
 ## One-shot requests: each call spawns its own HTTPRequest child, so calls can
 ## overlap safely. Account state is mirrored so UI code can read it directly.
+## BACKEND_URL resolution: FPSNITE_BACKEND_URL env var -> project setting
+## network/backend_url -> http://127.0.0.1:8000 (local dev).
 
 signal account_ready(player: Dictionary)  # token validated, profile loaded
 signal auth_failed(code: String, message: String)
 
-const BACKEND_URL := "http://127.0.0.1:8000"
+var backend_url := "http://127.0.0.1:8000"
+
+func _init() -> void:
+	var env := OS.get_environment("FPSNITE_BACKEND_URL")
+	if not env.is_empty():
+		backend_url = env
+		return
+	var configured: String = ProjectSettings.get_setting("network/backend_url", backend_url)
+	if not configured.is_empty():
+		backend_url = configured
 
 var player_id := -1
 var player_name := ""
@@ -57,7 +68,7 @@ func _send(method: HTTPClient.Method, path: String, payload: Dictionary, on_done
 	if not auth_token.is_empty():
 		headers.append("Authorization: Bearer %s" % auth_token)
 	var body := "" if payload.is_empty() else JSON.stringify(payload)
-	req.request(BACKEND_URL + path, headers, method, body)
+	req.request(backend_url + path, headers, method, body)
 
 func _parse_body(code: int, body: PackedByteArray) -> Variant:
 	if body.is_empty():

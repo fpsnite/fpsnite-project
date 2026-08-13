@@ -44,10 +44,20 @@ Wait for the deploy to finish, then open
 
 ## 3. Point the game at the deployed URL
 
-`Scripts/backend.gd` resolves the URL in this order:
+`Scripts/backend.gd` resolves the URL in this order (first match wins):
 
 1. Env var `FPSNITE_BACKEND_URL` (useful for the editor / dev)
-2. Project setting `network/backend_url` in `project.godot` (used by exports)
+2. File `res://backend_url.cfg` in the project root - **gitignored**, so dev
+   collaborators can each point the editor at the deployed backend without
+   touching tracked files. Create it and put the URL on one line:
+   `https://<your-service>.onrender.com`
+3. Project setting `network/backend_url` in `project.godot` (used by exports)
+4. `http://127.0.0.1:8000` (local dev, default)
+
+**For collaborators:** clone the repo, create `backend_url.cfg` with the
+deployed URL, run the game from the editor - no build needed. Both of you can
+use the same deployed backend while testing multiplayer. If you run the
+backend locally instead, just delete the file (or leave it - delete = localhost).
 
 Before exporting the build your friend runs, set:
 
@@ -59,7 +69,28 @@ backend_url="https://<your-service>.onrender.com"
 
 in `project.godot` (keep `http://127.0.0.1:8000` for local dev).
 
-## 4. Give your friend a login token
+## 4. Discord bot (optional, runs alongside the API)
+
+The bot runs **inside the API process** (FastAPI lifespan, `bot/runner.py`) -
+no extra service needed. `python -m bot` still works as a standalone too.
+
+To enable it:
+
+1. Create the bot at https://discord.com/developers -> New Application ->
+   Bot -> copy the token. Enable the **Message Content intent** if the bot
+   needs it.
+2. Render dashboard -> your service -> **Environment** -> add
+   `DISCORD_BOT_TOKEN` = your token -> **Save changes** -> **Deploy**
+   (the blueprint's `DISCORD_BOT_TOKEN` entry with `sync: false` exists for
+   exactly this - set it manually, never commit it).
+3. On boot the logs show `Discord bot started as background task` and
+   `Logged in as <bot>`. Without a token the API logs
+   `DISCORD_BOT_TOKEN not set - Discord bot disabled` and just serves the API.
+
+Keep the service on **one worker** (Render's default `WEB_CONCURRENCY=1`):
+multiple uvicorn workers would each try to log in with the same token.
+
+## 5. Give your friend a login token
 
 The launcher needs a bearer token. The Discord bot is optional - generate one
 manually from the deployed API:

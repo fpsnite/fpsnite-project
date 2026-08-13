@@ -4,8 +4,12 @@ extends Node
 ## validated on every launch via /auth/me and stored in Settings.
 ## One-shot requests: each call spawns its own HTTPRequest child, so calls can
 ## overlap safely. Account state is mirrored so UI code can read it directly.
-## BACKEND_URL resolution: FPSNITE_BACKEND_URL env var -> project setting
-## network/backend_url -> http://127.0.0.1:8000 (local dev).
+## BACKEND_URL resolution (first match wins):
+##   1. FPSNITE_BACKEND_URL env var
+##   2. res://backend_url.cfg (gitignored, editor-only override for dev
+##      collaborators - put the deployed URL in it, e.g. https://x.onrender.com)
+##   3. project setting network/backend_url (used by exports)
+##   4. http://127.0.0.1:8000 (local dev)
 
 signal account_ready(player: Dictionary)  # token validated, profile loaded
 signal auth_failed(code: String, message: String)
@@ -17,6 +21,14 @@ func _init() -> void:
 	if not env.is_empty():
 		backend_url = env
 		return
+	if FileAccess.file_exists("res://backend_url.cfg"):
+		var file := FileAccess.open("res://backend_url.cfg", FileAccess.READ)
+		if file:
+			var from_file := file.get_as_text().strip_edges()
+			file.close()
+			if not from_file.is_empty():
+				backend_url = from_file
+				return
 	var configured: String = ProjectSettings.get_setting("network/backend_url", backend_url)
 	if not configured.is_empty():
 		backend_url = configured
@@ -58,7 +70,7 @@ func _on_account_response(success: bool, data: Variant) -> void:
 
 func _send(method: HTTPClient.Method, path: String, payload: Dictionary, on_done: Callable) -> void:
 	var req := HTTPRequest.new()
-	req.timeout = 10.0
+	req.timeout = 30.0
 	add_child(req)
 	req.request_completed.connect(func(_result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 		on_done.call(code >= 200 and code < 300, _parse_body(code, body))

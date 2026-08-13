@@ -15,3 +15,6 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Local backend URL override for dev collaborators (read by Scripts/backend.gd)
+backend_url.cfg

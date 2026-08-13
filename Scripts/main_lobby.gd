@@ -57,27 +57,49 @@ func _exit_tree() -> void:
 ## lobby while the initial room is created and during room transitions.
 ## Every show gets a token-guarded 8s safety hide, so a failed join/leave or
 ## a dead network can never leave the player stuck behind it. Success hides
-## earlier via _on_room_joined / _on_connection_failed.
+## earlier via _on_room_joined / _on_connection_failed. A hide is deferred if
+## the overlay has been up for less than MIN_OVERLAY_MS, so fast transitions
+## (sub-second joins) still flash the LOADING screen instead of being skipped.
+const MIN_OVERLAY_MS := 600
+
+## Monotonic ms of the last _show_loading_overlay call; -1 if never shown.
+var _overlay_shown_ms := -1
+
 func _show_loading_overlay(offline_toast := false) -> void:
 	_overlay_token += 1
 	var token := _overlay_token
+	_overlay_shown_ms = Time.get_ticks_msec()
 	var overlay := get_tree().get_first_node_in_group("loading_overlay")
 	if overlay:
 		overlay.show_loading()
 	else:
 		_log("WARNING: loading overlay not found")
+	_log("loading overlay shown (token=%d)" % token)
 	get_tree().create_timer(8.0).timeout.connect(func() -> void:
 		if _overlay_token == token:
-			_hide_loading_overlay()
 			_log("loading overlay timeout: hiding")
+			_do_hide_loading_overlay()
 			if offline_toast:
 				Toasts.show_message("Could not connect to the server - playing offline"))
 
 func _hide_loading_overlay() -> void:
+	if _overlay_shown_ms >= 0:
+		var elapsed := Time.get_ticks_msec() - _overlay_shown_ms
+		if elapsed < MIN_OVERLAY_MS:
+			var token := _overlay_token
+			get_tree().create_timer(float(MIN_OVERLAY_MS - elapsed) / 1000.0).timeout.connect(func() -> void:
+				if _overlay_token == token:
+					_do_hide_loading_overlay())
+			_log("loading overlay hide deferred (+%d ms)" % (MIN_OVERLAY_MS - elapsed))
+			return
+	_do_hide_loading_overlay()
+
+func _do_hide_loading_overlay() -> void:
 	_overlay_token += 1
 	var overlay := get_tree().get_first_node_in_group("loading_overlay")
 	if overlay:
 		overlay.hide_loading()
+	_log("loading overlay hidden")
 
 ## The 8 static podiums each carry a PlayerPreview; we drive those instead
 ## of spawning characters, so the menu stays light.
@@ -144,9 +166,11 @@ func join_game(code: String) -> void:
 	elif Network.is_connected_to_photon():
 		_log("joining room '%s'" % code)
 		_pending_join = ""
+		_show_loading_overlay()
 		Network.join_room(code)
 	else:
 		_log("connecting to Photon to join '%s'" % code)
+		_show_loading_overlay()
 		Network.connect_to_photon()
 
 ## Leave Party: as master, leaving dissolves the room (kicks everyone in it).
@@ -217,6 +241,7 @@ func _on_room_joined() -> void:
 func _on_room_left() -> void:
 	_in_room = false
 	_log("left room")
+	_show_loading_overlay()
 	for preview in _podium_previews:
 		preview.visible = false
 	for stage in _podium_stages:
@@ -241,7 +266,6 @@ func _on_room_left() -> void:
 	# of having left).
 	if hud:
 		hud.set_party_intent(false)
-	_show_loading_overlay()
 	var fresh := Network.random_code()
 	_log("creating fresh hidden room '%s'" % fresh)
 	Network.create_room(fresh)

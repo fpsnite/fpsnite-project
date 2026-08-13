@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://gy8vmp1cb6mg" path="res://Scenes/player_preview.tscn" id="2_preview"]
 [ext_resource type="PackedScene" uid="uid://btbpr7roxyd8q" path="res://Scenes/drawer.tscn" id="4_drawer"]
 [ext_resource type="PackedScene" uid="uid://ebbd8kgmlly4" path="res://Scenes/LobbyUI.tscn" id="4_hmkf7"]
-[ext_resource type="PackedScene" uid="uid://loadingovlscene" path="res://Scenes/LoadingOverlay.tscn" id="5_loading"]
+[ext_resource type="PackedScene" uid="uid://bb6c41qt758cg" path="res://Scenes/LoadingOverlay.tscn" id="5_loading"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4gigx"]
 

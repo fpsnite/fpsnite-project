@@ -1,0 +1,22 @@
+# Render blueprint for the FPS NITE backend. This file must live at the
+# REPO ROOT (the game repo also contains Backend/), so point rootDir at it.
+# Deploy: Render -> New -> Blueprint -> this repo. Or create a Web Service
+# manually: root directory "Backend", build command below, start command below.
+services:
+  - type: web
+    name: fpsnite-backend
+    runtime: python
+    rootDir: Backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:///./fpsnite.db
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: DISCORD_BOT_TOKEN
+        sync: false

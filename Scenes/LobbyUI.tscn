@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://db3ceg1nkyne7" path="res://Assets/lootbox-icon-channel.png" id="6_uqhmi"]
 [ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
 [ext_resource type="Script" uid="uid://dxhksd0u5jtj3" path="res://Scripts/lobby_hud.gd" id="7_hud"]
+[ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="10_4k33x"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
@@ -36,6 +37,15 @@ bg_color = Color(0.29203483, 0.50551265, 0.83106637, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_syw83"]
+bg_color = Color(0.3019608, 0.6392157, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i3k5f"]
+bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wn18v"]
+bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
 font_size = 44
@@ -102,10 +112,11 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dj3i2")
-current_tab = 0
+current_tab = 1
 tabs_visible = false
 
 [node name="Screen" type="HBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1617358608]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 metadata/_tab_index = 0
@@ -207,8 +218,8 @@ text = "JOIN PARTY"
 [node name="LeavePartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201833]
 unique_name_in_owner = true
 visible = false
-size_flags_horizontal = 3
 layout_mode = 2
+size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.95, 0.45, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_gfoai")
@@ -248,7 +259,6 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_o2s04")
 text = "     PLAY     "
 
 [node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
@@ -317,6 +327,9 @@ layout_mode = 2
 custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 size_flags_vertical = 8
+offset_transform_enabled = true
+offset_transform_position = Vector2(280, 35)
+offset_transform_visual_only = false
 theme_override_constants/tab_separation = 5
 theme_override_constants/icon_max_width = 41
 theme_override_fonts/font = ExtResource("3_n0o7n")
@@ -328,6 +341,26 @@ tab_0/title = "All"
 tab_1/title = "Rare "
 tab_2/title = "Epic"
 tab_3/title = "Legendary"
+
+[node name="ApplyChangesButton" type="Button" parent="Root/Overlay/TabContainer/Locker" unique_id=1465196988]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+offset_transform_enabled = true
+offset_transform_position = Vector2(300, -70)
+offset_transform_visual_only = false
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 25
+theme_override_styles/normal = SubResource("StyleBoxFlat_syw83")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_i3k5f")
+theme_override_styles/hover = SubResource("StyleBoxFlat_wn18v")
+text = "Apply Changes "
+icon = ExtResource("10_4k33x")
+expand_icon = true
 
 [node name="Shop" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=953940256]
 visible = false

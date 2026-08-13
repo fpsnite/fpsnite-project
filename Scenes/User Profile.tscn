@@ -1,24 +1,34 @@
 [gd_scene format=3 uid="uid://32m82suhwi05"]
 
-[ext_resource type="Script" uid="uid://userprofile9x" path="res://Scripts/user_profile.gd" id="4_up"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="1_n538s"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="2_tpb7s"]
 [ext_resource type="Texture2D" uid="uid://djho1hlcorukq" path="res://Assets/back-arrow-icon.png" id="3_tpb7s"]
+[ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="4_7cpvx"]
+[ext_resource type="Script" uid="uid://bhdfrh25ok1h4" path="res://Scripts/user_profile.gd" id="4_up"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v0qlg"]
+bg_color = Color(0.3019608, 0.6392157, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v4bqi"]
+bg_color = Color(0.20729354, 0.45510727, 0.7202103, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jvu3"]
+bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_syw83"]
 bg_color = Color(0.055051677, 0.035734076, 0.23941453, 0.79607844)
 
 [node name="Control" type="Control" unique_id=1439514052]
-script = ExtResource("4_up")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_up")
 
 [node name="BackGround" type="ColorRect" parent="." unique_id=784781589]
 layout_mode = 1
@@ -83,10 +93,16 @@ expand_to_text_length = true
 
 [node name="SaveNameButton" type="Button" parent="TabContainer/User Info/User Name" unique_id=1592201829]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_n538s")
 theme_override_font_sizes/font_size = 20
-text = "Save"
+theme_override_styles/normal = SubResource("StyleBoxFlat_v0qlg")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_v4bqi")
+theme_override_styles/hover = SubResource("StyleBoxFlat_6jvu3")
+icon = ExtResource("4_7cpvx")
+icon_alignment = 1
+expand_icon = true
 
 [node name="User ID" type="HBoxContainer" parent="TabContainer/User Info" unique_id=1095008881]
 layout_mode = 2
@@ -154,6 +170,9 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_colors/font_pressed_color = Color(0.9490196, 0.34901962, 0.34901962, 1)
+theme_override_colors/font_hover_color = Color(0.9490196, 0.34901962, 0.34901962, 1)
+theme_override_colors/font_hover_pressed_color = Color(0.9490196, 0.34901962, 0.34901962, 1)
 theme_override_fonts/font = ExtResource("1_n538s")
 theme_override_font_sizes/font_size = 28
 text = "Logout"

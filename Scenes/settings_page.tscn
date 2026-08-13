@@ -75,10 +75,9 @@ offset_right = -240.0
 offset_bottom = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 1
+current_tab = 0
 
 [node name="Graphics" type="VBoxContainer" parent="TabContainer" unique_id=800000006]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 18
 metadata/_tab_index = 0
@@ -167,6 +166,7 @@ theme_override_font_sizes/font_size = 30
 text = "100%"
 
 [node name="Keybinds" type="VBoxContainer" parent="TabContainer" unique_id=800000016]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 metadata/_tab_index = 1
@@ -180,7 +180,8 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
 text = "RESET KEYBINDS TO DEFAULT"
 
 [node name="StatusLabel" type="Label" parent="." unique_id=800000019]

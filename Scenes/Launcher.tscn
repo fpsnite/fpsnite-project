@@ -1,11 +1,33 @@
 [gd_scene format=3 uid="uid://cydsij7oitmrg"]
 
 [ext_resource type="Script" uid="uid://kuxg8y065jgy" path="res://Scripts/launcher.gd" id="1_launch"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_v4bqi"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_xxyg4"]
+[ext_resource type="Texture2D" uid="uid://tbqnrd2xrww3" path="res://Assets/38481-discord.png" id="4_xxyg4"]
+[ext_resource type="Script" uid="uid://cuwh1df5f2hbs" path="res://Scripts/Discord_button.gd" id="5_50dw1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n5014"]
+bg_color = Color(0.043137256, 0.12156863, 0.22745098, 0.95686275)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v4bqi"]
+bg_color = Color(1, 0.8235294, 0.12156863, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xxyg4"]
+bg_color = Color(0.6627451, 0.5411765, 0.06666667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_50dw1"]
+bg_color = Color(0.6627451, 0.5411765, 0.06666667, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_cm5vb"]
 font_size = 64
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thkdr"]
+bg_color = Color(0.11591566, 0.29737177, 0.5001757, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o8ayb"]
+bg_color = Color(0.13333334, 0.654902, 0.9411765, 1)
 
 [node name="LauncherPage" type="Control" unique_id=641139545]
 layout_mode = 3
@@ -34,27 +56,52 @@ layout_mode = 2
 
 [node name="LoginPanel" type="VBoxContainer" parent="PanelContainer/MarginContainer/CenterContainer" unique_id=983769955]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=991910836]
 layout_mode = 2
-text = "WELCOME BACK TO TRUENITE!"
+theme_override_fonts/font = ExtResource("2_v4bqi")
+theme_override_font_sizes/font_size = 30
+text = "WELCOME BACK TO FPSNITE!"
 
 [node name="TokenField" type="LineEdit" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=127579544]
 unique_name_in_owner = true
 layout_mode = 2
-placeholder_text = "paste your login token"
+theme_override_colors/font_placeholder_color = Color(0.3019608, 0.6392157, 1, 0.67058825)
+theme_override_fonts/font = ExtResource("3_xxyg4")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_n5014")
+placeholder_text = "Paste your login token"
 secret = true
+
+[node name="Control2" type="Control" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=835181220]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [node name="Connect" type="Button" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=89955798]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_v4bqi")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_v4bqi")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_xxyg4")
+theme_override_styles/hover = SubResource("StyleBoxFlat_50dw1")
 text = "CONNECT"
+
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=104187448]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
 
 [node name="Status" type="Label" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=2108883891]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_xxyg4")
+theme_override_font_sizes/font_size = 30
 text = "{status text}"
 label_settings = SubResource("LabelSettings_dj3i2")
 horizontal_alignment = 1
@@ -65,23 +112,45 @@ layout_mode = 2
 [node name="ConnectingPanel" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=881531242]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 8
 alignment = 2
 
 [node name="ConnectingHint" type="Label" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1227598212]
 unique_name_in_owner = true
 layout_mode = 2
-text = "connecting to server..."
+size_flags_vertical = 10
+theme_override_fonts/font = ExtResource("3_xxyg4")
+theme_override_font_sizes/font_size = 30
+text = "Connecting to server..."
 horizontal_alignment = 1
 
 [node name="ConnectingLabel" type="Label" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1510271210]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 2
+theme_override_fonts/font = ExtResource("2_v4bqi")
+theme_override_font_sizes/font_size = 30
 text = "CONNECTING..."
 label_settings = SubResource("LabelSettings_cm5vb")
 horizontal_alignment = 1
 
 [node name="LoadProgress" type="ProgressBar" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1592201817]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(340, 18)
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_styles/background = SubResource("StyleBoxFlat_thkdr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_o8ayb")
 show_percentage = false
+
+[node name="TextureButton" type="TextureButton" parent="." unique_id=1624905203]
+layout_mode = 0
+offset_left = 911.99994
+offset_top = 2.0000002
+offset_right = 1424.0
+offset_bottom = 514.0
+scale = Vector2(0.1, 0.1)
+texture_normal = ExtResource("4_xxyg4")
+script = ExtResource("5_50dw1")
+
+[connection signal="pressed" from="TextureButton" to="TextureButton" method="_on_pressed"]

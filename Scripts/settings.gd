@@ -1,7 +1,11 @@
 extends Node
 ## Persistent settings: graphics + keybind overrides, saved to user://settings.cfg.
+## A second instance on the same machine can use its own profile - separate
+## login token, player name, skin and graphics - by setting FPSNITE_PROFILE=2
+## (env var) or passing --profile 2 on the command line. It then reads/writes
+## user://settings_2.cfg, so two instances never fight over the same token.
 
-const SAVE_PATH := "user://settings.cfg"
+var save_path := "user://settings.cfg"
 
 const DEFAULT_KEYBINDS := {
 	"move_left": KEY_A,
@@ -30,6 +34,27 @@ var auth_token := ""
 ## (and reopens the drawer) instead of the main menu.
 var return_to_lobby := false
 var open_drawer_on_return := false
+
+func _init() -> void:
+	var profile := OS.get_environment("FPSNITE_PROFILE").strip_edges()
+	if profile.is_empty():
+		profile = _profile_from_args(OS.get_cmdline_user_args())
+	if profile.is_empty():
+		profile = _profile_from_args(OS.get_cmdline_args())
+	if not profile.is_empty():
+		save_path = "user://settings_%s.cfg" % profile
+
+## Scans for --profile <name> / --profile=<name>. Scanned on both the user
+## args (after --) and the full engine args, so it works whether the args
+## come from a launch script, an env var, or the editor's "Run Multiple
+## Instances" per-instance field.
+func _profile_from_args(args: PackedStringArray) -> String:
+	for i in args.size():
+		if args[i] == "--profile" and i + 1 < args.size():
+			return args[i + 1].strip_edges()
+		if args[i].begins_with("--profile="):
+			return args[i].get_slice("=", 1).strip_edges()
+	return ""
 
 func _ready() -> void:
 	load_settings()
@@ -82,11 +107,11 @@ func save_settings() -> void:
 	config.set_value("player", "name", player_name)
 	config.set_value("account", "player_id", player_id)
 	config.set_value("account", "auth_token", auth_token)
-	config.save(SAVE_PATH)
+	config.save(save_path)
 
 func load_settings() -> void:
 	var config := ConfigFile.new()
-	if config.load(SAVE_PATH) != OK:
+	if config.load(save_path) != OK:
 		return
 	fps_limit = config.get_value("graphics", "fps_limit", 0)
 	resolution = config.get_value("graphics", "resolution", Vector2i(1920, 1080))

@@ -11,6 +11,12 @@ var _podium_previews: Array[Node3D] = []
 var _podium_stages: Array[MeshInstance3D] = []
 var _skin_registry: Dictionary = {}  # player_id -> skin index
 var _in_room := false
+## True from the first room_left until the follow-up (join/create) resolves
+## via room_joined or room_op_failed. The Fusion plugin can emit room_left
+## twice per leave (once at leave start, once after the leave completes) - a
+## second emission must not restart the flow or it would overwrite a pending
+## join with a fresh hidden room.
+var _leave_pending := false
 var _selected_mode := "test"
 var _pending_join := ""
 var _pending_mode := ""
@@ -39,6 +45,7 @@ func _ready() -> void:
 	Network.room_left.connect(_on_room_left)
 	Network.player_joined.connect(_on_player_joined)
 	Network.player_left.connect(_on_player_left)
+	Network.room_op_failed.connect(_on_room_op_failed)
 	_log("ready, name='%s', podiums=%d, mode='%s' - creating hidden lobby room" % [
 		Network.player_name, _podium_previews.size(), _selected_mode])
 	_show_loading_overlay(true)
@@ -206,6 +213,7 @@ func set_mode(mode_id: String) -> void:
 		Network.leave()
 
 func _on_connection_failed(reason: String) -> void:
+	_leave_pending = false
 	_log("connection failed: %s" % reason)
 	_hide_loading_overlay()
 	Toasts.show_message("Connection failed: %s" % reason)
@@ -215,6 +223,7 @@ func _on_connection_failed(reason: String) -> void:
 		hud.set_party_intent(false)
 
 func _on_room_joined() -> void:
+	_leave_pending = false
 	_in_room = true
 	_hide_loading_overlay()
 	var room = Fusion.get_room()
@@ -239,6 +248,10 @@ func _on_room_joined() -> void:
 		hud.hide_code_box()
 
 func _on_room_left() -> void:
+	if _leave_pending:
+		_log("room_left ignored (leave already in flight)")
+		return
+	_leave_pending = true
 	_in_room = false
 	_log("left room")
 	_show_loading_overlay()
@@ -269,6 +282,18 @@ func _on_room_left() -> void:
 	var fresh := Network.random_code()
 	_log("creating fresh hidden room '%s'" % fresh)
 	Network.create_room(fresh)
+
+## A join/create never completed (bad code, network hiccup, timeout): get
+## back into a room and tell the player, so they are never stuck outside one.
+func _on_room_op_failed(code: String) -> void:
+	_leave_pending = false
+	_log("room op failed for '%s' - creating fresh hidden room" % code)
+	_hide_loading_overlay()
+	Toasts.show_message("Could not enter room %s" % code)
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.set_party_intent(false)
+	Network.create_room(Network.random_code())
 
 func _on_player_joined(player_id: int) -> void:
 	_log("player joined lobby (id=%d, in_room=%s, master=%s, players=%d)" % [

@@ -10,12 +10,27 @@ signal room_left
 signal player_joined(player_id: int)
 signal player_left(player_id: int)
 signal master_client_changed
+## A join/create was retried for ROOM_OP_TIMEOUT_MS without Fusion accepting
+## it (e.g. bad room code). The emitted code was never entered.
+signal room_op_failed(code: String)
 
 const MAX_PLAYERS := 8
 const CODE_CHARS := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+## Fusion rejects join/create while it is still finishing a leave (internal
+## state LeavingRoom - indistinguishable from Connected via the public API,
+## both report connection status ConnectedToPhoton). Retry until accepted so
+## the leave -> join/create race in the lobby can never drop a request.
+const ROOM_OP_TIMEOUT_MS := 5000
+const ROOM_OP_RETRY_SEC := 0.15
+const CONN_CONNECTED_TO_PHOTON := 2
 
 var player_name := ""
 var last_log := ""
+
+var _pending_join := ""
+var _pending_create := ""
+var _pending_create_options: FusionRoomOptions
+var _room_op_running := false
 
 ## True when the client chose to leave (pause drawer), so an unexpected
 ## disconnect redirects to the main menu instead of a silent freeze.
@@ -110,10 +125,44 @@ func create_room(code: String) -> void:
 	options.set_max_players(MAX_PLAYERS)
 	options.set_is_open(true)
 	options.set_is_visible(true)
-	Fusion.create_room(code, options)
+	_pending_create = code
+	_pending_create_options = options
+	_pending_join = ""
+	_run_room_op()
 
 func join_room(code: String) -> void:
-	Fusion.join_room(code)
+	_pending_join = code
+	_pending_create = ""
+	_run_room_op()
+
+## Deferred room op: calls Fusion.join_room/create_room on a small retry loop
+## until the call is accepted (is_in_room) or the deadline passes. Fusion
+## rejects ops while the previous leave is still settling, and the public API
+## cannot distinguish that moment from "ready", so retrying is the only
+## reliable way to never lose a pending join/create.
+func _run_room_op() -> void:
+	if _room_op_running:
+		return
+	_room_op_running = true
+	var deadline := Time.get_ticks_msec() + ROOM_OP_TIMEOUT_MS
+	while Time.get_ticks_msec() < deadline:
+		if _pending_join.is_empty() and _pending_create.is_empty():
+			break
+		if not Fusion.is_in_room() and Fusion.get_connection_status() == CONN_CONNECTED_TO_PHOTON:
+			if not _pending_join.is_empty():
+				Fusion.join_room(_pending_join)
+			elif not _pending_create.is_empty():
+				Fusion.create_room(_pending_create, _pending_create_options)
+		await get_tree().create_timer(ROOM_OP_RETRY_SEC).timeout
+		if Fusion.is_in_room():
+			break
+	_room_op_running = false
+	if not Fusion.is_in_room() and not (_pending_join.is_empty() and _pending_create.is_empty()):
+		var failed := _pending_join if not _pending_join.is_empty() else _pending_create
+		_pending_join = ""
+		_pending_create = ""
+		_log("room op failed for '%s' - never entered a room" % failed)
+		room_op_failed.emit(failed)
 
 func leave() -> void:
 	if Fusion.is_in_room():

@@ -59,6 +59,32 @@ deployed URL, run the game from the editor - no build needed. Both of you can
 use the same deployed backend while testing multiplayer. If you run the
 backend locally instead, just delete the file (or leave it - delete = localhost).
 
+### Running two instances on one machine (two accounts)
+
+The launcher stores one login token per machine (`user://settings.cfg`), so a
+second instance must use its own profile file or both would log in as the
+same account:
+
+```sh
+# Instance 1: default profile (token A)
+game.exe
+
+# Instance 2: profile 2 (token B)
+set FPSNITE_PROFILE=2
+game.exe
+```
+
+or `game.exe --profile 2` (also supports `--profile=2`). Profile 2 reads and
+writes `user://settings_2.cfg` - its own token, name, skin and graphics - so
+paste token B in its launcher once. Works the same in the editor (set the env
+var before launching the second editor instance).
+
+In the Godot editor there is an even easier way: **Debug > Run Multiple
+Instances** opens a window where each instance can carry its own command-line
+arguments - give the second instance `--profile 2` and press Run. The profile
+scan accepts the arg in any form (`--profile 2`, `--profile=2`, env var
+`FPSNITE_PROFILE=2`), no matter how Godot forwards it.
+
 Before exporting the build your friend runs, set:
 
 ```ini

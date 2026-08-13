@@ -10,7 +10,9 @@
 [ext_resource type="Texture2D" uid="uid://db3ceg1nkyne7" path="res://Assets/lootbox-icon-channel.png" id="6_uqhmi"]
 [ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
 [ext_resource type="Script" uid="uid://dxhksd0u5jtj3" path="res://Scripts/lobby_hud.gd" id="7_hud"]
+[ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="8_wxnpe"]
 [ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="10_4k33x"]
+[ext_resource type="Texture2D" uid="uid://bu7nxrlxrrx8s" path="res://Assets/finger_icon.png" id="10_f21u2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
@@ -112,11 +114,10 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dj3i2")
-current_tab = 1
+current_tab = 0
 tabs_visible = false
 
 [node name="Screen" type="HBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1617358608]
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 metadata/_tab_index = 0
@@ -172,7 +173,6 @@ theme_override_constants/separation = 8
 
 [node name="CodeBox" type="HBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox" unique_id=1592201823]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -181,7 +181,9 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "ROOM CODE"
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 24
+placeholder_text = "Room Code"
 max_length = 5
 
 [node name="CodeActionButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/CodeBox" unique_id=1592201825]
@@ -192,6 +194,8 @@ mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 20
 text = "COPY CODE"
+icon = ExtResource("8_wxnpe")
+expand_icon = true
 
 [node name="PartyButtons" type="HBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox" unique_id=1592201826]
 layout_mode = 2
@@ -205,6 +209,8 @@ mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 22
 text = "CREATE PARTY"
+icon = ExtResource("10_4k33x")
+expand_icon = true
 
 [node name="JoinPartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201828]
 unique_name_in_owner = true
@@ -214,6 +220,8 @@ mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 22
 text = "JOIN PARTY"
+icon = ExtResource("10_f21u2")
+expand_icon = true
 
 [node name="LeavePartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201833]
 unique_name_in_owner = true
@@ -224,7 +232,7 @@ mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.95, 0.45, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 22
-text = "LEAVE PARTY"
+text = "Leave Party"
 
 [node name="Control" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1915774776]
 layout_mode = 2
@@ -259,6 +267,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_o2s04")
 text = "     PLAY     "
 
 [node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 

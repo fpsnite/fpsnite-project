@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://brfgfmorhqu6d"]
 
-[ext_resource type="Script" uid="uid://bkbokc4m1mwh5" path="res://Scripts/test_hb.gd" id="1_hmkf7"]
+[ext_resource type="Script" uid="uid://mainlobby9xk2" path="res://Scripts/main_lobby.gd" id="1_hmkf7"]
 [ext_resource type="PackedScene" uid="uid://gy8vmp1cb6mg" path="res://Scenes/player_preview.tscn" id="2_preview"]
 [ext_resource type="PackedScene" uid="uid://btbpr7roxyd8q" path="res://Scenes/drawer.tscn" id="4_drawer"]
 [ext_resource type="PackedScene" uid="uid://ebbd8kgmlly4" path="res://Scenes/LobbyUI.tscn" id="4_hmkf7"]
+[ext_resource type="PackedScene" uid="uid://loadingovlscene" path="res://Scenes/LoadingOverlay.tscn" id="5_loading"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4gigx"]
 
@@ -152,3 +153,5 @@ transform = Transform3D(1, 0, 0, 0, 0.9887711, 0.14943814, 0, -0.14943814, 0.988
 visible = false
 
 [node name="HUD" parent="." unique_id=508334873 instance=ExtResource("4_hmkf7")]
+
+[node name="LoadingOverlay" parent="." unique_id=508334874 instance=ExtResource("5_loading")]

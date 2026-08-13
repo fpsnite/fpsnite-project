@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bh6vphh02jxql" path="res://Scripts/player_instance.gd" id="1_bai1d"]
 [ext_resource type="Material" uid="uid://bsbux05305a7v" path="res://skins/default_skin.tres" id="2_tnxv2"]
-[ext_resource type="Script" uid="uid://dpkxtqkwv68ew" path="res://Scripts/third_person_camera.gd" id="3_cam"]
+[ext_resource type="Script" uid="uid://fpsc4m3r4nd0m" path="res://Scripts/first_person_camera.gd" id="3_cam"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="4_cm5vb"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dj3i2"]
@@ -38,11 +38,8 @@ shape = SubResource("CapsuleShape3D_en1b1")
 [node name="CameraPivot" type="Node3D" parent="." unique_id=2080243922]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 script = ExtResource("3_cam")
-shoulder_offset = Vector3(0.6, 0, 0)
-camera_height_offset = -0.25
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=2080243921]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8671446, 0, 0)
 
 [node name="PlayerNameLabel" type="Label3D" parent="." unique_id=1974409492]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2279269, 0)
@@ -50,10 +47,5 @@ billboard = 1
 text = "[PlayerName]"
 font = ExtResource("4_cm5vb")
 font_size = 70
-
-[node name="BackBlingLabel" type="Label3D" parent="." unique_id=1416494521]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0.10234049, 0.5263188)
-text = "000"
-font_size = 99
 
 [node name="RayCast3D" type="RayCast3D" parent="." unique_id=1005705478]

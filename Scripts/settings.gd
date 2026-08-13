@@ -20,6 +20,10 @@ var scaling_3d := 1.0
 var keybinds: Dictionary = {}
 var skin_index := 0
 var player_name := ""
+## Account session (persisted so the launcher auto-logs in next start).
+var player_id := -1
+## Login token from Discord /register - the credential the backend accepts.
+var auth_token := ""
 
 ## Transient navigation flags for the settings-page round trip (not saved):
 ## set by the pause drawer so the settings back button returns to the game
@@ -76,6 +80,8 @@ func save_settings() -> void:
 	config.set_value("keybinds", "actions", keybinds)
 	config.set_value("skins", "index", skin_index)
 	config.set_value("player", "name", player_name)
+	config.set_value("account", "player_id", player_id)
+	config.set_value("account", "auth_token", auth_token)
 	config.save(SAVE_PATH)
 
 func load_settings() -> void:
@@ -91,3 +97,5 @@ func load_settings() -> void:
 		keybinds[action] = saved[action]
 	skin_index = config.get_value("skins", "index", 0)
 	player_name = config.get_value("player", "name", "")
+	player_id = config.get_value("account", "player_id", -1)
+	auth_token = config.get_value("account", "auth_token", "")

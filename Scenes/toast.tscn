@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://c8gviqfffm761"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.08, 0.09, 0.12, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.75, 0.35, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="Toast" type="PanelContainer" unique_id=1010505880]
+offset_left = 7.0
+offset_top = 99.0
+offset_right = 32.0
+offset_bottom = 146.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
+
+[node name="ToastLabel" type="Label" parent="." unique_id=113396617]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 22

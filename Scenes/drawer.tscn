@@ -7,7 +7,10 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
 bg_color = Color(0.07, 0.08, 0.11, 0.98)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_drawer"]
+
 [node name="Drawer" type="CanvasLayer" unique_id=900000001]
+layer = 2
 script = ExtResource("1_drawer")
 
 [node name="Dim" type="ColorRect" parent="." unique_id=900000002]
@@ -27,7 +30,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
 
 [node name="VBox" type="VBoxContainer" parent="Panel" unique_id=900000004]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="Panel/VBox" unique_id=900000005]
 layout_mode = 2
@@ -46,16 +49,102 @@ text = "Click Outside To Close"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="Panel/VBox" unique_id=900000007]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="Button" type="Button" parent="Panel/VBox" unique_id=770338463]
+[node name="DrawerTabBar" type="TabBar" parent="Panel/VBox" unique_id=1592201836]
+unique_name_in_owner = true
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 26
+current_tab = 0
+tab_alignment = 1
+tab_count = 3
+tab_0/title = "Info"
+tab_1/title = "Misc"
+tab_2/title = "Players"
+
+[node name="DrawerTabs" type="TabContainer" parent="Panel/VBox" unique_id=1592201837]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_drawer")
+current_tab = 0
+tabs_visible = false
+
+[node name="Info" type="VBoxContainer" parent="Panel/VBox/DrawerTabs" unique_id=1592201838]
+layout_mode = 2
+theme_override_constants/separation = 10
+metadata/_tab_index = 0
+
+[node name="InfoNameLabel" type="Label" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201839]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 24
+text = "Name: -"
+
+[node name="InfoStatusLabel" type="Label" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201840]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 24
+text = "Status: -"
+
+[node name="InfoRegionLabel" type="Label" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201841]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 24
+text = "Region: -"
+
+[node name="InfoSessionLabel" type="Label" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201842]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.88, 1)
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 24
+text = "Session: -"
+
+[node name="Spacer2" type="Control" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201843]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="ProfileButton" type="Button" parent="Panel/VBox/DrawerTabs/Info" unique_id=1592201844]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 26
+text = "Open Profile"
+
+[node name="Misc" type="VBoxContainer" parent="Panel/VBox/DrawerTabs" unique_id=1592201845]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+metadata/_tab_index = 1
+
+[node name="SettingsButton" type="Button" parent="Panel/VBox/DrawerTabs/Misc" unique_id=1592201831]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_y5fxu")
 theme_override_font_sizes/font_size = 30
-text = "User"
+text = "Settings"
 
-[node name="QuitButton" type="Button" parent="Panel/VBox" unique_id=900000008]
+[node name="LogoutButton" type="Button" parent="Panel/VBox/DrawerTabs/Misc" unique_id=1592201832]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.65, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_y5fxu")
+theme_override_font_sizes/font_size = 30
+text = "Logout"
+
+[node name="QuitButton" type="Button" parent="Panel/VBox/DrawerTabs/Misc" unique_id=900000008]
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
@@ -63,4 +152,25 @@ theme_override_fonts/font = ExtResource("2_y5fxu")
 theme_override_font_sizes/font_size = 30
 text = "Quit"
 
-[connection signal="pressed" from="Panel/VBox/QuitButton" to="." method="_on_quit_pressed"]
+[node name="Players" type="VBoxContainer" parent="Panel/VBox/DrawerTabs" unique_id=1592201846]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+metadata/_tab_index = 2
+
+[node name="PlayersHintLabel" type="Label" parent="Panel/VBox/DrawerTabs/Players" unique_id=1592201847]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_fonts/font = ExtResource("3_e4b3x")
+theme_override_font_sizes/font_size = 24
+text = "Not in a room"
+horizontal_alignment = 1
+
+[node name="DrawerPlayerList" type="VBoxContainer" parent="Panel/VBox/DrawerTabs/Players" unique_id=1592201848]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[connection signal="pressed" from="Panel/VBox/DrawerTabs/Misc/QuitButton" to="." method="_on_quit_pressed"]

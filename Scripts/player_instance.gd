@@ -1,11 +1,12 @@
 extends CharacterBody3D
-## Networked third-person controller (Fusion Client-Server, PLAYER_PREDICTED).
+## Networked FPS controller (Fusion Client-Server, PLAYER_PREDICTED).
 ## Movement runs in on_process_input on both the predicting client and the server.
+## The local player's body is hidden (first-person view) - only remote
+## players render their bodies.
 
 @export var walk_speed := 5.0
 @export var sprint_speed := 9.0
 @export var jump_velocity := 5.0
-@export var sprint_fov := 85.0
 
 const STAMINA_DRAIN := 30.0
 const STAMINA_REGEN := 25.0
@@ -18,7 +19,7 @@ const JUMP_GRAVITY := 14.0
 @onready var mesh_pivot: Node3D = $MeshPivot
 @onready var camera_3d: Camera3D = $CameraPivot/Camera3D
 @onready var player_name_label: Label3D = $PlayerNameLabel
-@onready var back_bling_label: Label3D = $BackBlingLabel
+@onready var back_bling_label: Label3D = $BackBlingLabel if has_node("BackBlingLabel") else null
 
 var player_id := 0
 var spectating := false
@@ -27,9 +28,7 @@ var speed_scale := 1.0  # per-round difficulty multiplier set by the lobby
 
 var _prev_jump_pressed := false
 var _round: Node
-var _base_fov := 75.0
-var _current_fov := 75.0
-var _sprint_active := false
+var sprint_active := false  # read by FirstPersonCamera for the sprint FOV
 var _sprint_locked := false
 
 ## HUD state, driven on the main thread, read by player_hud.
@@ -37,8 +36,6 @@ var stamina := 100.0
 
 func _ready() -> void:
 	_round = get_tree().get_first_node_in_group("round")
-	_base_fov = camera_3d.fov
-	_current_fov = camera_3d.fov
 	replicator.spawned.connect(_on_replicator_spawned)
 	replicator.on_process_input.connect(_on_process_input)
 	get_window().focus_entered.connect(_on_window_focused)
@@ -53,10 +50,6 @@ func _on_window_focused() -> void:
 func _process(delta: float) -> void:
 	if not get_window().has_focus() and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	if replicator.has_input_authority() and not spectating and not _chat_open():
-		var target_fov := sprint_fov if _sprint_active else _base_fov
-		_current_fov = lerpf(_current_fov, target_fov, 1.0 - exp(-10.0 * delta))
-		camera_3d.fov = _current_fov
 
 ## Sprinting is disabled once stamina hits 0 and stays locked until the bar
 ## regens to STAMINA_LOCK_MIN, so the speed/FOV don't stutter at low values.
@@ -74,11 +67,11 @@ func _physics_process(delta: float) -> void:
 	if replicator.has_input_authority():
 		if not spectating and not camera_3d.current:
 			camera_3d.current = true
-		_sprint_active = _can_sprint()
-		if _sprint_active:
+		sprint_active = _can_sprint()
+		if sprint_active:
 			stamina = maxf(stamina - STAMINA_DRAIN * delta, 0.0)
 			if stamina <= 0.0:
-				_sprint_active = false
+				sprint_active = false
 				_sprint_locked = true
 		else:
 			stamina = minf(stamina + STAMINA_REGEN * delta, 100.0)
@@ -106,6 +99,12 @@ func refresh_identity() -> void:
 		camera_3d.current = true
 		_capture_mouse()
 		player_name_label.text = Network.player_name
+		# First-person view: never render your own body (remote players still
+		# see it, since visibility is only hidden locally).
+		mesh_pivot.visible = false
+		player_name_label.visible = false
+		if back_bling_label:
+			back_bling_label.visible = false
 		_submit_skin(Settings.skin_index)
 	else:
 		camera_3d.current = false
@@ -147,7 +146,7 @@ func _create_input() -> PackedByteArray:
 	buf.encode_float(0, input_dir.x)
 	buf.encode_float(4, input_dir.y)
 	buf.encode_float(8, rotation.y)
-	buf.encode_u8(12, 1 if _sprint_active else 0)
+	buf.encode_u8(12, 1 if sprint_active else 0)
 	var jump_pressed := Input.is_action_pressed("jump")
 	buf.encode_u8(13, 1 if jump_pressed and not _prev_jump_pressed else 0)
 	_prev_jump_pressed = jump_pressed
@@ -202,7 +201,8 @@ func apply_skin(index: int) -> void:
 ## Always 3 digits: 7 -> "007", 42 -> "042", 456 -> "456".
 func apply_number(number: int) -> void:
 	player_number = number
-	back_bling_label.text = _format_number(number)
+	if back_bling_label:
+		back_bling_label.text = _format_number(number)
 
 func _format_number(number: int) -> String:
 	return "%03d" % number
@@ -213,14 +213,21 @@ func _format_number(number: int) -> String:
 ## owner is auto-put into spectate mode if the scene has a SpectateManager.
 func become_eliminated() -> void:
 	spectating = true
-	mesh_pivot.visible = false
-	player_name_label.visible = false
-	back_bling_label.visible = false
+	_set_body_visible(false)
 
 ## Next round: alive again (mesh restored, input allowed). If the local
 ## player was spectating, game_round stops the spectate mode for them.
 func become_alive() -> void:
 	spectating = false
-	mesh_pivot.visible = true
-	player_name_label.visible = true
-	back_bling_label.visible = true
+	_set_body_visible(true)
+
+## Local FPS players never see their own body - not even when spectate mode
+## stops and tries to restore it. Remote bodies are always visible.
+func _set_body_visible(visible_flag: bool) -> void:
+	var hidden := not visible_flag
+	if replicator.has_input_authority():
+		hidden = true
+	mesh_pivot.visible = not hidden
+	player_name_label.visible = not hidden
+	if back_bling_label:
+		back_bling_label.visible = not hidden

@@ -1,8 +1,11 @@
 [gd_scene format=3 uid="uid://cydsij7oitmrg"]
 
-[ext_resource type="Script" uid="uid://cr5erd4i4hbkp" path="res://scripts/launcher_page.gd" id="1_4h4gw"]
+[ext_resource type="Script" uid="uid://kuxg8y065jgy" path="res://Scripts/launcher.gd" id="1_launch"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_cm5vb"]
+font_size = 64
 
 [node name="LauncherPage" type="Control" unique_id=641139545]
 layout_mode = 3
@@ -11,7 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_4h4gw")
+script = ExtResource("1_launch")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1583824854]
 layout_mode = 1
@@ -21,72 +24,64 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer" unique_id=118500803]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=362547599]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer" unique_id=118500803]
 layout_mode = 2
 
-[node name="LoginPanel" type="VBoxContainer" parent="PanelContainer/CenterContainer" unique_id=983769955]
+[node name="LoginPanel" type="VBoxContainer" parent="PanelContainer/MarginContainer/CenterContainer" unique_id=983769955]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=991910836]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=991910836]
 layout_mode = 2
 text = "WELCOME BACK TO TRUENITE!"
 
-[node name="UserField" type="LineEdit" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=127579544]
+[node name="TokenField" type="LineEdit" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=127579544]
 unique_name_in_owner = true
 layout_mode = 2
-placeholder_text = "username"
+placeholder_text = "paste your login token"
+secret = true
 
-[node name="PassField" type="LineEdit" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=1166465536]
+[node name="Connect" type="Button" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=89955798]
 unique_name_in_owner = true
 layout_mode = 2
-placeholder_text = "password"
+text = "CONNECT"
 
-[node name="Login" type="Button" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=89955798]
-unique_name_in_owner = true
-layout_mode = 2
-text = "LOGIN"
-
-[node name="Register" type="Button" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=1888935160]
-unique_name_in_owner = true
-layout_mode = 2
-text = "REGISTER"
-
-[node name="Status" type="Label" parent="PanelContainer/CenterContainer/LoginPanel" unique_id=2108883891]
+[node name="Status" type="Label" parent="PanelContainer/MarginContainer/CenterContainer/LoginPanel" unique_id=2108883891]
 unique_name_in_owner = true
 layout_mode = 2
 text = "{status text}"
 label_settings = SubResource("LabelSettings_dj3i2")
 horizontal_alignment = 1
 
-[node name="MainPanel" type="VBoxContainer" parent="PanelContainer/CenterContainer" unique_id=881531242]
-unique_name_in_owner = true
-visible = false
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/CenterContainer" unique_id=525016693]
 layout_mode = 2
 
-[node name="Welcome" type="Label" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1510271210]
+[node name="ConnectingPanel" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=881531242]
 unique_name_in_owner = true
 layout_mode = 2
-text = "WELCOME TO TRUENITE!"
+alignment = 2
 
-[node name="Play" type="Button" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1227598212]
+[node name="ConnectingHint" type="Label" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1227598212]
 unique_name_in_owner = true
 layout_mode = 2
-text = "PLAY"
+text = "connecting to server..."
+horizontal_alignment = 1
 
-[node name="Logout" type="Button" parent="PanelContainer/CenterContainer/MainPanel" unique_id=1592201817]
+[node name="ConnectingLabel" type="Label" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1510271210]
 unique_name_in_owner = true
 layout_mode = 2
-text = "PLAY"
+text = "CONNECTING..."
+label_settings = SubResource("LabelSettings_cm5vb")
+horizontal_alignment = 1
 
-[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=467655083]
+[node name="LoadProgress" type="ProgressBar" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1592201817]
 unique_name_in_owner = true
-
-[node name="HTTPRequestRegister" type="HTTPRequest" parent="." unique_id=2145387172]
-unique_name_in_owner = true
-
-[node name="HTTPRequestMe" type="HTTPRequest" parent="." unique_id=1842124983]
-unique_name_in_owner = true
-
-[node name="HTTPRequestLogout" type="HTTPRequest" parent="." unique_id=1126684564]
-unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(340, 18)
+show_percentage = false

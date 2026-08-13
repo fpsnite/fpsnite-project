@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://32m82suhwi05"]
 
+[ext_resource type="Script" uid="uid://userprofile9x" path="res://Scripts/user_profile.gd" id="4_up"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="1_n538s"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="2_tpb7s"]
 [ext_resource type="Texture2D" uid="uid://djho1hlcorukq" path="res://Assets/back-arrow-icon.png" id="3_tpb7s"]
@@ -11,6 +12,7 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 bg_color = Color(0.055051677, 0.035734076, 0.23941453, 0.79607844)
 
 [node name="Control" type="Control" unique_id=1439514052]
+script = ExtResource("4_up")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,6 +72,7 @@ theme_override_font_sizes/font_size = 30
 text = "Enter UserName              "
 
 [node name="UserInput" type="LineEdit" parent="TabContainer/User Info/User Name" unique_id=1020776485]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_tpb7s")
 theme_override_font_sizes/font_size = 25
@@ -77,6 +80,13 @@ placeholder_text = "Type Here...                      "
 alignment = 1
 max_length = 20
 expand_to_text_length = true
+
+[node name="SaveNameButton" type="Button" parent="TabContainer/User Info/User Name" unique_id=1592201829]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_n538s")
+theme_override_font_sizes/font_size = 20
+text = "Save"
 
 [node name="User ID" type="HBoxContainer" parent="TabContainer/User Info" unique_id=1095008881]
 layout_mode = 2
@@ -88,6 +98,7 @@ theme_override_font_sizes/font_size = 30
 text = "User ID                 "
 
 [node name="BackButton" type="Button" parent="." unique_id=1418338354]
+unique_name_in_owner = true
 layout_mode = 0
 offset_left = 30.0
 offset_top = 30.0
@@ -122,7 +133,8 @@ grow_vertical = 0
 layout_mode = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="Panel/VBoxContainer/HBoxContainer" unique_id=2059278918]
+[node name="StatusValueLabel" type="Label" parent="Panel/VBoxContainer/HBoxContainer" unique_id=2059278918]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_tpb7s")
 theme_override_font_sizes/font_size = 30
@@ -130,9 +142,18 @@ text = "Account Status :                         "
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="Panel/VBoxContainer/HBoxContainer" unique_id=1284209409]
+[node name="RegionValueLabel" type="Label" parent="Panel/VBoxContainer/HBoxContainer" unique_id=1284209409]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_tpb7s")
 theme_override_font_sizes/font_size = 30
 text = "Region :                    "
 horizontal_alignment = 1
+
+[node name="LogoutButton" type="Button" parent="Panel/VBoxContainer" unique_id=1592201830]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_fonts/font = ExtResource("1_n538s")
+theme_override_font_sizes/font_size = 28
+text = "Logout"

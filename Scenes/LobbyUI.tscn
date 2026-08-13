@@ -9,9 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://o1r60wwriwyq" path="res://Assets/locker-ver-2.png5.png" id="5_o2s04"]
 [ext_resource type="Texture2D" uid="uid://db3ceg1nkyne7" path="res://Assets/lootbox-icon-channel.png" id="6_uqhmi"]
 [ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
-font_size = 44
+[ext_resource type="Script" uid="uid://dxhksd0u5jtj3" path="res://Scripts/lobby_hud.gd" id="7_hud"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
@@ -23,10 +21,6 @@ font_size = 24
 font_color = Color(1, 1, 1, 0.49803922)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dj3i2"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jp1kc"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_en1b1"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_dj3i2"]
 font_size = 34
@@ -43,89 +37,11 @@ bg_color = Color(0.29203483, 0.50551265, 0.83106637, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
+[sub_resource type="LabelSettings" id="LabelSettings_1qsen"]
+font_size = 44
+
 [node name="HUD" type="CanvasLayer" unique_id=508334873]
-
-[node name="PopupPanel" type="Control" parent="." unique_id=646265303]
-unique_name_in_owner = true
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="Panel" type="Panel" parent="PopupPanel" unique_id=1135209849]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel" unique_id=1114822453]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="PopupPanel/VBoxContainer" unique_id=730050526]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="GridContainer" type="GridContainer" parent="PopupPanel/VBoxContainer/CenterContainer" unique_id=2080925429]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-columns = 3
-
-[node name="GameModeItem" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=567813932 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="GameModeItem2" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=898734579 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=332060781 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="GameModeItem4" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1461306034 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="GameModeItem5" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1327230798 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="GameModeItem6" parent="PopupPanel/VBoxContainer/CenterContainer/GridContainer" unique_id=1461975193 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-script = null
-
-[node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("3_n0o7n")
-text = "Select A Game Mode To Play!"
-label_settings = SubResource("LabelSettings_1qsen")
-horizontal_alignment = 1
-
-[node name="Button" type="Button" parent="PopupPanel/VBoxContainer" unique_id=1543505184]
-layout_mode = 2
-size_flags_horizontal = 4
-mouse_default_cursor_shape = 2
-theme_override_fonts/font = ExtResource("2_gfoai")
-theme_override_font_sizes/font_size = 40
-text = "   Close   "
-
-[node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
-custom_minimum_size = Vector2(0, 15)
-layout_mode = 2
+script = ExtResource("7_hud")
 
 [node name="Root" type="Control" parent="." unique_id=1275617307]
 unique_name_in_owner = true
@@ -160,6 +76,7 @@ theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 15
 
 [node name="TabBar" type="TabBar" parent="Root/Overlay/TopBar/MarginContainer" unique_id=1384713408]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(48.5, 50)
 clip_contents = true
 layout_mode = 2
@@ -181,6 +98,7 @@ tab_3/title = "LeaderBoard"
 tab_3/icon = ExtResource("6_xg1n4")
 
 [node name="TabContainer" type="TabContainer" parent="Root/Overlay" unique_id=1997990476]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dj3i2")
@@ -237,23 +155,77 @@ layout_mode = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel" unique_id=852445665]
 layout_mode = 2
 
+[node name="PartyVBox" type="VBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1592201822]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CodeBox" type="HBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox" unique_id=1592201823]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CodeEdit" type="LineEdit" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/CodeBox" unique_id=1592201824]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "ROOM CODE"
+max_length = 5
+
+[node name="CodeActionButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/CodeBox" unique_id=1592201825]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 20
+text = "COPY CODE"
+
+[node name="PartyButtons" type="HBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox" unique_id=1592201826]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CreatePartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201827]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 22
+text = "CREATE PARTY"
+
+[node name="JoinPartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201828]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 22
+text = "JOIN PARTY"
+
+[node name="LeavePartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201833]
+unique_name_in_owner = true
+visible = false
+size_flags_horizontal = 3
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.95, 0.45, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 22
+text = "LEAVE PARTY"
+
 [node name="Control" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1915774776]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxTexture_dj3i2")
 
-[node name="GameModeButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control" unique_id=1331182201]
+[node name="GameModeButton" type="TextureButton" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control" unique_id=301720509]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_jp1kc")
 
-[node name="PanelContainer" type="PanelContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control" unique_id=2117112561]
-custom_minimum_size = Vector2(0, 70)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_en1b1")
-
-[node name="GameModeText" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/PanelContainer" unique_id=1469636232]
+[node name="GameModeText" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1469636232]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 25
@@ -266,6 +238,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="PlayButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/CenterContainer" unique_id=805843694]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 50
@@ -375,5 +348,98 @@ unique_name_in_owner = true
 [node name="FPSTimer" type="Timer" parent="Root" unique_id=1051395437]
 unique_name_in_owner = true
 
-[connection signal="pressed" from="PopupPanel/VBoxContainer/Button" to="." method="_on_close_button_pressed"]
+[node name="PopupPanel" type="Control" parent="." unique_id=646265303]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Panel" type="Panel" parent="PopupPanel" unique_id=1135209849]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopupPanel" unique_id=1114822453]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="PopupPanel/VBoxContainer" unique_id=730050526]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ModeGrid" type="GridContainer" parent="PopupPanel/VBoxContainer/CenterContainer" unique_id=2080925429]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="GameModeItem" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=567813932 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "red_light_green_light"
+mode_name = "Red Light Green Light"
+
+[node name="GameModeItem2" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734579 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "battle_royale"
+mode_name = "Battle Royale"
+
+[node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=332060781 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "tag"
+mode_name = "Tag"
+
+[node name="GameModeItem4" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461306034 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "hide_and_seek"
+mode_name = "Hide And Seek"
+
+[node name="GameModeItem5" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1327230798 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "free_for_all"
+mode_name = "Free For All"
+
+[node name="GameModeItem6" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461975193 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "team_deathmatch"
+mode_name = "Team Deathmatch"
+
+[node name="GameModeItem7" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461975194 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "test"
+mode_name = "Test Mode"
+
+[node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_n0o7n")
+text = "Select A Game Mode To Play!"
+label_settings = SubResource("LabelSettings_1qsen")
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="PopupPanel/VBoxContainer" unique_id=1543505184]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 40
+text = "   Close   "
+
+[node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+
 [connection signal="pressed" from="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/GameModeButton" to="." method="_on_game_mode_button_pressed"]
+[connection signal="pressed" from="PopupPanel/VBoxContainer/Button" to="." method="_on_close_button_pressed"]

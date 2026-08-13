@@ -22,6 +22,7 @@ func _on_skin_pressed(index: int) -> void:
 	Settings.skin_index = index
 	Settings.save_settings()
 	skin_chosen.emit(index)
+	Backend.update_skin(index)
 	if Fusion.is_in_room():
 		var lobby := get_tree().get_first_node_in_group("lobby")
 		if lobby:

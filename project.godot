@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="FPS NITE"
-run/main_scene="uid://brfgfmorhqu6d"
+run/main_scene="uid://cydsij7oitmrg"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -20,10 +20,11 @@ config/icon="res://icon.svg"
 Network="*uid://cm70fylr8dqde"
 Settings="*uid://dcjvxa2eujqdw"
 Skins="*uid://c8yyygjq05owq"
+Backend="*res://Scripts/backend.gd"
+Toasts="*res://Scripts/toasts.gd"
 
 [display]
 
-window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/vsync/vsync_mode=0

@@ -101,8 +101,8 @@ func _hide_local_body(hidden: bool) -> void:
 	if player == null:
 		return
 	player.spectating = hidden
-	player.get_node("MeshPivot").visible = not hidden
-	player.get_node("PlayerNameLabel").visible = not hidden
+	# Respect the FPS rule: the local player's body stays hidden forever.
+	player._set_body_visible(not hidden)
 
 func _restore_local_camera() -> void:
 	var player := _local_player()

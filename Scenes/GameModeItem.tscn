@@ -28,16 +28,6 @@ theme_override_constants/margin_bottom = 15
 [node name="VBoxContainer" type="VBoxContainer" parent="Margin" unique_id=1171809763]
 layout_mode = 2
 
-[node name="PlayerCountText" type="Label" parent="Margin/VBoxContainer" unique_id=1412919228]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_fonts/font = ExtResource("2_yarho")
-theme_override_font_sizes/font_size = 30
-text = "100K"
-label_settings = SubResource("LabelSettings_dj3i2")
-horizontal_alignment = 2
-
 [node name="GameModeText" type="Label" parent="Margin/VBoxContainer" unique_id=1216573535]
 unique_name_in_owner = true
 layout_mode = 2

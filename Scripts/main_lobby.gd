@@ -41,22 +41,11 @@ func _ready() -> void:
 	Network.player_left.connect(_on_player_left)
 	_log("ready, name='%s', podiums=%d, mode='%s' - creating hidden lobby room" % [
 		Network.player_name, _podium_previews.size(), _selected_mode])
-	_show_loading_overlay()
-	var token := _overlay_token
+	_show_loading_overlay(true)
 	if Fusion.is_in_room():
-		# Room already exists (autoload created it): still dim briefly so the
-		# lobby entry reads as a load, then fade out.
-		get_tree().create_timer(0.6).timeout.connect(func() -> void:
-			if _overlay_token == token:
-				_hide_loading_overlay())
-	# Safety net: never leave the player stuck behind the overlay. If Photon
-	# cannot connect (offline, unreachable), drop it after a while - the lobby
-	# still works locally (party buttons, podiums).
-	get_tree().create_timer(8.0).timeout.connect(func() -> void:
-		if _overlay_token == token:
-			_hide_loading_overlay()
-			_log("loading overlay timeout: still not in a room, continuing offline")
-			Toasts.show_message("Could not connect to the server - playing offline"))
+		# The illusion lobby room already exists (autoload created it): the
+		# load is done, hide the overlay right away.
+		_hide_loading_overlay()
 	Network.connect_to_photon()
 
 func _exit_tree() -> void:
@@ -66,13 +55,23 @@ func _exit_tree() -> void:
 
 ## The 50% opaque full-screen overlay (Scenes/LoadingOverlay.tscn) covers the
 ## lobby while the initial room is created and during room transitions.
-func _show_loading_overlay() -> void:
+## Every show gets a token-guarded 8s safety hide, so a failed join/leave or
+## a dead network can never leave the player stuck behind it. Success hides
+## earlier via _on_room_joined / _on_connection_failed.
+func _show_loading_overlay(offline_toast := false) -> void:
 	_overlay_token += 1
+	var token := _overlay_token
 	var overlay := get_tree().get_first_node_in_group("loading_overlay")
 	if overlay:
 		overlay.show_loading()
 	else:
 		_log("WARNING: loading overlay not found")
+	get_tree().create_timer(8.0).timeout.connect(func() -> void:
+		if _overlay_token == token:
+			_hide_loading_overlay()
+			_log("loading overlay timeout: hiding")
+			if offline_toast:
+				Toasts.show_message("Could not connect to the server - playing offline"))
 
 func _hide_loading_overlay() -> void:
 	_overlay_token += 1

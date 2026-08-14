@@ -207,10 +207,10 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
-min_value = 0.0005
-max_value = 0.01
-step = 0.0005
-value = 0.0025
+min_value = 0
+max_value = 100
+step = 1
+value = 100
 
 [node name="SensitivityValueLabel" type="Label" parent="TabContainer/Controls/SensitivityRow" unique_id=800000034]
 unique_name_in_owner = true
@@ -218,7 +218,7 @@ custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_3uamq")
 theme_override_font_sizes/font_size = 30
-text = "0.0025"
+text = "100%"
 
 [node name="AdsSensitivityRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000035]
 layout_mode = 2
@@ -237,10 +237,10 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
-min_value = 0.1
-max_value = 2.0
-step = 0.05
-value = 0.6
+min_value = 0
+max_value = 100
+step = 1
+value = 60
 
 [node name="AdsSensitivityValueLabel" type="Label" parent="TabContainer/Controls/AdsSensitivityRow" unique_id=800000038]
 unique_name_in_owner = true
@@ -267,10 +267,10 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
-min_value = 0.1
-max_value = 3.0
-step = 0.05
-value = 1.0
+min_value = 0
+max_value = 100
+step = 1
+value = 100
 
 [node name="SensXValueLabel" type="Label" parent="TabContainer/Controls/SensXRow" unique_id=800000042]
 unique_name_in_owner = true
@@ -278,7 +278,7 @@ custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_3uamq")
 theme_override_font_sizes/font_size = 30
-text = "1.00x"
+text = "100%"
 
 [node name="SensYRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000043]
 layout_mode = 2
@@ -297,10 +297,10 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
-min_value = 0.1
-max_value = 3.0
-step = 0.05
-value = 1.0
+min_value = 0
+max_value = 100
+step = 1
+value = 100
 
 [node name="SensYValueLabel" type="Label" parent="TabContainer/Controls/SensYRow" unique_id=800000046]
 unique_name_in_owner = true
@@ -308,7 +308,7 @@ custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_3uamq")
 theme_override_font_sizes/font_size = 30
-text = "1.00x"
+text = "100%"
 
 [node name="ResetControlsButton" type="Button" parent="TabContainer/Controls" unique_id=800000055]
 unique_name_in_owner = true

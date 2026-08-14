@@ -12,8 +12,8 @@ const STAMINA_DRAIN := 30.0
 const STAMINA_REGEN := 25.0
 const STAMINA_LOCK_MIN := 20.0
 ## Stronger than the project's default gravity: snappier, realistic jumps -
-## quicker rise and a faster return to the floor.
-const JUMP_GRAVITY := 14.0
+## quick rise and a fast return to the floor (no "moon" floatiness).
+const JUMP_GRAVITY := 22.0
 
 ## CS:GO / Source-engine style acceleration model.
 ## Ground: accelerate toward max speed, friction stops you when idle.
@@ -24,9 +24,21 @@ const AIR_ACCEL := 2.2
 ## Caps how much speed you can gain from air-strafe input per frame.
 const AIR_CAP := 0.85
 
+## Crouch: lerped capsule height (no popping), slower speed, lower eye.
+const CROUCH_SPEED := 2.5
+const STAND_HEIGHT := 2.0
+const CROUCH_HEIGHT := 1.0
+const STAND_EYE := 1.6
+const CROUCH_EYE := 0.9
+const CROUCH_LERP_SPEED := 10.0
+
 @onready var replicator: FusionServerReplicator = $FusionServerReplicator
 @onready var mesh_pivot: Node3D = $MeshPivot
 @onready var camera_3d: Camera3D = $CameraPivot/Camera3D
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+@onready var body_hitbox: Area3D = $BodyHitbox
+@onready var head_hitbox: Area3D = $HeadHitbox
 @onready var player_name_label: Label3D = $PlayerNameLabel
 @onready var back_bling_label: Label3D = $BackBlingLabel if has_node("BackBlingLabel") else null
 
@@ -37,6 +49,13 @@ var speed_scale := 1.0  # per-round difficulty multiplier set by the lobby
 
 ## Combat state, written by the server (WeaponSystem) via sync_health.
 var health := 100.0
+## Shield absorbs damage before health; written by the server like health.
+var shield := 100.0
+
+## Crouch state, written by the Fusion sim callback (from the input payload)
+## on both the predicting client and the server, so everyone agrees. The
+## main thread lerps the capsule/eye/hitboxes toward this flag.
+var crouching := false
 
 var _prev_jump_pressed := false
 var _round: Node
@@ -89,6 +108,9 @@ func _physics_process(delta: float) -> void:
 			stamina = minf(stamina + STAMINA_REGEN * delta, 100.0)
 		replicator.queue_input(delta, _create_input())
 	replicator.process_input_queue(delta)
+	_update_crouch(delta)
+	if replicator.has_input_authority():
+		_update_crosshair_spread()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not replicator.has_input_authority():
@@ -151,7 +173,7 @@ func _chat_open() -> bool:
 
 func _create_input() -> PackedByteArray:
 	var buf := PackedByteArray()
-	buf.resize(14)
+	buf.resize(15)
 	var input_dir := Vector2.ZERO
 	if not spectating and not _chat_open():
 		input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
@@ -162,20 +184,22 @@ func _create_input() -> PackedByteArray:
 	var jump_pressed := Input.is_action_pressed("jump")
 	buf.encode_u8(13, 1 if jump_pressed and not _prev_jump_pressed else 0)
 	_prev_jump_pressed = jump_pressed
+	buf.encode_u8(14, 1 if Input.is_action_pressed("crouch") else 0)
 	return buf
 
 func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, is_new: bool) -> void:
-	if payload.size() < 14:
+	if payload.size() < 15:
 		return
 	var input_dir := Vector2(payload.decode_float(0), payload.decode_float(4))
 	rotation.y = payload.decode_float(8)
 	var sprinting := payload.decode_u8(12) == 1
 	var jump_press := payload.decode_u8(13) == 1
+	crouching = payload.decode_u8(14) == 1
 
 	# CS:GO / Source-engine acceleration model. Deterministic math only - this
 	# runs on the Fusion simulation thread on both the predicting client and
 	# the server, so never touch the scene tree here.
-	var speed := (sprint_speed if sprinting else walk_speed) * speed_scale
+	var speed := (CROUCH_SPEED if crouching else (sprint_speed if sprinting else walk_speed)) * speed_scale
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
 	if not is_on_floor():
@@ -184,9 +208,11 @@ func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, i
 		velocity.y = jump_velocity
 
 	if is_on_floor():
-		if input_dir == Vector2.ZERO:
-			_apply_ground_friction(delta_time)
-		else:
+		# Friction runs every ground tick (not just when idle) - this is what
+		# keeps velocity aligned with the wish direction. Without it, any
+		# small yaw/view mismatch accumulates as lateral drift while moving.
+		_apply_ground_friction(delta_time)
+		if input_dir != Vector2.ZERO:
 			_accelerate(wish_dir, speed, GROUND_ACCEL, delta_time)
 	else:
 		# Low air accel + per-frame cap = the classic air-strafe feel.
@@ -220,6 +246,33 @@ func _accelerate(wish_dir: Vector3, target_speed: float, accel: float,
 	accel_speed = minf(accel_speed, add_speed)
 	velocity.x += accel_speed * wish_dir.x
 	velocity.z += accel_speed * wish_dir.z
+
+## Main-thread crouch presentation: lerp the capsule height (feet stay
+## anchored), the eye height, and the body/head hitboxes so hitscan matches
+## the visual body. Driven by the `crouching` flag the sim thread writes.
+## On the master this runs for every player (their payloads set the flag);
+## on plain clients only the local body matters for rendering.
+func _update_crouch(delta: float) -> void:
+	var shape := collision_shape.shape as CapsuleShape3D
+	if shape:
+		var target_h := CROUCH_HEIGHT if crouching else STAND_HEIGHT
+		shape.height = lerpf(shape.height, target_h, delta * CROUCH_LERP_SPEED)
+		collision_shape.position.y = -1.0 + shape.height / 2.0
+	camera_pivot.position.y = lerpf(camera_pivot.position.y,
+		CROUCH_EYE if crouching else STAND_EYE, delta * CROUCH_LERP_SPEED)
+	body_hitbox.scale.y = lerpf(body_hitbox.scale.y, 0.6 / 1.4, delta * CROUCH_LERP_SPEED)
+	body_hitbox.position.y = lerpf(body_hitbox.position.y, -0.7, delta * CROUCH_LERP_SPEED)
+	head_hitbox.scale.y = lerpf(head_hitbox.scale.y, 0.25 / 0.454, delta * CROUCH_LERP_SPEED)
+	head_hitbox.position.y = lerpf(head_hitbox.position.y, -0.6, delta * CROUCH_LERP_SPEED)
+
+## Feeds the Crosshair autoload with the current movement speed ratio so the
+## crosshair gap widens while moving, like CS:GO.
+func _update_crosshair_spread() -> void:
+	var crosshair := get_node_or_null("/root/Crosshair")
+	if crosshair == null:
+		return
+	var ratio: float = clampf(Vector2(velocity.x, velocity.z).length() / sprint_speed, 0.0, 1.0)
+	crosshair.set_movement_spread(ratio)
 
 # --- Visual sync (broadcast RPCs) ---
 

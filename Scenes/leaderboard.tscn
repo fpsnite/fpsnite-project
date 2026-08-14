@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://723sv6yqf34p"]
+
+[ext_resource type="Script" uid="uid://by6rjrce28iag" path="res://Scripts/leaderboard.gd" id="1_oxn4a"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lb"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.55)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Leaderboard" type="CanvasLayer" unique_id=1045787288]
+script = ExtResource("1_oxn4a")
+
+[node name="Root" type="Control" parent="." unique_id=1140635993]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 12.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Root" unique_id=566210535]
+layout_mode = 1
+offset_left = 66.0
+offset_top = 16.0
+offset_right = 157.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lb")
+
+[node name="Margin" type="MarginContainer" parent="Root/Panel" unique_id=1867199160]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="Rows" type="VBoxContainer" parent="Root/Panel/Margin" unique_id=238490040]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2

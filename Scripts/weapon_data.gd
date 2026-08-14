@@ -17,6 +17,17 @@ extends Resource
 @export var mag_size := 30
 @export var reserve_ammo := 90
 @export var reload_time := 2.0
+## When set, the magazine never empties: firing costs no ammo and reloading
+## is never needed (the HUD shows infinity instead of the counter).
+@export var infinite_ammo := false
+
+@export_group("Feel")
+## Extra spread cone (degrees) at full movement speed; lerped from
+## spread_rad by the player's current speed - CS:GO-style accuracy loss
+## while moving.
+@export var moving_spread_deg := 0.0
+## Upward camera pitch kick (degrees) applied per shot - weapon recoil.
+@export var recoil_kick_deg := 0.0
 
 # --- Melee weapons ---
 @export var melee := false

@@ -10,6 +10,8 @@ extends Node3D
 signal local_damage_taken(damage: float)
 
 const MAX_HEALTH := 100.0
+## Shield absorbs damage before health (a second bar, drained first).
+const MAX_SHIELD := 100.0
 const RESPAWN_TIME := 3.0
 const BODY_LAYER := 4   # BodyHitbox area
 const HEAD_LAYER := 8   # HeadHitbox area
@@ -22,6 +24,7 @@ const WEAPON_TABLES: Array[WeaponData] = [
 
 var _weapons: Dictionary = {}       # weapon_id -> WeaponData (authoritative tables)
 var _health: Dictionary = {}        # player_id -> float
+var _shield: Dictionary = {}        # player_id -> float (absorbs damage first)
 var _dead: Dictionary = {}          # player_id -> bool
 var _last_shot_ms: Dictionary = {}  # player_id -> int, rate limiting
 var _spawn_points: Array[Marker3D] = []
@@ -54,10 +57,12 @@ func _collect_spawn_points() -> void:
 
 func _on_player_joined(player_id: int, _user_id: String) -> void:
 	_health[player_id] = MAX_HEALTH
+	_shield[player_id] = MAX_SHIELD
 	_dead[player_id] = false
 
 func _on_player_left(player_id: int, _is_inactive: bool) -> void:
 	_health.erase(player_id)
+	_shield.erase(player_id)
 	_dead.erase(player_id)
 	_last_shot_ms.erase(player_id)
 
@@ -155,15 +160,21 @@ func _apply_damage(killer_id: int, target_id: int, damage: float, headshot: bool
 		position: Vector3, normal: Vector3, weapon_id: String) -> void:
 	Fusion.rpc(broadcast_hit, killer_id, target_id, damage, headshot,
 		position, normal, weapon_id)
-	var hp := float(_health.get(target_id, MAX_HEALTH)) - damage
+	# Shield absorbs damage first; only overflow reaches health.
+	var shield_hp := float(_shield.get(target_id, MAX_SHIELD))
+	var shield_taken := minf(shield_hp, damage)
+	shield_hp -= shield_taken
+	_shield[target_id] = shield_hp
+	var hp := float(_health.get(target_id, MAX_HEALTH)) - (damage - shield_taken)
 	if hp <= 0.0 and not _dead.get(target_id, false):
 		_dead[target_id] = true
 		_health[target_id] = 0.0
-		Fusion.rpc(sync_health, target_id, 0.0)
+		_shield[target_id] = 0.0
+		Fusion.rpc(sync_health, target_id, 0.0, 0.0)
 		Fusion.rpc(broadcast_death, killer_id, target_id, headshot)
 	else:
 		_health[target_id] = maxf(hp, 0.0)
-		Fusion.rpc(sync_health, target_id, _health[target_id])
+		Fusion.rpc(sync_health, target_id, _health[target_id], _shield[target_id])
 
 # --- Broadcasts (all peers) ---
 
@@ -186,13 +197,14 @@ func broadcast_hit(shooter_id: int, target_id: int, damage: float, headshot: boo
 				Color(1.0, 0.75, 0.1) if headshot else Color(1.0, 1.0, 1.0), headshot)
 
 @rpc("any_peer", "call_local")
-func sync_health(target_id: int, hp: float) -> void:
+func sync_health(target_id: int, hp: float, shield: float) -> void:
 	var character := _character(target_id)
 	if character == null:
 		return
 	if target_id == Fusion.get_local_player_id() and hp < character.health:
 		local_damage_taken.emit(character.health - hp)
 	character.health = hp
+	character.shield = shield
 
 @rpc("any_peer", "call_local")
 func broadcast_death(killer_id: int, target_id: int, headshot: bool) -> void:
@@ -220,11 +232,12 @@ func request_respawn_rpc(player_id: int) -> void:
 		return
 	_dead[player_id] = false
 	_health[player_id] = MAX_HEALTH
-	var position := Vector3(0.0, 1.5, 0.0)
+	_shield[player_id] = MAX_SHIELD
+	var position := Vector3(0.0, 1.0, 0.0)
 	if not _spawn_points.is_empty():
 		position = _spawn_points.pick_random().global_position
 	Fusion.rpc(broadcast_respawn, player_id, position, randf() * TAU)
-	Fusion.rpc(sync_health, player_id, MAX_HEALTH)
+	Fusion.rpc(sync_health, player_id, MAX_HEALTH, MAX_SHIELD)
 
 @rpc("any_peer", "call_local")
 func broadcast_respawn(player_id: int, position: Vector3, rotation_y: float) -> void:

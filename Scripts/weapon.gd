@@ -31,16 +31,36 @@ var _tracers: Array[MeshInstance3D] = []
 var _tracer_index := 0
 var _flash: OmniLight3D
 var _flash_left := 0.0
+var _melee_index := 0
 
 func _ready() -> void:
-	_owner = get_parent().get_parent() as CharacterBody3D
+	_owner = _find_owner()
 	_tracers = _make_tracer_pool()
 	_flash = OmniLight3D.new()
 	_flash.light_color = Color(1.0, 0.85, 0.4)
-	_flash.light_energy = 2.0
-	_flash.omni_range = 3.0
+	_flash.light_energy = 3.0
+	_flash.omni_range = 4.0
 	_flash.visible = false
-	_equip(0)
+	_melee_index = _find_melee_index()
+	_equip(_melee_index)
+
+## The Weapon node sits under CameraPivot/Camera3D, so walk up until we hit
+## the player's CharacterBody3D root (owner of replicator/camera/health).
+func _find_owner() -> CharacterBody3D:
+	var node: Node = get_parent()
+	while node != null:
+		if node is CharacterBody3D:
+			return node
+		node = node.get_parent()
+	return null
+
+## Index of the melee weapon in the loadout (the knife), used as the
+## default equipped weapon and the target of the "knife" bind.
+func _find_melee_index() -> int:
+	for i in loadout.size():
+		if loadout[i].melee:
+			return i
+	return 0
 
 func _process(delta: float) -> void:
 	_flash_left = maxf(_flash_left - delta, 0.0)
@@ -57,14 +77,21 @@ func _process(delta: float) -> void:
 			_reload_left -= delta
 			if _reload_left <= 0.0:
 				_finish_reload()
-		elif Input.is_action_just_pressed("reload") and mag < current_data.mag_size and reserve > 0:
+		elif Input.is_action_just_pressed("reload") \
+				and not current_data.infinite_ammo and mag < current_data.mag_size and reserve > 0:
 			_start_reload()
 		elif Input.is_action_pressed("fire") and _cooldown <= 0.0 and mag > 0:
 			_shoot()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_weapon") and _can_act():
+	if not _can_act():
+		return
+	if event.is_action_pressed("next_weapon"):
 		_equip(weapon_index + 1)
+	elif event.is_action_pressed("prev_weapon"):
+		_equip(weapon_index - 1 + loadout.size())
+	elif event.is_action_pressed("knife"):
+		_equip(_melee_index)
 
 func _can_act() -> bool:
 	return _owner != null \
@@ -101,17 +128,40 @@ func _shot_origin() -> Vector3:
 
 func _shoot() -> void:
 	_cooldown = 1.0 / maxf(current_data.fire_rate, 0.1)
-	mag -= 1
+	if not current_data.infinite_ammo:
+		mag -= 1
 	ammo_changed.emit(mag, reserve)
 	var camera: Camera3D = _owner.camera_3d
 	var basis: Basis = camera.global_transform.basis
-	var spread := current_data.spread_rad
+	# CS:GO-style accuracy: spread lerps from the base cone to the moving cone
+	# by current speed. Cosmetic only - the server validates with its own
+	# weapons table.
+	var h_speed := Vector2(_owner.velocity.x, _owner.velocity.z).length()
+	var speed_ratio := clampf(h_speed / 9.0, 0.0, 1.0)
+	var spread := lerpf(current_data.spread_rad,
+		deg_to_rad(current_data.moving_spread_deg), speed_ratio)
 	var direction: Vector3 = (basis * Vector3(
 		randf_range(-spread, spread), randf_range(-spread, spread), -1.0)).normalized()
 	var sys := get_tree().get_first_node_in_group("weapon_system")
 	if sys:
 		sys.request_shoot(_owner.player_id, _shot_origin(), direction, current_data.weapon_id)
 	_show_muzzle_flash()
+	_apply_recoil()
+	_notify_crosshair_shot()
+
+## Upward camera kick per shot (weapon recoil).
+func _apply_recoil() -> void:
+	if current_data.recoil_kick_deg <= 0.0 or _owner == null:
+		return
+	var cam := _owner.get_node_or_null("CameraPivot") as FirstPersonCamera
+	if cam:
+		cam.add_recoil(current_data.recoil_kick_deg)
+
+## The CS:GO-style crosshair kicks outward on each shot.
+func _notify_crosshair_shot() -> void:
+	var crosshair := get_node_or_null("/root/Crosshair")
+	if crosshair:
+		crosshair.add_shot_kick()
 
 func _melee_attack() -> void:
 	_cooldown = current_data.melee_time

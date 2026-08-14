@@ -21,7 +21,7 @@ size = Vector3(0.7234375, 0.45390624, 0.745752)
 
 [node name="PlayerInstance" type="CharacterBody3D" unique_id=1447604464]
 script = ExtResource("1_bai1d")
-jump_velocity = 9.0
+jump_velocity = 6.5
 
 [node name="FusionServerReplicator" type="FusionServerReplicator" parent="." unique_id=2080243925]
 owner_mode = 5
@@ -48,7 +48,7 @@ script = ExtResource("3_cam")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9462637, -0.3350593)
 
 [node name="Weapon" type="Node3D" parent="CameraPivot/Camera3D" unique_id=2080243929]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.47205818, -0.25855815, 0.6275248)
+transform = Transform3D(0.98006758, -0.02378211, -0.19723449, 0, 0.99280864, -0.11971226, 0.19866933, 0.11733003, 0.97304169, 0.42, -0.34, -0.5)
 script = ExtResource("5_weapon")
 loadout = Array[ExtResource("5b_wd")]([ExtResource("6_rifle"), ExtResource("7_knife")])
 

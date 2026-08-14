@@ -241,9 +241,10 @@ func teleport_to_start_line() -> void:
 
 ## Spawn position on the arena map is behind the red line (x ~73), one lane
 ## per player. Falls back to the Marker3D spawn points on maps without one.
+## y is the capsule CENTER (2m tall) so 1.0 = feet on the floor.
 func _start_position_for(player_id: int) -> Vector3:
 	if get_node_or_null("GameArena"):
-		return Vector3(73.0, 1.5, -7.0 + (player_id % 8) * 2.0)
+		return Vector3(73.0, 1.0, -7.0 + (player_id % 8) * 2.0)
 	return _spawn_point_for(player_id)
 
 ## Red-light violation penalty (called by game_round): teleport back to the

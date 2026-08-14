@@ -19,9 +19,20 @@ func _ready() -> void:
 	dim.color.a = 0.0
 	dim.gui_input.connect(_on_dim_gui_input)
 	drawer.position.x = _viewport_width() + 10.0
+	_refresh_room_code_visibility()
 	if Settings.open_drawer_on_return:
 		Settings.open_drawer_on_return = false
 		call_deferred("set_open", true)
+
+## No reason to show the room code when playing solo: hide the code and the
+## copy button while this client is the only one in the room.
+func _refresh_room_code_visibility() -> void:
+	var alone := true
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby and "_characters" in lobby:
+		alone = lobby._characters.size() <= 1
+	$Drawer/VBox/RoomCodeLabel.visible = not alone
+	$Drawer/VBox/CopyCodeButton.visible = not alone
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -34,6 +45,8 @@ func _viewport_width() -> float:
 func set_open(open: bool) -> void:
 	_open = open
 	visible = open
+	if open:
+		_refresh_room_code_visibility()
 	get_tree().paused = open
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open else Input.MOUSE_MODE_CAPTURED
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP if open else Control.MOUSE_FILTER_IGNORE
@@ -44,7 +57,10 @@ func set_open(open: bool) -> void:
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT if open else Tween.EASE_IN)
 	_tween.tween_property(dim, "color:a", 0.55 if open else 0.0, 0.28)
 	if open:
-		$Drawer/VBox/CopyCodeButton.grab_focus()
+		if $Drawer/VBox/CopyCodeButton.visible:
+			$Drawer/VBox/CopyCodeButton.grab_focus()
+		else:
+			$Drawer/VBox/SettingsButton.grab_focus()
 
 func _on_dim_gui_input(event: InputEvent) -> void:
 	if _open and event is InputEventMouseButton and event.pressed \

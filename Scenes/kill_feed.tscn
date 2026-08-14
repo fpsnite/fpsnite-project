@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://o3gk4rv08dma"]
+
+[ext_resource type="Script" uid="uid://4tyuo5287adw" path="res://Scripts/kill_feed.gd" id="1_lbkcu"]
+
+[node name="KillFeed" type="CanvasLayer" unique_id=714734938]
+script = ExtResource("1_lbkcu")
+
+[node name="Root" type="Control" parent="." unique_id=665410299]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1150.0
+offset_top = 282.0
+offset_right = -806.0
+offset_bottom = 782.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="Root" unique_id=1501523063]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -791.0
+offset_top = 53.0
+offset_right = -791.0
+offset_bottom = 53.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4

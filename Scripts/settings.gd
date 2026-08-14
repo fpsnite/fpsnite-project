@@ -14,7 +14,13 @@ const DEFAULT_KEYBINDS := {
 	"move_back": KEY_S,
 	"sprint": KEY_SHIFT,
 	"jump": KEY_SPACE,
+	"crouch": KEY_CTRL,
 	"chat": KEY_T,
+	"reload": KEY_R,
+	"next_weapon": KEY_Q,
+	"prev_weapon": KEY_E,
+	"knife": KEY_3,
+	"interact": KEY_F,
 }
 
 var fps_limit := 0
@@ -29,20 +35,20 @@ var player_id := -1
 ## Login token from Discord /register - the credential the backend accepts.
 var auth_token := ""
 
-## Mouse look (Settings > Controls tab), applied live by FirstPersonCamera:
-## hipfire sensitivity, per-axis multipliers, and the multiplier applied
-## while ADS (aim) is held.
-var mouse_sensitivity := 0.0025
-var ads_sensitivity_multiplier := 0.6
-var sens_x := 1.0
-var sens_y := 1.0
+## Mouse look (Settings > Controls tab), applied live by FirstPersonCamera.
+## Stored as percentages (0-100%): 100% = the default sensitivity. 0% means
+## no look movement at all, 100% is the normal value, up to 100% the max.
+var mouse_sensitivity_pct := 100.0
+var ads_sensitivity_pct := 60.0
+var sens_x_pct := 100.0
+var sens_y_pct := 100.0
 
 ## Defaults for the Settings > Controls "reset" button.
 const CONTROLS_DEFAULTS := {
-	"mouse_sensitivity": 0.0025,
-	"ads_sensitivity_multiplier": 0.6,
-	"sens_x": 1.0,
-	"sens_y": 1.0,
+	"mouse_sensitivity_pct": 100.0,
+	"ads_sensitivity_pct": 60.0,
+	"sens_x_pct": 100.0,
+	"sens_y_pct": 100.0,
 }
 
 ## Transient navigation flags for the settings-page round trip (not saved):

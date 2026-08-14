@@ -1,0 +1,64 @@
+extends CanvasLayer
+## Dynamic CS:GO-style crosshair, registered as an autoload named "Crosshair"
+## (see project.godot). Rendered on a high canvas layer so it always draws on
+## top of the 3D world and every HUD: the gap widens with movement speed
+## (set_movement_spread, driven by player_instance) and on each shot
+## (add_shot_kick, driven by weapon.gd), then decays back to base.
+
+const BASE_GAP := 6.0          # gap while standing still & not firing
+const MAX_MOVEMENT_GAP := 14.0 # extra gap at full movement speed
+const SHOT_KICK := 5.0         # extra gap per shot
+const MAX_SHOT_SPREAD := 20.0
+const RECOVER_SPEED := 12.0    # how fast shot spread shrinks back
+const LINE_LENGTH := 10.0
+const LINE_WIDTH := 2.0
+const CROSSHAIR_COLOR := Color(1.0, 1.0, 1.0, 1.0)
+
+## The arena scene - the crosshair is only shown while it is the current
+## scene (not in the menu lobby, settings, launcher, etc).
+const GAME_SCENE := "res://Scenes/lobby.tscn"
+
+var _movement_spread := 0.0  # 0..1, set every physics frame
+var _shot_spread := 0.0      # decays over time after each shot
+
+var _panel: Control
+
+func _ready() -> void:
+	layer = 100
+	_panel = Control.new()
+	_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.draw.connect(_on_draw)
+	add_child(_panel)
+	_panel.visible = false
+
+func _process(delta: float) -> void:
+	var in_game := get_tree().current_scene != null \
+		and get_tree().current_scene.scene_file_path == GAME_SCENE
+	if _panel.visible != in_game:
+		_panel.visible = in_game
+	if _shot_spread > 0.0:
+		_shot_spread = maxf(_shot_spread - RECOVER_SPEED * delta, 0.0)
+		_redraw()
+
+func set_movement_spread(ratio: float) -> void:
+	ratio = clampf(ratio, 0.0, 1.0)
+	if absf(ratio - _movement_spread) > 0.01:
+		_movement_spread = ratio
+		_redraw()
+
+func add_shot_kick() -> void:
+	_shot_spread = minf(_shot_spread + SHOT_KICK, MAX_SHOT_SPREAD)
+	_redraw()
+
+func _redraw() -> void:
+	if _panel:
+		_panel.queue_redraw()
+
+func _on_draw() -> void:
+	var center := _panel.size / 2.0
+	var gap := BASE_GAP + (_movement_spread * MAX_MOVEMENT_GAP) + _shot_spread
+	_panel.draw_line(center + Vector2(0, -gap), center + Vector2(0, -gap - LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(0, gap), center + Vector2(0, gap + LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(-gap, 0), center + Vector2(-gap - LINE_LENGTH, 0), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(gap, 0), center + Vector2(gap + LINE_LENGTH, 0), CROSSHAIR_COLOR, LINE_WIDTH)

@@ -1,23 +1,17 @@
 [gd_scene format=3 uid="uid://bulhwy7bqkq86"]
 
 [ext_resource type="Script" uid="uid://btyv0smp3oyd8" path="res://Scripts/lobby.gd" id="1_lobby"]
-[ext_resource type="Script" uid="uid://1ctogmuvxipd" path="res://Scripts/pause_menu.gd" id="2_pause"]
 [ext_resource type="Script" uid="uid://bdf34m8mdjlns" path="res://Scripts/game_round.gd" id="3_round"]
 [ext_resource type="Script" uid="uid://bo6d7d85pqias" path="res://Scripts/spectate.gd" id="4_spectate"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="5_5ndqc"]
-[ext_resource type="Script" uid="uid://wnvrijqrgfmm" path="res://Scripts/player_hud.gd" id="5_hud"]
-[ext_resource type="Script" uid="uid://by6rjrce28iag" path="res://Scripts/leaderboard.gd" id="6_board"]
-[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="7_gdlty"]
+[ext_resource type="PackedScene" uid="uid://cqpprs3jpydom" path="res://Scenes/spectate_ui.tscn" id="7_5ndqc"]
 [ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="8_chat"]
-[ext_resource type="Texture2D" uid="uid://bt6w7pa4smub0" path="res://Assets/arrow-left-icon.png" id="8_pvv31"]
-[ext_resource type="Script" uid="uid://4tyuo5287adw" path="res://Scripts/kill_feed.gd" id="9_feed"]
-[ext_resource type="Texture2D" uid="uid://0ktgtumdlwlu" path="res://Assets/arrow-right-icon.png" id="9_sqxuf"]
+[ext_resource type="PackedScene" uid="uid://b2iv0wr7vqwh1" path="res://Scenes/player_hud.tscn" id="8_gdlty"]
+[ext_resource type="PackedScene" uid="uid://daaxbodwdu77d" path="res://Scenes/pause_menu.tscn" id="9_jjrc4"]
 [ext_resource type="PackedScene" uid="uid://iamasxceih8s" path="res://Scenes/fps_map.tscn" id="10_map"]
-[ext_resource type="Texture2D" uid="uid://b5hlu8nr61l53" path="res://Assets/Health.png" id="11_sqxuf"]
 [ext_resource type="Script" uid="uid://c5idgjao48okc" path="res://Scripts/weapon_system.gd" id="11_wpnsys"]
-[ext_resource type="Texture2D" uid="uid://bqimceq1wb2mx" path="res://Assets/locker-ver-2.png1.png" id="12_a2vla"]
 [ext_resource type="Script" uid="uid://dp6k547l5sr3e" path="res://Scripts/damage_numbers.gd" id="12_dmg"]
-[ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="14_xfaul"]
+[ext_resource type="PackedScene" uid="uid://o3gk4rv08dma" path="res://Scenes/kill_feed.tscn" id="12_pvv31"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ll2xe"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -57,41 +51,6 @@ size = Vector3(63.001953, 0.5, 62.421143)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ceiling"]
 size = Vector3(40, 0.5, 40)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_bg"]
-bg_color = Color(0, 0, 0, 0.45)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_health"]
-bg_color = Color(0.28627452, 0.9372549, 0.08235294, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_stamina"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
-bg_color = Color(0.07, 0.08, 0.11, 0.98)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lb"]
-content_margin_left = 14.0
-content_margin_top = 10.0
-content_margin_right = 14.0
-content_margin_bottom = 10.0
-bg_color = Color(0, 0, 0, 0.55)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [node name="Lobby" type="Node3D" unique_id=1854345445]
 script = ExtResource("1_lobby")
@@ -259,71 +218,7 @@ script = ExtResource("4_spectate")
 [node name="SpectateCamera" type="Camera3D" parent="SpectateManager" unique_id=700000202]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 3.4)
 
-[node name="SpectateUI" type="CanvasLayer" parent="." unique_id=700000203]
-visible = false
-
-[node name="TopBox" type="VBoxContainer" parent="SpectateUI" unique_id=700000211]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -300.0
-offset_top = 250.0
-offset_right = 300.0
-offset_bottom = 400.0
-grow_horizontal = 2
-
-[node name="SpectateLabel" type="Label" parent="SpectateUI/TopBox" unique_id=700000212]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.98, 0.83, 0.25, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 8
-theme_override_fonts/font = ExtResource("7_gdlty")
-theme_override_font_sizes/font_size = 40
-text = "SPECTATING"
-horizontal_alignment = 1
-
-[node name="PlayerNameLabel" type="Label" parent="SpectateUI/TopBox" unique_id=700000213]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 6
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 30
-horizontal_alignment = 1
-
-[node name="BottomRightBox" type="HBoxContainer" parent="SpectateUI" unique_id=700000214]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -401.0
-offset_top = -96.0
-offset_right = 19.0
-offset_bottom = -20.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_constants/separation = 14
-
-[node name="PrevButton" type="Button" parent="SpectateUI/BottomRightBox" unique_id=700000215]
-custom_minimum_size = Vector2(100, 64)
-layout_mode = 2
-offset_transform_enabled = true
-offset_transform_position = Vector2(60, 0)
-offset_transform_visual_only = false
-theme_override_font_sizes/font_size = 22
-icon = ExtResource("8_pvv31")
-expand_icon = true
-
-[node name="NextButton" type="Button" parent="SpectateUI/BottomRightBox" unique_id=700000216]
-custom_minimum_size = Vector2(100, 64)
-layout_mode = 2
-offset_transform_enabled = true
-offset_transform_position = Vector2(60, 0)
-offset_transform_visual_only = false
-theme_override_font_sizes/font_size = 22
-icon = ExtResource("9_sqxuf")
-expand_icon = true
+[node name="SpectateUI" parent="." unique_id=1881249395 instance=ExtResource("7_5ndqc")]
 
 [node name="Room" type="StaticBody3D" parent="." unique_id=889463193]
 
@@ -381,254 +276,17 @@ surface_material_override/0 = SubResource("StandardMaterial3D_room")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.53982, 0)
 shape = SubResource("BoxShape3D_ceiling")
 
-[node name="PlayerHUD" type="CanvasLayer" parent="." unique_id=900000001]
-script = ExtResource("5_hud")
+[node name="PlayerHUD" parent="." unique_id=2011545418 instance=ExtResource("8_gdlty")]
 
-[node name="DamageFlash" type="ColorRect" parent="PlayerHUD" unique_id=900000010]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.8, 0.1, 0.1, 0)
-
-[node name="Box" type="VBoxContainer" parent="PlayerHUD" unique_id=900000002]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -568.0
-offset_top = -164.0
-offset_right = -228.0
-offset_bottom = -36.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/separation = 6
-
-[node name="ForceLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000009]
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 26
-text = "000"
-
-[node name="WeaponLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000011]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 6
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 22
-text = "RIFLE"
-horizontal_alignment = 1
-
-[node name="AmmoLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000012]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
-theme_override_constants/outline_size = 6
-theme_override_fonts/font = ExtResource("7_gdlty")
-theme_override_font_sizes/font_size = 28
-text = "30 / 90"
-horizontal_alignment = 1
-
-[node name="HealthRow" type="HBoxContainer" parent="PlayerHUD/Box" unique_id=900000013]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Health Icon" type="TextureRect" parent="PlayerHUD/Box/HealthRow" unique_id=1599080762]
-layout_mode = 2
-texture = ExtResource("11_sqxuf")
-expand_mode = 2
-
-[node name="HealthBar" type="ProgressBar" parent="PlayerHUD/Box/HealthRow" unique_id=900000015]
-custom_minimum_size = Vector2(240, 18)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_health")
-value = 100.0
-show_percentage = false
-
-[node name="SprintRow" type="HBoxContainer" parent="PlayerHUD/Box" unique_id=900000003]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Sprint Icon" type="TextureRect" parent="PlayerHUD/Box/SprintRow" unique_id=1811441926]
-layout_mode = 2
-texture = ExtResource("12_a2vla")
-expand_mode = 3
-
-[node name="SprintBar" type="ProgressBar" parent="PlayerHUD/Box/SprintRow" unique_id=900000005]
-custom_minimum_size = Vector2(240, 18)
-layout_mode = 2
-size_flags_horizontal = 3
-offset_transform_enabled = true
-offset_transform_scale = Vector2(1, 0.4)
-offset_transform_visual_only = false
-theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_stamina")
-value = 100.0
-show_percentage = false
-
-[node name="PauseMenu" type="CanvasLayer" parent="." unique_id=600000001]
-process_mode = 3
-script = ExtResource("2_pause")
-
-[node name="Dim" type="ColorRect" parent="PauseMenu" unique_id=600000002]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0)
-
-[node name="Drawer" type="PanelContainer" parent="PauseMenu" unique_id=600000003]
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_right = 380.0
-grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
-
-[node name="VBox" type="VBoxContainer" parent="PauseMenu/Drawer" unique_id=600000004]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Title" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000005]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 40
-text = "PAUSED"
-horizontal_alignment = 1
-
-[node name="HintLabel" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000010]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
-theme_override_fonts/font = ExtResource("7_gdlty")
-theme_override_font_sizes/font_size = 18
-text = "click outside to close"
-horizontal_alignment = 1
-
-[node name="RoomCodeLabel" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000008]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("5_5ndqc")
-text = "ROOM CODE: ---"
-horizontal_alignment = 1
-
-[node name="CopyCodeButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000009]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 20
-text = "COPY ROOM CODE"
-icon = ExtResource("14_xfaul")
-expand_icon = true
-
-[node name="SettingsButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000013]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 20
-text = "SETTINGS"
-
-[node name="Spacer" type="Control" parent="PauseMenu/Drawer/VBox" unique_id=600000011]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-
-[node name="LeaveButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000007]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 20
-text = "LEAVE ROOM"
-
-[node name="QuitButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000012]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
-theme_override_fonts/font = ExtResource("5_5ndqc")
-theme_override_font_sizes/font_size = 25
-text = "QUIT"
-
-[node name="Leaderboard" type="CanvasLayer" parent="." unique_id=700000221]
-script = ExtResource("6_board")
-
-[node name="Root" type="Control" parent="Leaderboard" unique_id=700000222]
-layout_mode = 3
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -340.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = 12.0
-grow_horizontal = 0
-mouse_filter = 2
-
-[node name="Panel" type="PanelContainer" parent="Leaderboard/Root" unique_id=700000223]
-layout_mode = 1
-offset_left = 66.0
-offset_top = 16.0
-offset_right = 157.0
-offset_bottom = 52.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_lb")
-
-[node name="Margin" type="MarginContainer" parent="Leaderboard/Root/Panel" unique_id=700000224]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 8
-
-[node name="Rows" type="VBoxContainer" parent="Leaderboard/Root/Panel/Margin" unique_id=700000225]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
+[node name="PauseMenu" parent="." unique_id=1515345558 instance=ExtResource("9_jjrc4")]
 
 [node name="GameArena" parent="." unique_id=395524904 instance=ExtResource("10_map")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.26533, 0, 0)
 
 [node name="ChatPanel" parent="." unique_id=878473322 instance=ExtResource("8_chat")]
-offset_left = 721.0
-offset_top = -263.0
-offset_right = 1125.0
-offset_bottom = -103.0
+offset_left = 734.0
+offset_top = -222.0
+offset_right = 1138.0
+offset_bottom = -62.0
 
-[node name="KillFeed" type="CanvasLayer" parent="." unique_id=900000301]
-script = ExtResource("9_feed")
-
-[node name="Root" type="Control" parent="KillFeed" unique_id=900000302]
-layout_mode = 3
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -360.0
-offset_top = 220.0
-offset_right = -16.0
-offset_bottom = 720.0
-grow_horizontal = 0
-mouse_filter = 2
-
-[node name="Box" type="VBoxContainer" parent="KillFeed/Root" unique_id=900000303]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[connection signal="pressed" from="SpectateUI/BottomRightBox/PrevButton" to="SpectateManager" method="spectate_prev"]
-[connection signal="pressed" from="SpectateUI/BottomRightBox/NextButton" to="SpectateManager" method="spectate_next"]
-[connection signal="pressed" from="PauseMenu/Drawer/VBox/CopyCodeButton" to="PauseMenu" method="_on_copy_code_pressed"]
-[connection signal="pressed" from="PauseMenu/Drawer/VBox/SettingsButton" to="PauseMenu" method="_on_settings_pressed"]
-[connection signal="pressed" from="PauseMenu/Drawer/VBox/LeaveButton" to="PauseMenu" method="_on_leave_pressed"]
-[connection signal="pressed" from="PauseMenu/Drawer/VBox/QuitButton" to="PauseMenu" method="_on_quit_pressed"]
+[node name="KillFeed" parent="." unique_id=714734938 instance=ExtResource("12_pvv31")]

@@ -1,0 +1,94 @@
+[gd_scene format=3 uid="uid://daaxbodwdu77d"]
+
+[ext_resource type="Script" uid="uid://1ctogmuvxipd" path="res://Scripts/pause_menu.gd" id="1_bpi0q"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_vmyb1"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_myy0f"]
+[ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="4_sjs17"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
+bg_color = Color(0.07, 0.08, 0.11, 0.98)
+
+[node name="PauseMenu" type="CanvasLayer" unique_id=1515345558]
+process_mode = 3
+script = ExtResource("1_bpi0q")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=524682333]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Drawer" type="PanelContainer" parent="." unique_id=1565851937]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 380.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
+
+[node name="VBox" type="VBoxContainer" parent="Drawer" unique_id=35892320]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Drawer/VBox" unique_id=142650443]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_fonts/font = ExtResource("2_vmyb1")
+theme_override_font_sizes/font_size = 40
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Drawer/VBox" unique_id=1611281057]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_fonts/font = ExtResource("3_myy0f")
+theme_override_font_sizes/font_size = 18
+text = "click outside to close"
+horizontal_alignment = 1
+
+[node name="RoomCodeLabel" type="Label" parent="Drawer/VBox" unique_id=1547270118]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_vmyb1")
+text = "ROOM CODE: ---"
+horizontal_alignment = 1
+
+[node name="CopyCodeButton" type="Button" parent="Drawer/VBox" unique_id=859995427]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_vmyb1")
+theme_override_font_sizes/font_size = 20
+text = "COPY ROOM CODE"
+icon = ExtResource("4_sjs17")
+expand_icon = true
+
+[node name="SettingsButton" type="Button" parent="Drawer/VBox" unique_id=349883121]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_vmyb1")
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS"
+
+[node name="Spacer" type="Control" parent="Drawer/VBox" unique_id=985401488]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="LeaveButton" type="Button" parent="Drawer/VBox" unique_id=483221176]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_vmyb1")
+theme_override_font_sizes/font_size = 20
+text = "LEAVE ROOM"
+
+[node name="QuitButton" type="Button" parent="Drawer/VBox" unique_id=1076577676]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_vmyb1")
+theme_override_font_sizes/font_size = 25
+text = "QUIT"
+
+[connection signal="pressed" from="Drawer/VBox/CopyCodeButton" to="." method="_on_copy_code_pressed"]
+[connection signal="pressed" from="Drawer/VBox/SettingsButton" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="Drawer/VBox/LeaveButton" to="." method="_on_leave_pressed"]
+[connection signal="pressed" from="Drawer/VBox/QuitButton" to="." method="_on_quit_pressed"]

@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://cqpprs3jpydom"]
+
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="1_vfw5b"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_c5oxc"]
+[ext_resource type="Texture2D" uid="uid://bt6w7pa4smub0" path="res://Assets/arrow-left-icon.png" id="3_cuabc"]
+[ext_resource type="Texture2D" uid="uid://0ktgtumdlwlu" path="res://Assets/arrow-right-icon.png" id="4_bleup"]
+
+[node name="SpectateUI" type="CanvasLayer" unique_id=1881249395]
+visible = false
+
+[node name="TopBox" type="VBoxContainer" parent="." unique_id=1870305781]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 250.0
+offset_right = 300.0
+offset_bottom = 400.0
+grow_horizontal = 2
+
+[node name="SpectateLabel" type="Label" parent="TopBox" unique_id=506555290]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.83, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("1_vfw5b")
+theme_override_font_sizes/font_size = 40
+text = "SPECTATING"
+horizontal_alignment = 1
+
+[node name="PlayerNameLabel" type="Label" parent="TopBox" unique_id=2142678984]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("2_c5oxc")
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+
+[node name="BottomRightBox" type="HBoxContainer" parent="." unique_id=1667098183]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -401.0
+offset_top = -96.0
+offset_right = 19.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 14
+
+[node name="PrevButton" type="Button" parent="BottomRightBox" unique_id=762612240]
+custom_minimum_size = Vector2(100, 64)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(60, 0)
+offset_transform_visual_only = false
+theme_override_font_sizes/font_size = 22
+icon = ExtResource("3_cuabc")
+expand_icon = true
+
+[node name="NextButton" type="Button" parent="BottomRightBox" unique_id=309777345]
+custom_minimum_size = Vector2(100, 64)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(60, 0)
+offset_transform_visual_only = false
+theme_override_font_sizes/font_size = 22
+icon = ExtResource("4_bleup")
+expand_icon = true

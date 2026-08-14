@@ -1,0 +1,415 @@
+[gd_scene format=3 uid="uid://b2hudhud7g000"]
+
+[ext_resource type="Script" uid="uid://1ctogmuvxipd" path="res://Scripts/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" uid="uid://wnvrijqrgfmm" path="res://Scripts/player_hud.gd" id="2_hud"]
+[ext_resource type="Script" uid="uid://bo6d7d85pqias" path="res://Scripts/spectate.gd" id="3_spectate"]
+[ext_resource type="Script" uid="uid://dp6k547l5sr3e" path="res://Scripts/damage_numbers.gd" id="4_dmg"]
+[ext_resource type="Script" uid="uid://4tyuo5287adw" path="res://Scripts/kill_feed.gd" id="5_feed"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="6_5ndqc"]
+[ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="7_gdlty"]
+[ext_resource type="Texture2D" uid="uid://bt6w7pa4smub0" path="res://Assets/arrow-left-icon.png" id="8_pvv31"]
+[ext_resource type="Texture2D" uid="uid://0ktgtumdlwlu" path="res://Assets/arrow-right-icon.png" id="9_sqxuf"]
+[ext_resource type="Texture2D" uid="uid://b5hlu8nr61l53" path="res://Assets/Health.png" id="10_hp"]
+[ext_resource type="Texture2D" uid="uid://bqimceq1wb2mx" path="res://Assets/locker-ver-2.png1.png" id="11_stam"]
+[ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="12_clip"]
+[ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="13_chat"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_bg"]
+bg_color = Color(0, 0, 0, 0.45)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_health"]
+bg_color = Color(0.28627452, 0.9372549, 0.08235294, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_shield"]
+bg_color = Color(0.2, 0.55, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_stamina"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
+bg_color = Color(0.07, 0.08, 0.11, 0.98)
+
+[node name="GameHUD" type="Node"]
+
+[node name="DamageLayer" type="CanvasLayer" parent="."]
+script = ExtResource("4_dmg")
+
+[node name="RoundHUD" type="CanvasLayer" parent="."]
+
+[node name="StatusLabel" type="Label" parent="RoundHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 20.0
+offset_right = 350.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 50
+text = "Waiting For Players"
+horizontal_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="RoundHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 70.835
+offset_right = 200.0
+offset_bottom = 150.835
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 37
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LightLabel" type="Label" parent="RoundHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -280.0
+offset_top = 150.085
+offset_right = 280.0
+offset_bottom = 206.085
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 27
+horizontal_alignment = 1
+
+[node name="DebugLabel" type="Label" parent="RoundHUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -28.0
+offset_right = 300.0
+offset_bottom = -14.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.65)
+theme_override_font_sizes/font_size = 16
+text = "- ms  [0]"
+
+[node name="SpectateManager" type="Node3D" parent="."]
+script = ExtResource("3_spectate")
+
+[node name="SpectateCamera" type="Camera3D" parent="SpectateManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 3.4)
+
+[node name="SpectateUI" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="TopBox" type="VBoxContainer" parent="SpectateUI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 250.0
+offset_right = 300.0
+offset_bottom = 400.0
+grow_horizontal = 2
+
+[node name="SpectateLabel" type="Label" parent="SpectateUI/TopBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.83, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("7_gdlty")
+theme_override_font_sizes/font_size = 40
+text = "SPECTATING"
+horizontal_alignment = 1
+
+[node name="PlayerNameLabel" type="Label" parent="SpectateUI/TopBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+
+[node name="BottomRightBox" type="HBoxContainer" parent="SpectateUI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -401.0
+offset_top = -96.0
+offset_right = 19.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 14
+
+[node name="PrevButton" type="Button" parent="SpectateUI/BottomRightBox"]
+custom_minimum_size = Vector2(100, 64)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(60, 0)
+offset_transform_visual_only = false
+theme_override_font_sizes/font_size = 22
+icon = ExtResource("8_pvv31")
+expand_icon = true
+
+[node name="NextButton" type="Button" parent="SpectateUI/BottomRightBox"]
+custom_minimum_size = Vector2(100, 64)
+layout_mode = 2
+offset_transform_enabled = true
+offset_transform_position = Vector2(60, 0)
+offset_transform_visual_only = false
+theme_override_font_sizes/font_size = 22
+icon = ExtResource("9_sqxuf")
+expand_icon = true
+
+[node name="PlayerHUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="DamageFlash" type="ColorRect" parent="PlayerHUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.8, 0.1, 0.1, 0)
+
+[node name="Box" type="VBoxContainer" parent="PlayerHUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -568.0
+offset_top = -164.0
+offset_right = -228.0
+offset_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="ForceLabel" type="Label" parent="PlayerHUD/Box"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "000"
+
+[node name="WeaponLabel" type="Label" parent="PlayerHUD/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 22
+text = "RIFLE"
+horizontal_alignment = 1
+
+[node name="AmmoLabel" type="Label" parent="PlayerHUD/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("7_gdlty")
+theme_override_font_sizes/font_size = 28
+text = "30 / 90"
+horizontal_alignment = 1
+
+[node name="HealthRow" type="HBoxContainer" parent="PlayerHUD/Box"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Health Icon" type="TextureRect" parent="PlayerHUD/Box/HealthRow"]
+layout_mode = 2
+texture = ExtResource("10_hp")
+expand_mode = 2
+
+[node name="HealthBar" type="ProgressBar" parent="PlayerHUD/Box/HealthRow"]
+custom_minimum_size = Vector2(240, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_health")
+value = 100.0
+show_percentage = false
+
+[node name="ShieldRow" type="HBoxContainer" parent="PlayerHUD/Box"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ShieldBar" type="ProgressBar" parent="PlayerHUD/Box/ShieldRow"]
+custom_minimum_size = Vector2(240, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_shield")
+value = 100.0
+show_percentage = false
+
+[node name="SprintRow" type="HBoxContainer" parent="PlayerHUD/Box"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Sprint Icon" type="TextureRect" parent="PlayerHUD/Box/SprintRow"]
+layout_mode = 2
+texture = ExtResource("11_stam")
+expand_mode = 3
+
+[node name="SprintBar" type="ProgressBar" parent="PlayerHUD/Box/SprintRow"]
+custom_minimum_size = Vector2(240, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+offset_transform_enabled = true
+offset_transform_scale = Vector2(1, 0.4)
+offset_transform_visual_only = false
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_stamina")
+value = 100.0
+show_percentage = false
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+process_mode = 3
+script = ExtResource("1_pause")
+
+[node name="Dim" type="ColorRect" parent="PauseMenu"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Drawer" type="PanelContainer" parent="PauseMenu"]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 380.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
+
+[node name="VBox" type="VBoxContainer" parent="PauseMenu/Drawer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="PauseMenu/Drawer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 40
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="PauseMenu/Drawer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_fonts/font = ExtResource("7_gdlty")
+theme_override_font_sizes/font_size = 18
+text = "click outside to close"
+horizontal_alignment = 1
+
+[node name="RoomCodeLabel" type="Label" parent="PauseMenu/Drawer/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_5ndqc")
+text = "ROOM CODE: ---"
+horizontal_alignment = 1
+
+[node name="CopyCodeButton" type="Button" parent="PauseMenu/Drawer/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 20
+text = "COPY ROOM CODE"
+icon = ExtResource("12_clip")
+expand_icon = true
+
+[node name="SettingsButton" type="Button" parent="PauseMenu/Drawer/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS"
+
+[node name="Spacer" type="Control" parent="PauseMenu/Drawer/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="LeaveButton" type="Button" parent="PauseMenu/Drawer/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 20
+text = "LEAVE ROOM"
+
+[node name="QuitButton" type="Button" parent="PauseMenu/Drawer/VBox"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_fonts/font = ExtResource("6_5ndqc")
+theme_override_font_sizes/font_size = 25
+text = "QUIT"
+
+[node name="ChatPanel" parent="." instance=ExtResource("13_chat")]
+offset_left = 734.0
+offset_top = -222.0
+offset_right = 1138.0
+offset_bottom = -62.0
+
+[node name="KillFeed" type="CanvasLayer" parent="."]
+script = ExtResource("5_feed")
+
+[node name="Root" type="Control" parent="KillFeed"]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1150.0
+offset_top = 282.0
+offset_right = -806.0
+offset_bottom = 782.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="KillFeed/Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -791.0
+offset_top = 53.0
+offset_right = -791.0
+offset_bottom = 53.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[connection signal="pressed" from="SpectateUI/BottomRightBox/PrevButton" to="SpectateManager" method="spectate_prev"]
+[connection signal="pressed" from="SpectateUI/BottomRightBox/NextButton" to="SpectateManager" method="spectate_next"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/CopyCodeButton" to="PauseMenu" method="_on_copy_code_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/SettingsButton" to="PauseMenu" method="_on_settings_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/LeaveButton" to="PauseMenu" method="_on_leave_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/QuitButton" to="PauseMenu" method="_on_quit_pressed"]

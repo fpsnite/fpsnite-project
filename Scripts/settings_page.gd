@@ -9,6 +9,12 @@ const ACTIONS := [
 	["move_back", "Move Back"],
 	["sprint", "Sprint"],
 	["jump", "Jump"],
+	["crouch", "Crouch"],
+	["reload", "Reload"],
+	["next_weapon", "Next Weapon"],
+	["prev_weapon", "Previous Weapon"],
+	["knife", "Knife"],
+	["interact", "Interact"],
 	["chat", "Chat"],
 ]
 
@@ -21,12 +27,13 @@ const ACTIONS := [
 @onready var status_label: Label = %StatusLabel
 
 ## [settings key, %Slider node, %ValueLabel node, value format] - one row per
-## Controls tab slider. Values are applied to Settings live and persisted.
+## Controls tab slider. All sensitivity values are percentages (0-100%),
+## applied live to Settings and persisted.
 const CONTROLS_ROWS := [
-	["mouse_sensitivity", "SensitivitySlider", "SensitivityValueLabel", "%.4f"],
-	["ads_sensitivity_multiplier", "AdsSensitivitySlider", "AdsSensitivityValueLabel", "%.0f%%"],
-	["sens_x", "SensXSlider", "SensXValueLabel", "%.2fx"],
-	["sens_y", "SensYSlider", "SensYValueLabel", "%.2fx"],
+	["mouse_sensitivity_pct", "SensitivitySlider", "SensitivityValueLabel", "%.0f%%"],
+	["ads_sensitivity_pct", "AdsSensitivitySlider", "AdsSensitivityValueLabel", "%.0f%%"],
+	["sens_x_pct", "SensXSlider", "SensXValueLabel", "%.0f%%"],
+	["sens_y_pct", "SensYSlider", "SensYValueLabel", "%.0f%%"],
 ]
 
 var _awaiting_action := ""
@@ -157,5 +164,12 @@ func _on_reset_controls_pressed() -> void:
 	Settings.save_settings()
 	_load_current_values()
 
+## Back returns where the settings were opened from: the arena lobby (the
+## game) when opened via the pause drawer - which reopens the drawer on
+## return - or the main menu when opened from there.
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/mainui.tscn")
+	if Settings.return_to_lobby:
+		Settings.return_to_lobby = false
+		get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/mainui.tscn")

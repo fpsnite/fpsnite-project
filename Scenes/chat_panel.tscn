@@ -12,9 +12,6 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jvu3"]
-bg_color = Color(0.3019608, 0.6392157, 1, 0.45882353)
-
 [node name="ChatPanel" type="Control" unique_id=384104093]
 layout_mode = 3
 anchors_preset = 2
@@ -54,7 +51,6 @@ theme_override_colors/default_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_fonts/normal_font = ExtResource("2_a84i8")
 theme_override_fonts/bold_italics_font = ExtResource("3_xdxew")
-theme_override_styles/normal = SubResource("StyleBoxFlat_6jvu3")
 bbcode_enabled = true
 scroll_following = true
 selection_enabled = true
@@ -74,12 +70,12 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = 8.0
-offset_right = 110.0
-offset_bottom = 48.0
+offset_left = 349.0
+offset_top = 9.0
+offset_right = 405.0
+offset_bottom = 49.0
 grow_vertical = 0
 theme_override_fonts/font = ExtResource("2_a84i8")
 theme_override_font_sizes/font_size = 24
-text = "CHAT"
 icon = ExtResource("4_xdxew")
 expand_icon = true

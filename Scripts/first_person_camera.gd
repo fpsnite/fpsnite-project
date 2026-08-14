@@ -12,10 +12,14 @@ class_name FirstPersonCamera
 # --- Tunables -------------------------------------------------------------
 
 @export_group("Sensitivity")
-## Hipfire sensitivity lives in Settings (Settings > Controls tab) along with
-## per-axis (sens_x/sens_y) and ADS multipliers; controller sens stays here.
+## Hipfire sensitivity lives in Settings (Settings > Controls tab) as
+## percentages (0-100%) relative to this base value; per-axis and ADS
+## multipliers are Settings-driven too. Controller sens stays here.
 @export var controller_sensitivity: float = 2.5
 @export var invert_y: bool = false
+
+## The default hipfire sensitivity 100% maps to.
+const BASE_MOUSE_SENSITIVITY := 0.0025
 
 @export_group("Pitch Clamping")
 @export var min_pitch_deg: float = -85.0  # look down limit
@@ -60,11 +64,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _can_control():
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		var sens := Settings.mouse_sensitivity
+		var sens := BASE_MOUSE_SENSITIVITY * Settings.mouse_sensitivity_pct / 100.0
 		if _is_aiming:
-			sens *= Settings.ads_sensitivity_multiplier
+			sens *= Settings.ads_sensitivity_pct / 100.0
 		_apply_look_delta(event.relative.x, event.relative.y, sens,
-			Settings.sens_x, Settings.sens_y)
+			Settings.sens_x_pct / 100.0, Settings.sens_y_pct / 100.0)
 	if event.is_action_pressed("aim"):
 		_is_aiming = true
 	elif event.is_action_released("aim"):
@@ -77,15 +81,20 @@ func _process(delta: float) -> void:
 		if look_vec != Vector2.ZERO:
 			var sens := controller_sensitivity * delta * 0.01
 			if _is_aiming:
-				sens *= Settings.ads_sensitivity_multiplier
+				sens *= Settings.ads_sensitivity_pct / 100.0
 			_apply_look_delta(look_vec.x * 100.0, look_vec.y * 100.0, sens,
-				Settings.sens_x, Settings.sens_y)
+				Settings.sens_x_pct / 100.0, Settings.sens_y_pct / 100.0)
 	_update_view(delta)
 
 func _apply_look_delta(dx: float, dy: float, sens: float,
 		sens_x: float = 1.0, sens_y: float = 1.0) -> void:
 	_yaw -= dx * sens * sens_x
 	_pitch -= dy * sens * sens_y * (-1.0 if invert_y else 1.0)
+	_pitch = clampf(_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
+
+## Weapon recoil: upward camera pitch kick per shot, clamped like mouse look.
+func add_recoil(degrees: float) -> void:
+	_pitch += deg_to_rad(degrees)
 	_pitch = clampf(_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
 
 func _update_view(delta: float) -> void:

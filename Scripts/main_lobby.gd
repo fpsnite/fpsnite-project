@@ -10,6 +10,7 @@ const MAX_PODIUMS := 8
 var _podium_previews: Array[Node3D] = []
 var _podium_stages: Array[MeshInstance3D] = []
 var _skin_registry: Dictionary = {}  # player_id -> skin index
+var _name_registry: Dictionary = {}  # player_id -> display name
 var _in_room := false
 ## True from the first room_left until the follow-up (join/create) resolves
 ## via room_joined or room_op_failed. The Fusion plugin can emit room_left
@@ -17,10 +18,15 @@ var _in_room := false
 ## second emission must not restart the flow or it would overwrite a pending
 ## join with a fresh hidden room.
 var _leave_pending := false
-var _selected_mode := "test"
+var _selected_mode := "ffa"
 var _pending_join := ""
-var _pending_mode := ""
 var _reveal_code := false
+## Ready states (player_id -> bool), synced via submit_ready broadcasts. The
+## match auto-starts when every room member is ready (5s countdown, master
+## broadcasts ticks; everyone changes scene when it hits 0).
+var _ready_states: Dictionary = {}
+var _countdown_active := false
+var _countdown_left := 0
 ## Bumped on every show/hide so a delayed hide can't kill an overlay that a
 ## newer transition re-showed.
 var _overlay_token := 0
@@ -199,18 +205,17 @@ func leave_party() -> void:
 	_show_loading_overlay()
 	Network.leave()
 
-## Changing the game mode recreates the lobby room at that mode (the party is
-## always at the current mode).
+## Changing the game mode keeps the room intact: the new mode is broadcast
+## to every member (room recreation would scatter the party). Ready states
+## reset - players must ready up again for the new mode.
 func set_mode(mode_id: String) -> void:
 	if mode_id == _selected_mode:
 		return
 	_selected_mode = mode_id
-	_log("mode set to '%s'" % mode_id)
-	if Fusion.is_in_room():
-		_pending_mode = mode_id
-		_log("recreating room at mode '%s'" % mode_id)
-		_show_loading_overlay()
-		Network.leave()
+	_log("mode set to '%s' (max %d players)" % [mode_id, GameModes.max_players(mode_id)])
+	Fusion.rpc(submit_mode, mode_id)
+	_reset_ready_state()
+	_refresh_ready_state()
 
 func _on_connection_failed(reason: String) -> void:
 	_leave_pending = false
@@ -238,14 +243,21 @@ func _on_room_joined() -> void:
 		Fusion.is_master_client(), _selected_mode, ids.size(), ids])
 	_refresh_podiums()
 	var hud := get_tree().get_first_node_in_group("lobby_hud")
-	# Publish the local player's skin once so everyone sees it.
+	# Publish the local player's skin, name, mode and ready state once so
+	# everyone (including the newcomer) sees them.
 	Fusion.rpc(submit_skin, Fusion.get_local_player_id(), Settings.skin_index)
+	Fusion.rpc(submit_name, Fusion.get_local_player_id(), Network.player_name)
+	Fusion.rpc(submit_mode, _selected_mode)
+	if _ready_states.has(Fusion.get_local_player_id()):
+		Fusion.rpc(submit_ready, Fusion.get_local_player_id(), _ready_states[Fusion.get_local_player_id()])
 	if _reveal_code:
 		_reveal_code = false
 		if hud:
 			hud.show_party_code(room.get_room_name())
 	elif hud:
 		hud.hide_code_box()
+	if hud:
+		hud.set_mode_text(_selected_mode, _player_count())
 
 func _on_room_left() -> void:
 	if _leave_pending:
@@ -253,6 +265,7 @@ func _on_room_left() -> void:
 		return
 	_leave_pending = true
 	_in_room = false
+	_reset_ready_state()
 	_log("left room")
 	_show_loading_overlay()
 	for preview in _podium_previews:
@@ -261,6 +274,9 @@ func _on_room_left() -> void:
 		stage.visible = false
 	var hud := get_tree().get_first_node_in_group("lobby_hud")
 	if hud:
+		# Leaving always ends the party: reset intent so the buttons go back
+		# to Create/Join (a successful re-join re-shows Leave via player count).
+		hud.set_party_intent(false)
 		hud.set_party_buttons(false)
 	if _pending_join != "":
 		var code := _pending_join
@@ -268,17 +284,9 @@ func _on_room_left() -> void:
 		_log("joining room '%s' after leaving" % code)
 		Network.join_room(code)
 		return
-	if _pending_mode != "":
-		_pending_mode = ""
-		var code := Network.random_code()
-		_log("recreating room at mode '%s' (code '%s')" % [_selected_mode, code])
-		Network.create_room(code)
-		return
 	# Kicked / dissolved / left: back to the local look, then create a fresh
 	# hidden room so the lobby stays a room (new code, hidden - the illusion
 	# of having left).
-	if hud:
-		hud.set_party_intent(false)
 	var fresh := Network.random_code()
 	_log("creating fresh hidden room '%s'" % fresh)
 	Network.create_room(fresh)
@@ -298,16 +306,39 @@ func _on_room_op_failed(code: String) -> void:
 func _on_player_joined(player_id: int) -> void:
 	_log("player joined lobby (id=%d, in_room=%s, master=%s, players=%d)" % [
 		player_id, _in_room, Fusion.is_master_client(), Network.room_player_ids().size()])
+	# Room cap: the mode's max players apply to every room (party + play
+	# flow). The master kicks anyone who joins a full room.
+	if Fusion.is_master_client():
+		var max_players := GameModes.max_players(_selected_mode)
+		if Network.room_player_ids().size() > max_players:
+			_log("room full (%d > %d): kicking player %d" % [
+				Network.room_player_ids().size(), max_players, player_id])
+			Toasts.show_message("Room is full - kicked %s" % _player_name(player_id))
+			Fusion.rpc_to_player(player_id, kick_player, player_id,
+				"Room is full - max %d players" % max_players)
+			return
 	if player_id != Fusion.get_local_player_id():
 		Toasts.show_message("%s joined" % _player_name(player_id))
-	_refresh_podiums()
+	# The newcomer missed the earlier name broadcasts: re-send everyone's
+	# name (and skin) so they can render all podiums correctly.
+	for pid in _name_registry:
+		Fusion.rpc(submit_name, pid, _name_registry[pid])
+	for pid in _skin_registry:
+		Fusion.rpc(submit_skin, pid, _skin_registry[pid])
+	for pid in _ready_states:
+		Fusion.rpc(submit_ready, pid, _ready_states[pid])
+	Fusion.rpc(submit_mode, _selected_mode)
+	_refresh_ready_state()
 
 func _on_player_left(player_id: int) -> void:
+	var who_left := _player_name(player_id)
 	_skin_registry.erase(player_id)
+	_name_registry.erase(player_id)
+	_ready_states.erase(player_id)
 	_log("player left lobby (id=%d, remaining=%d)" % [player_id, Network.room_player_ids().size()])
 	if player_id != Fusion.get_local_player_id():
-		Toasts.show_message("%s left" % _player_name(player_id))
-	_refresh_podiums()
+		Toasts.show_message("%s left" % who_left)
+	_refresh_ready_state()
 
 # --- Podium assignment ---
 
@@ -325,8 +356,9 @@ func _show_local_preview() -> void:
 	preview.apply_skin(Settings.skin_index)
 	_log("local preview shown on podium 0 ('%s', skin %d)" % [Network.player_name, Settings.skin_index])
 
-## Sorted player ids -> podium index 0..7. Everyone in the room gets a
-## podium; empty slots hide both the stage mesh and the preview.
+## Player ids -> podium index 0..7. The local player always takes podium 0,
+## then everyone else sorted by player id. Empty slots hide both the stage
+## mesh and the preview.
 func _refresh_podiums() -> void:
 	if not Fusion.is_in_room():
 		_log("refresh_podiums skipped: not in room")
@@ -335,6 +367,10 @@ func _refresh_podiums() -> void:
 	for p in Fusion.get_room().get_players():
 		ids.append(p.get_number())
 	ids.sort()
+	var local_id := Fusion.get_local_player_id()
+	if local_id in ids:
+		ids.erase(local_id)
+		ids.push_front(local_id)
 	var occupied := 0
 	for i in _podium_previews.size():
 		var preview: Node3D = _podium_previews[i]
@@ -347,6 +383,7 @@ func _refresh_podiums() -> void:
 			preview.update_name(_player_name(pid))
 			var skin: int = _skin_registry.get(pid, Settings.skin_index if pid == Fusion.get_local_player_id() else 0)
 			preview.apply_skin(skin)
+			preview.set_ready(bool(_ready_states.get(pid, false)))
 			occupied += 1
 		else:
 			preview.visible = false
@@ -375,6 +412,8 @@ func get_player_list() -> Array[Dictionary]:
 func _player_name(player_id: int) -> String:
 	if player_id == Fusion.get_local_player_id():
 		return Network.player_name
+	if _name_registry.has(player_id):
+		return _name_registry[player_id]
 	for p in Fusion.get_room().get_players():
 		if p.get_number() == player_id:
 			var name: String = p.get_name()
@@ -385,13 +424,149 @@ func _player_name(player_id: int) -> String:
 			break
 	return "Player %06d" % (player_id * 48271 % 1000000)
 
-# --- Skin sync (broadcast RPC) ---
+# --- Skin/name sync (broadcast RPCs) ---
 
 @rpc("any_peer", "call_local")
 func submit_skin(player_id: int, skin_index: int) -> void:
 	_log("submit_skin RPC: player %d -> skin %d" % [player_id, skin_index])
 	_skin_registry[player_id] = skin_index
 	_refresh_podiums()
+
+## Photon room players don't reliably expose the connecting player's name
+## (get_name()/get_user_id() come back empty), so names are synced explicitly,
+## exactly like skins.
+@rpc("any_peer", "call_local")
+func submit_name(player_id: int, name: String) -> void:
+	_log("submit_name RPC: player %d -> '%s'" % [player_id, name])
+	_name_registry[player_id] = name
+	_refresh_podiums()
+
+# --- Mode / ready state (broadcast RPCs) ---
+
+## The room's mode (master-set, broadcast so everyone - including newcomers -
+## agrees). Never recreates the room: members just update their local mode.
+@rpc("any_peer", "call_local")
+func submit_mode(mode_id: String) -> void:
+	if not GameModes.is_known(mode_id):
+		_log("submit_mode: ignoring unknown mode '%s'" % mode_id)
+		return
+	if mode_id != _selected_mode:
+		_log("submit_mode: mode -> '%s'" % mode_id)
+		_selected_mode = mode_id
+		_reset_ready_state()
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.set_mode_text(mode_id, _player_count())
+	_refresh_ready_state()
+
+## The PLAY button toggles this. Broadcast so every client tracks who is
+## ready; when everyone is ready the match auto-starts.
+func toggle_ready() -> void:
+	if not Fusion.is_in_room():
+		_log("toggle_ready: not in a room")
+		Toasts.show_message("Create or join a party first")
+		return
+	var now_ready := not bool(_ready_states.get(Fusion.get_local_player_id(), false))
+	_log("toggle_ready: %s" % ("ready" if now_ready else "unready"))
+	Fusion.rpc(submit_ready, Fusion.get_local_player_id(), now_ready)
+
+@rpc("any_peer", "call_local")
+func submit_ready(player_id: int, ready: bool) -> void:
+	_ready_states[player_id] = ready
+	_log("submit_ready RPC: player %d -> %s" % [player_id, ready])
+	_refresh_ready_state()
+
+func _reset_ready_state() -> void:
+	_ready_states.clear()
+	_countdown_active = false
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.update_ready_ui(false, 0, _player_count(), GameModes.max_players(_selected_mode), -1)
+
+func _player_count() -> int:
+	return Network.room_player_ids().size() if Fusion.is_in_room() else 0
+
+func _all_ready() -> bool:
+	var ids := Network.room_player_ids()
+	if ids.is_empty():
+		return false
+	for pid in ids:
+		if not bool(_ready_states.get(pid, false)):
+			return false
+	return true
+
+## Recompute the ready summary: update the HUD, and on the master start/cancel
+## the match countdown. Called after every ready/mode/join/leave change.
+func _refresh_ready_state() -> void:
+	var total := _player_count()
+	var ready_count := _ready_count()
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.update_ready_ui(
+			bool(_ready_states.get(Fusion.get_local_player_id(), false)),
+			ready_count, total, GameModes.max_players(_selected_mode), _countdown_left)
+	_refresh_podiums()
+	if not Fusion.is_master_client():
+		return
+	if _all_ready():
+		_start_countdown()
+	elif _countdown_active:
+		_cancel_countdown()
+
+func _ready_count() -> int:
+	var count := 0
+	for pid in Network.room_player_ids():
+		if bool(_ready_states.get(pid, false)):
+			count += 1
+	return count
+
+# --- Match countdown (master-driven, broadcast ticks) ---
+
+func _start_countdown() -> void:
+	if _countdown_active:
+		return
+	_countdown_active = true
+	_countdown_left = GameModes.COUNTDOWN_SECONDS
+	_log("all ready - countdown %d..." % _countdown_left)
+	Fusion.rpc(submit_countdown, _countdown_left)
+	get_tree().create_timer(1.0).timeout.connect(_tick_countdown, CONNECT_ONE_SHOT)
+
+func _tick_countdown() -> void:
+	if not _countdown_active:
+		return
+	_countdown_left -= 1
+	if _countdown_left <= 0:
+		_countdown_active = false
+		_log("countdown done - starting match (mode '%s')" % _selected_mode)
+		Fusion.rpc(start_match, _selected_mode)
+		return
+	_log("countdown %d..." % _countdown_left)
+	Fusion.rpc(submit_countdown, _countdown_left)
+	get_tree().create_timer(1.0).timeout.connect(_tick_countdown, CONNECT_ONE_SHOT)
+
+func _cancel_countdown() -> void:
+	if not _countdown_active:
+		return
+	_countdown_active = false
+	_log("countdown cancelled")
+	Fusion.rpc(submit_countdown, -1)
+
+@rpc("any_peer", "call_local")
+func submit_countdown(seconds_left: int) -> void:
+	_countdown_left = seconds_left
+	_countdown_active = seconds_left > 0
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.update_ready_ui(
+			bool(_ready_states.get(Fusion.get_local_player_id(), false)),
+			_ready_count(), _player_count(), GameModes.max_players(_selected_mode), seconds_left)
+
+## Everyone changes scene together when the countdown ends.
+@rpc("any_peer", "call_local")
+func start_match(mode_id: String) -> void:
+	_log("start_match: loading arena at mode '%s'" % mode_id)
+	Settings.pending_mode = mode_id
+	get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
 
 # --- Kick (master only) ---
 
@@ -407,17 +582,18 @@ func request_kick(target_id: int) -> void:
 		return
 	_log("host kicking player %d" % target_id)
 	Toasts.show_message("Kicked %s" % _player_name(target_id))
-	Fusion.rpc_to_player(target_id, kick_player, target_id)
+	Fusion.rpc_to_player(target_id, kick_player, target_id, "You were kicked by the host")
 	_skin_registry.erase(target_id)
 
 @rpc("any_peer", "call_local")
-func kick_player(target_id: int) -> void:
-	_log("kick_player RPC received (sender=%d, target=%d)" % [Fusion.get_rpc_sender(), target_id])
+func kick_player(target_id: int, reason: String = "You were kicked by the host") -> void:
+	_log("kick_player RPC received (sender=%d, target=%d, reason='%s')" % [
+		Fusion.get_rpc_sender(), target_id, reason])
 	if target_id != Fusion.get_local_player_id():
 		return
-	_log("you were kicked by the host - leaving room")
+	_log("you were kicked - leaving room")
 	_show_loading_overlay()
-	Toasts.show_message("You were kicked by the host")
+	Toasts.show_message(reason)
 	var hud := get_tree().get_first_node_in_group("lobby_hud")
 	if hud:
 		hud.show_kicked_message()

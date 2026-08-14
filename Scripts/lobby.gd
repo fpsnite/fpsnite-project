@@ -22,6 +22,8 @@ var _round_node: Node = null
 func _ready() -> void:
 	add_to_group("lobby")
 	get_tree().paused = false
+	print("[NET] arena loaded at mode '%s' (max %d players)" % [
+		Settings.pending_mode, GameModes.max_players(Settings.pending_mode)])
 	Fusion.register_broadcast_receiver(self)
 	spawner.add_spawnable_scene(PlayerScene)
 	spawner.spawned.connect(_on_spawner_spawned)
@@ -33,6 +35,14 @@ func _ready() -> void:
 		_round_node = round
 		round.round_finished.connect(_on_round_finished)
 		round.player_won.connect(_on_player_won)
+	if Fusion.is_master_client():
+		call_deferred("_spawn_existing_players")
+	# The lobby re-creates the room when the mode changes right before the
+	# scene switch; if the arena loaded mid-recreation, spawn once the new
+	# room exists.
+	Fusion.room_joined.connect(_on_room_joined)
+
+func _on_room_joined() -> void:
 	if Fusion.is_master_client():
 		call_deferred("_spawn_existing_players")
 

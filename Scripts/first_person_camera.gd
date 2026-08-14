@@ -12,7 +12,8 @@ class_name FirstPersonCamera
 # --- Tunables -------------------------------------------------------------
 
 @export_group("Sensitivity")
-@export var mouse_sensitivity: float = 0.0025
+## Hipfire sensitivity lives in Settings (Settings > Controls tab) along with
+## per-axis (sens_x/sens_y) and ADS multipliers; controller sens stays here.
 @export var controller_sensitivity: float = 2.5
 @export var invert_y: bool = false
 
@@ -59,7 +60,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _can_control():
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		_apply_look_delta(event.relative.x, event.relative.y, mouse_sensitivity)
+		var sens := Settings.mouse_sensitivity
+		if _is_aiming:
+			sens *= Settings.ads_sensitivity_multiplier
+		_apply_look_delta(event.relative.x, event.relative.y, sens,
+			Settings.sens_x, Settings.sens_y)
 	if event.is_action_pressed("aim"):
 		_is_aiming = true
 	elif event.is_action_released("aim"):
@@ -70,12 +75,17 @@ func _process(delta: float) -> void:
 		# Controller stick look (polled every frame, not just on input events)
 		var look_vec := Input.get_vector("look_left", "look_right", "look_up", "look_down")
 		if look_vec != Vector2.ZERO:
-			_apply_look_delta(look_vec.x * 100.0, look_vec.y * 100.0, controller_sensitivity * delta * 0.01)
+			var sens := controller_sensitivity * delta * 0.01
+			if _is_aiming:
+				sens *= Settings.ads_sensitivity_multiplier
+			_apply_look_delta(look_vec.x * 100.0, look_vec.y * 100.0, sens,
+				Settings.sens_x, Settings.sens_y)
 	_update_view(delta)
 
-func _apply_look_delta(dx: float, dy: float, sens: float) -> void:
-	_yaw -= dx * sens
-	_pitch -= dy * sens * (-1.0 if invert_y else 1.0)
+func _apply_look_delta(dx: float, dy: float, sens: float,
+		sens_x: float = 1.0, sens_y: float = 1.0) -> void:
+	_yaw -= dx * sens * sens_x
+	_pitch -= dy * sens * sens_y * (-1.0 if invert_y else 1.0)
 	_pitch = clampf(_pitch, deg_to_rad(min_pitch_deg), deg_to_rad(max_pitch_deg))
 
 func _update_view(delta: float) -> void:

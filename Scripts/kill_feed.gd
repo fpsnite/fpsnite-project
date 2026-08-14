@@ -12,8 +12,9 @@ const FADE_TIME := 1.5
 func _ready() -> void:
 	add_to_group("kill_feed")
 
-## kind: "joined", "left", "win", "strike" or "champion".
-func add_event(kind: StringName, player_id: int) -> void:
+## kind: "joined", "left", "win", "strike", "champion", "kill", "headshot" or
+## "respawn". "kill"/"headshot" additionally take the victim's player id.
+func add_event(kind: StringName, player_id: int, target_id: int = 0) -> void:
 	var prefix := _prefix_for(player_id)
 	match kind:
 		&"joined":
@@ -26,6 +27,12 @@ func add_event(kind: StringName, player_id: int) -> void:
 			_add_line("%s got striked" % prefix, Color(1.0, 0.55, 0.3))
 		&"champion":
 			_add_line("%s WON THE GAME" % prefix, Color(1.0, 0.85, 0.3))
+		&"kill":
+			_add_line("%s killed %s" % [prefix, _prefix_for(target_id)], Color(1.0, 0.85, 0.3))
+		&"headshot":
+			_add_line("%s HEADSHOT %s" % [prefix, _prefix_for(target_id)], Color(1.0, 0.45, 0.3))
+		&"respawn":
+			_add_line("%s respawned" % prefix, Color(0.55, 0.85, 1.0))
 
 func _prefix_for(player_id: int) -> String:
 	var number := 0

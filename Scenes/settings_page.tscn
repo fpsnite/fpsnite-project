@@ -184,6 +184,140 @@ theme_override_fonts/font = ExtResource("3_3uamq")
 theme_override_font_sizes/font_size = 30
 text = "RESET KEYBINDS TO DEFAULT"
 
+[node name="Controls" type="VBoxContainer" parent="TabContainer" unique_id=800000030]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 18
+metadata/_tab_index = 2
+
+[node name="SensitivityRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000031]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SensitivityLabel" type="Label" parent="TabContainer/Controls/SensitivityRow" unique_id=800000032]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "Sensitivity"
+
+[node name="SensitivitySlider" type="HSlider" parent="TabContainer/Controls/SensitivityRow" unique_id=800000033]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
+min_value = 0.0005
+max_value = 0.01
+step = 0.0005
+value = 0.0025
+
+[node name="SensitivityValueLabel" type="Label" parent="TabContainer/Controls/SensitivityRow" unique_id=800000034]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "0.0025"
+
+[node name="AdsSensitivityRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000035]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="AdsSensitivityLabel" type="Label" parent="TabContainer/Controls/AdsSensitivityRow" unique_id=800000036]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "ADS Sensitivity"
+
+[node name="AdsSensitivitySlider" type="HSlider" parent="TabContainer/Controls/AdsSensitivityRow" unique_id=800000037]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
+min_value = 0.1
+max_value = 2.0
+step = 0.05
+value = 0.6
+
+[node name="AdsSensitivityValueLabel" type="Label" parent="TabContainer/Controls/AdsSensitivityRow" unique_id=800000038]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "60%"
+
+[node name="SensXRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000039]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SensXLabel" type="Label" parent="TabContainer/Controls/SensXRow" unique_id=800000040]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "X Sensitivity"
+
+[node name="SensXSlider" type="HSlider" parent="TabContainer/Controls/SensXRow" unique_id=800000041]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
+min_value = 0.1
+max_value = 3.0
+step = 0.05
+value = 1.0
+
+[node name="SensXValueLabel" type="Label" parent="TabContainer/Controls/SensXRow" unique_id=800000042]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "1.00x"
+
+[node name="SensYRow" type="HBoxContainer" parent="TabContainer/Controls" unique_id=800000043]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SensYLabel" type="Label" parent="TabContainer/Controls/SensYRow" unique_id=800000044]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "Y Sensitivity"
+
+[node name="SensYSlider" type="HSlider" parent="TabContainer/Controls/SensYRow" unique_id=800000045]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_4nau8")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_giwlh")
+min_value = 0.1
+max_value = 3.0
+step = 0.05
+value = 1.0
+
+[node name="SensYValueLabel" type="Label" parent="TabContainer/Controls/SensYRow" unique_id=800000046]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "1.00x"
+
+[node name="ResetControlsButton" type="Button" parent="TabContainer/Controls" unique_id=800000055]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_3uamq")
+theme_override_font_sizes/font_size = 30
+text = "RESET CONTROLS TO DEFAULT"
+
 [node name="StatusLabel" type="Label" parent="." unique_id=800000019]
 unique_name_in_owner = true
 visible = false

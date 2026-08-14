@@ -1,0 +1,605 @@
+[gd_scene format=3 uid="uid://bulhwy7bqkq86"]
+
+[ext_resource type="Script" uid="uid://btyv0smp3oyd8" path="res://Scripts/lobby.gd" id="1_lobby"]
+[ext_resource type="Script" uid="uid://1ctogmuvxipd" path="res://Scripts/pause_menu.gd" id="2_pause"]
+[ext_resource type="Script" uid="uid://bdf34m8mdjlns" path="res://Scripts/game_round.gd" id="3_round"]
+[ext_resource type="Script" uid="uid://bo6d7d85pqias" path="res://Scripts/spectate.gd" id="4_spectate"]
+[ext_resource type="Script" uid="uid://wnvrijqrgfmm" path="res://Scripts/player_hud.gd" id="5_hud"]
+[ext_resource type="Script" uid="uid://by6rjrce28iag" path="res://Scripts/leaderboard.gd" id="6_board"]
+[ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="8_chat"]
+[ext_resource type="Script" uid="uid://4tyuo5287adw" path="res://Scripts/kill_feed.gd" id="9_feed"]
+[ext_resource type="PackedScene" uid="uid://iamasxceih8s" path="res://Scenes/fps_map.tscn" id="10_map"]
+[ext_resource type="Script" path="res://Scripts/weapon_system.gd" id="11_wpnsys"]
+[ext_resource type="Script" path="res://Scripts/damage_numbers.gd" id="12_dmg"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ll2xe"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_xrgmn"]
+sky_material = SubResource("ProceduralSkyMaterial_ll2xe")
+
+[sub_resource type="Environment" id="Environment_2wvic"]
+background_mode = 2
+sky = SubResource("Sky_xrgmn")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.35
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(61.13086, 1, 65.49756)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_room"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(62.207886, 1, 61.95581)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall"]
+size = Vector3(87.40405, 31.513184, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
+size = Vector3(80.694824, 25.24179, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wallside"]
+size = Vector3(0.5, 24.403358, 69.25488)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wallside"]
+size = Vector3(0.5, 24.649658, 71.71777)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ceiling"]
+size = Vector3(63.001953, 0.5, 62.421143)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ceiling"]
+size = Vector3(40, 0.5, 40)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_bg"]
+bg_color = Color(0, 0, 0, 0.45)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_stamina"]
+bg_color = Color(0.3, 0.85, 0.4, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_health"]
+bg_color = Color(0.9, 0.25, 0.25, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
+bg_color = Color(0.07, 0.08, 0.11, 0.98)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lb"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.55)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Lobby" type="Node3D" unique_id=1854345445]
+script = ExtResource("1_lobby")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=936657021]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=9299609]
+environment = SubResource("Environment_2wvic")
+
+[node name="OmniLight1" type="OmniLight3D" parent="." unique_id=889463300]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.86795, 14.813473, 13.50346)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight5" type="OmniLight3D" parent="." unique_id=852501094]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.94175625, 14.813473, 11.176938)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight6" type="OmniLight3D" parent="." unique_id=1444050220]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.94175625, 14.813473, 0.5596514)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight7" type="OmniLight3D" parent="." unique_id=238521490]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.94175625, 14.813473, -11.947609)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight2" type="OmniLight3D" parent="." unique_id=889463301]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 14.813473, 13.754784)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight3" type="OmniLight3D" parent="." unique_id=889463302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.064938, 14.813473, -16)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="OmniLight4" type="OmniLight3D" parent="." unique_id=889463303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 14.813473, -16)
+light_energy = 3.387
+light_indirect_energy = 6.905
+light_volumetric_fog_energy = 3.476
+omni_range = 32.0
+
+[node name="FusionSpawner" type="FusionSpawner" parent="." unique_id=500000001]
+
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=700000301]
+
+[node name="SpawnPoint1" type="Marker3D" parent="SpawnPoints" unique_id=700000302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 1, -9)
+
+[node name="SpawnPoint2" type="Marker3D" parent="SpawnPoints" unique_id=700000303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 1, -9)
+
+[node name="SpawnPoint3" type="Marker3D" parent="SpawnPoints" unique_id=700000304]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 1, 9)
+
+[node name="SpawnPoint4" type="Marker3D" parent="SpawnPoints" unique_id=700000305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 1, 9)
+
+[node name="SpawnPoint5" type="Marker3D" parent="SpawnPoints" unique_id=700000306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -9)
+
+[node name="SpawnPoint6" type="Marker3D" parent="SpawnPoints" unique_id=700000307]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 9)
+
+[node name="SpawnPoint7" type="Marker3D" parent="SpawnPoints" unique_id=700000308]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 1, 0)
+
+[node name="SpawnPoint8" type="Marker3D" parent="SpawnPoints" unique_id=700000309]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 1, 0)
+
+[node name="RoundManager" type="Node" parent="." unique_id=700000001]
+script = ExtResource("3_round")
+play_time = 120.0
+
+[node name="WeaponSystem" type="Node3D" parent="." unique_id=700000003]
+script = ExtResource("11_wpnsys")
+
+[node name="DamageLayer" type="CanvasLayer" parent="." unique_id=700000004]
+script = ExtResource("12_dmg")
+
+[node name="RoundHUD" type="CanvasLayer" parent="." unique_id=700000002]
+
+[node name="StatusLabel" type="Label" parent="RoundHUD" unique_id=700000011]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 20.0
+offset_right = 350.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 42
+text = "WAITING FOR PLAYERS"
+horizontal_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="RoundHUD" unique_id=700000012]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 70.835
+offset_right = 200.0
+offset_bottom = 150.835
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 37
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LightLabel" type="Label" parent="RoundHUD" unique_id=700000013]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -280.0
+offset_top = 150.085
+offset_right = 280.0
+offset_bottom = 206.085
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 27
+horizontal_alignment = 1
+
+[node name="DebugLabel" type="Label" parent="RoundHUD" unique_id=700000014]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -28.0
+offset_right = 300.0
+offset_bottom = -14.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.65)
+theme_override_font_sizes/font_size = 16
+text = "- ms  [0]"
+
+[node name="SpectateManager" type="Node3D" parent="." unique_id=700000201]
+script = ExtResource("4_spectate")
+
+[node name="SpectateCamera" type="Camera3D" parent="SpectateManager" unique_id=700000202]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 3.4)
+
+[node name="SpectateUI" type="CanvasLayer" parent="." unique_id=700000203]
+visible = false
+
+[node name="TopBox" type="VBoxContainer" parent="SpectateUI" unique_id=700000211]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 250.0
+offset_right = 300.0
+offset_bottom = 400.0
+grow_horizontal = 2
+
+[node name="SpectateLabel" type="Label" parent="SpectateUI/TopBox" unique_id=700000212]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.83, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "SPECTATING"
+horizontal_alignment = 1
+
+[node name="PlayerNameLabel" type="Label" parent="SpectateUI/TopBox" unique_id=700000213]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+
+[node name="BottomRightBox" type="HBoxContainer" parent="SpectateUI" unique_id=700000214]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -440.0
+offset_top = -96.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 14
+
+[node name="PrevButton" type="Button" parent="SpectateUI/BottomRightBox" unique_id=700000215]
+custom_minimum_size = Vector2(205, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "◀ PREV PLAYER"
+
+[node name="NextButton" type="Button" parent="SpectateUI/BottomRightBox" unique_id=700000216]
+custom_minimum_size = Vector2(205, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "NEXT PLAYER ▶"
+
+[node name="Room" type="StaticBody3D" parent="." unique_id=889463193]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Room" unique_id=1848953341]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.56543, -0.5, -12.748779)
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Room" unique_id=1328992145]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.130188, -0.5, -10.158081)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="WallNorth" type="MeshInstance3D" parent="Room" unique_id=889463194]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, -40.58728)
+mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="WallNorthCollision" type="CollisionShape3D" parent="Room" unique_id=889463195]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.347412, 9.13681, -40.355396)
+shape = SubResource("BoxShape3D_wall")
+
+[node name="WallSouth" type="MeshInstance3D" parent="Room" unique_id=889463196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.702026, 15.506592, 20)
+mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="WallSouthCollision" type="CollisionShape3D" parent="Room" unique_id=889463197]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.984085, 20)
+shape = SubResource("BoxShape3D_wall")
+
+[node name="WallWest" type="MeshInstance3D" parent="Room" unique_id=889463198]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.654522, 6.1848145, -6.3649282)
+mesh = SubResource("BoxMesh_wallside")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="WallWestCollision" type="CollisionShape3D" parent="Room" unique_id=889463199]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.64619, 8.982788, -9.97998)
+shape = SubResource("BoxShape3D_wallside")
+
+[node name="WallEast" type="MeshInstance3D" parent="Room" unique_id=889463200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 8.643814, -14.627441)
+mesh = SubResource("BoxMesh_wallside")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="WallEastCollision" type="CollisionShape3D" parent="Room" unique_id=889463201]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 5.842041, -5.8789063)
+shape = SubResource("BoxShape3D_wallside")
+
+[node name="CeilingMesh" type="MeshInstance3D" parent="Room" unique_id=889463202]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.500977, 17.491493, -11.210571)
+mesh = SubResource("BoxMesh_ceiling")
+surface_material_override/0 = SubResource("StandardMaterial3D_room")
+
+[node name="CeilingCollision" type="CollisionShape3D" parent="Room" unique_id=889463203]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.53982, 0)
+shape = SubResource("BoxShape3D_ceiling")
+
+[node name="PlayerHUD" type="CanvasLayer" parent="." unique_id=900000001]
+script = ExtResource("5_hud")
+
+[node name="DamageFlash" type="ColorRect" parent="PlayerHUD" unique_id=900000010]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.8, 0.1, 0.1, 0)
+
+[node name="Box" type="VBoxContainer" parent="PlayerHUD" unique_id=900000002]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -86.0
+offset_right = 170.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 6
+
+[node name="SprintRow" type="HBoxContainer" parent="PlayerHUD/Box" unique_id=900000003]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SprintCaption" type="Label" parent="PlayerHUD/Box/SprintRow" unique_id=900000004]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.85, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "SPRINT"
+vertical_alignment = 1
+
+[node name="SprintBar" type="ProgressBar" parent="PlayerHUD/Box/SprintRow" unique_id=900000005]
+custom_minimum_size = Vector2(240, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_stamina")
+value = 100.0
+show_percentage = false
+
+[node name="ForceLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000009]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
+text = "000"
+
+[node name="WeaponLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000011]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "RIFLE"
+horizontal_alignment = 1
+
+[node name="AmmoLabel" type="Label" parent="PlayerHUD/Box" unique_id=900000012]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "30 / 90"
+horizontal_alignment = 1
+
+[node name="HealthRow" type="HBoxContainer" parent="PlayerHUD/Box" unique_id=900000013]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HealthCaption" type="Label" parent="PlayerHUD/Box/HealthRow" unique_id=900000014]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "HEALTH"
+vertical_alignment = 1
+
+[node name="HealthBar" type="ProgressBar" parent="PlayerHUD/Box/HealthRow" unique_id=900000015]
+custom_minimum_size = Vector2(240, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_health")
+value = 100.0
+max_value = 100.0
+show_percentage = false
+
+[node name="PauseMenu" type="CanvasLayer" parent="." unique_id=600000001]
+process_mode = 3
+script = ExtResource("2_pause")
+
+[node name="Dim" type="ColorRect" parent="PauseMenu" unique_id=600000002]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Drawer" type="PanelContainer" parent="PauseMenu" unique_id=600000003]
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 380.0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_drawer")
+
+[node name="VBox" type="VBoxContainer" parent="PauseMenu/Drawer" unique_id=600000004]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000005]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.15, 0.16, 1)
+theme_override_font_sizes/font_size = 36
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000010]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.62, 0.68, 1)
+theme_override_font_sizes/font_size = 14
+text = "click outside to close"
+horizontal_alignment = 1
+
+[node name="RoomCodeLabel" type="Label" parent="PauseMenu/Drawer/VBox" unique_id=600000008]
+layout_mode = 2
+text = "ROOM CODE: ---"
+horizontal_alignment = 1
+
+[node name="CopyCodeButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000009]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "COPY ROOM CODE"
+
+[node name="SettingsButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000013]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "SETTINGS"
+
+[node name="Spacer" type="Control" parent="PauseMenu/Drawer/VBox" unique_id=600000011]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="LeaveButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000007]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "LEAVE ROOM"
+
+[node name="QuitButton" type="Button" parent="PauseMenu/Drawer/VBox" unique_id=600000012]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+theme_override_font_sizes/font_size = 20
+text = "QUIT"
+
+[node name="Leaderboard" type="CanvasLayer" parent="." unique_id=700000221]
+script = ExtResource("6_board")
+
+[node name="Root" type="Control" parent="Leaderboard" unique_id=700000222]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 12.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Leaderboard/Root" unique_id=700000223]
+layout_mode = 1
+offset_left = 66.0
+offset_top = 16.0
+offset_right = 157.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_lb")
+
+[node name="Margin" type="MarginContainer" parent="Leaderboard/Root/Panel" unique_id=700000224]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="Rows" type="VBoxContainer" parent="Leaderboard/Root/Panel/Margin" unique_id=700000225]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="GameArena" parent="." unique_id=395524904 instance=ExtResource("10_map")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.26533, 0, 0)
+
+[node name="ChatPanel" parent="." unique_id=878473322 instance=ExtResource("8_chat")]
+
+[node name="KillFeed" type="CanvasLayer" parent="." unique_id=900000301]
+script = ExtResource("9_feed")
+
+[node name="Root" type="Control" parent="KillFeed" unique_id=900000302]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -360.0
+offset_top = 220.0
+offset_right = -16.0
+offset_bottom = 720.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Box" type="VBoxContainer" parent="KillFeed/Root" unique_id=900000303]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[connection signal="pressed" from="SpectateUI/BottomRightBox/PrevButton" to="SpectateManager" method="spectate_prev"]
+[connection signal="pressed" from="SpectateUI/BottomRightBox/NextButton" to="SpectateManager" method="spectate_next"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/CopyCodeButton" to="PauseMenu" method="_on_copy_code_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/SettingsButton" to="PauseMenu" method="_on_settings_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/LeaveButton" to="PauseMenu" method="_on_leave_pressed"]
+[connection signal="pressed" from="PauseMenu/Drawer/VBox/QuitButton" to="PauseMenu" method="_on_quit_pressed"]

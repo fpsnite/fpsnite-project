@@ -1,10 +1,13 @@
 extends CanvasLayer
 ## HUD for the main menu lobby (LobbyUI.tscn root). Wires the tab bar to the
-## tab container, PLAY -> game-mode popup, the party box (Create/Join Party +
-## code entry with copy/join), and the live FPS/ping counter in the
-## bottom-left RegionText label. The lobby logic lives on the mainui root
-## (main_lobby.gd, group "lobby"): the lobby is always a room, created hidden
-## on load; Create Party reveals its code, Join Party switches rooms by code.
+## tab container, the game-mode popup (MODE label opens it, cards pick the
+## mode - the room keeps existing, mode is broadcast to all members), the
+## party box (Create/Join Party + code entry with copy/join), the PLAY/READY
+## toggle (PLAY button becomes the ready toggler; the match auto-starts when
+## everyone is ready), and the live FPS/ping counter in the bottom-left
+## RegionText label. The lobby logic lives on the mainui root (main_lobby.gd,
+## group "lobby"): the lobby is always a room, created hidden on load; Create
+## Party reveals its code, Join Party switches rooms by code.
 
 @onready var tab_bar: TabBar = %TabBar
 @onready var tab_container: TabContainer = %TabContainer
@@ -13,6 +16,7 @@ extends CanvasLayer
 @onready var region_text: Label = %RegionText
 @onready var mode_grid: GridContainer = %ModeGrid
 @onready var play_button: Button = %PlayButton
+@onready var ready_label: Label = %ReadyLabel
 @onready var code_box: HBoxContainer = %CodeBox
 @onready var code_edit: LineEdit = %CodeEdit
 @onready var code_action_button: Button = %CodeActionButton
@@ -22,8 +26,8 @@ extends CanvasLayer
 
 var _counter_accum := 0.0
 var _counter_log_accum := 0.0
-## Default mode for quick tests (fps test map); changed by clicking a card.
-var selected_mode_id := "test"
+## Default mode for quick tests; changed by clicking a card.
+var selected_mode_id := "ffa"
 var _code_box_mode := "copy"
 ## True after the player explicitly clicked Create/Join Party: the Leave
 ## button shows immediately (even while still alone) instead of the local
@@ -38,7 +42,8 @@ func _ready() -> void:
 	tab_bar.tab_changed.connect(func(index: int) -> void: tab_container.current_tab = index)
 	tab_container.current_tab = 0
 	tab_bar.current_tab = 0
-	play_button.pressed.connect(_on_game_mode_button_pressed)
+	play_button.pressed.connect(_on_play_pressed)
+	game_mode_text.gui_input.connect(_on_mode_label_input)
 	create_party_button.pressed.connect(_on_create_party_pressed)
 	join_party_button.pressed.connect(_on_join_party_pressed)
 	leave_party_button.pressed.connect(_on_leave_party_pressed)
@@ -46,8 +51,7 @@ func _ready() -> void:
 	var cards := mode_grid.get_children()
 	for card in cards:
 		card.selected.connect(_on_mode_selected)
-	game_mode_text.text = "Test Mode"
-	_log("ready: tabs=%d mode cards=%d, default mode='%s' (test/fps map)" % [tab_bar.tab_count, cards.size(), selected_mode_id])
+	_log("ready: tabs=%d mode cards=%d, default mode='%s'" % [tab_bar.tab_count, cards.size(), selected_mode_id])
 
 func _process(delta: float) -> void:
 	_counter_accum += delta
@@ -65,6 +69,11 @@ func _process(delta: float) -> void:
 
 # --- Popup / game mode ---
 
+## The MODE label (and the invisible GameModeButton behind it) opens the popup.
+func _on_mode_label_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_game_mode_button_pressed()
+
 func _on_game_mode_button_pressed() -> void:
 	popup.visible = not popup.visible
 	_log("game mode popup toggled: %s" % ("open" if popup.visible else "closed"))
@@ -73,16 +82,55 @@ func _on_close_button_pressed() -> void:
 	popup.visible = false
 	_log("game mode popup closed")
 
+## A card was clicked: select the mode and broadcast it to the room. The room
+## keeps existing (no scene change) - players ready up and the match starts
+## together when everyone is ready.
 func _on_mode_selected(mode_id: String) -> void:
 	selected_mode_id = mode_id
 	_log("mode selected: '%s'" % mode_id)
-	game_mode_text.text = mode_id.to_upper()
 	popup.visible = false
 	var lobby := get_tree().get_first_node_in_group("lobby")
 	if lobby:
 		lobby.set_mode(mode_id)
 	else:
 		_log("ERROR: no node in group 'lobby' for set_mode")
+
+# --- Mode label + ready toggle ---
+
+## Mode label shows name + current/max players (updated on mode/join/leave).
+## Clicking it opens the mode popup.
+func set_mode_text(mode_id: String, player_count: int) -> void:
+	game_mode_text.text = "%s  %d/%d  ▾" % [
+		GameModes.mode_name(mode_id), player_count, GameModes.max_players(mode_id)]
+
+## The PLAY button is the ready toggler: READY UP <-> CANCEL. While everyone
+## is ready it shows the countdown (disabled). countdown: -1 = none, >0 = secs.
+func update_ready_ui(local_ready: bool, ready_count: int, player_count: int,
+		max_players: int, countdown: int) -> void:
+	if countdown > 0:
+		play_button.disabled = true
+		play_button.text = "STARTING IN %d" % countdown
+		ready_label.text = "ALL READY - MATCH STARTS IN %d" % countdown
+		ready_label.visible = true
+		return
+	play_button.disabled = false
+	if local_ready:
+		play_button.text = "CANCEL"
+		ready_label.text = "READY - WAITING FOR %d/%d" % [ready_count, player_count]
+	else:
+		play_button.text = "READY UP"
+		ready_label.text = "PLAYERS %d/%d  -  %d READY" % [player_count, max_players, ready_count]
+	ready_label.visible = player_count > 0
+	_log("ready ui: local=%s ready=%d/%d players=%d/%d countdown=%d" % [
+		local_ready, ready_count, player_count, player_count, max_players, countdown])
+
+func _on_play_pressed() -> void:
+	_log("play/ready pressed (mode='%s')" % selected_mode_id)
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby:
+		lobby.toggle_ready()
+	else:
+		_log("ERROR: no node in group 'lobby' for toggle_ready")
 
 # --- Party box ---
 

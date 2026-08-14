@@ -4,9 +4,11 @@ extends Node3D
 
 @onready var mesh_pivot: Node3D = $MeshPivot
 @onready var name_label: Label3D = $PlayerNameLabel
+@onready var ready_label: Label3D = $PlayerNameLabel2
 
 func _ready() -> void:
 	apply_skin(Settings.skin_index)
+	set_ready(false)
 
 func _process(delta: float) -> void:
 	rotate_y(delta * 0.6)
@@ -21,3 +23,12 @@ func apply_skin(index: int) -> void:
 
 func update_name(player_name: String) -> void:
 	name_label.text = player_name
+
+## Lobby ready-state marker above the preview: green READY / amber WAITING.
+func set_ready(ready: bool) -> void:
+	if ready:
+		ready_label.text = "READY"
+		ready_label.modulate = Color(0.35, 1.0, 0.4)
+	else:
+		ready_label.text = "WAITING"
+		ready_label.modulate = Color(1.0, 0.82, 0.3)

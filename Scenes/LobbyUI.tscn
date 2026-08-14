@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="8_wxnpe"]
 [ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="10_4k33x"]
 [ext_resource type="Texture2D" uid="uid://bu7nxrlxrrx8s" path="res://Assets/finger_icon.png" id="10_f21u2"]
+[ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="9_chatp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
@@ -246,6 +247,7 @@ mouse_default_cursor_shape = 2
 [node name="GameModeText" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=1469636232]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 1
 theme_override_fonts/font = ExtResource("2_gfoai")
 theme_override_font_sizes/font_size = 25
 text = "Test Mode"
@@ -264,7 +266,19 @@ theme_override_font_sizes/font_size = 50
 theme_override_styles/normal = SubResource("StyleBoxFlat_aunu8")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_irlm8")
 theme_override_styles/hover = SubResource("StyleBoxFlat_o2s04")
-text = "     PLAY     "
+theme_override_styles/disabled = SubResource("StyleBoxFlat_i3k5f")
+text = "     READY UP     "
+
+[node name="ReadyLabel" type="Label" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer" unique_id=805843695]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.6, 0.95, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 5
+horizontal_alignment = 1
 
 [node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
 visible = false
@@ -431,38 +445,18 @@ columns = 4
 
 [node name="GameModeItem" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=567813932 instance=ExtResource("1_wvbee")]
 layout_mode = 2
-mode_id = "red_light_green_light"
-mode_name = "Red Light Green Light"
+mode_id = "ffa"
+mode_name = "Free For All\nMAX 8"
 
 [node name="GameModeItem2" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734579 instance=ExtResource("1_wvbee")]
 layout_mode = 2
-mode_id = "battle_royale"
-mode_name = "Battle Royale"
+mode_id = "tdm"
+mode_name = "Team Deathmatch\nMAX 8"
 
-[node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=332060781 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-mode_id = "tag"
-mode_name = "Tag"
-
-[node name="GameModeItem4" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461306034 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-mode_id = "hide_and_seek"
-mode_name = "Hide And Seek"
-
-[node name="GameModeItem5" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1327230798 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-mode_id = "free_for_all"
-mode_name = "Free For All"
-
-[node name="GameModeItem6" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461975193 instance=ExtResource("1_wvbee")]
-layout_mode = 2
-mode_id = "team_deathmatch"
-mode_name = "Team Deathmatch"
-
-[node name="GameModeItem7" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=1461975194 instance=ExtResource("1_wvbee")]
+[node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734580 instance=ExtResource("1_wvbee")]
 layout_mode = 2
 mode_id = "test"
-mode_name = "Test Mode"
+mode_name = "Test Mode\nMAX 4"
 
 [node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
 layout_mode = 2
@@ -482,6 +476,9 @@ text = "   Close   "
 [node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
+
+[node name="ChatPanel" parent="Root" unique_id=798311220 instance=ExtResource("9_chatp")]
+layout_mode = 1
 
 [connection signal="pressed" from="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/GameModeButton" to="." method="_on_game_mode_button_pressed"]
 [connection signal="pressed" from="PopupPanel/VBoxContainer/Button" to="." method="_on_close_button_pressed"]

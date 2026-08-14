@@ -14,6 +14,7 @@ var _panel_style: StyleBoxFlat
 @onready var panel: Panel = $Panel
 @onready var history: RichTextLabel = $Panel/VBox/History
 @onready var input_edit: LineEdit = $Panel/VBox/InputRow/Input
+@onready var toggle_button: Button = $ToggleButton
 
 func _ready() -> void:
 	add_to_group("chat")
@@ -24,6 +25,7 @@ func _ready() -> void:
 	history.scroll_following = true
 	input_edit.text_submitted.connect(_on_submitted)
 	input_edit.gui_input.connect(_on_input_gui)
+	toggle_button.pressed.connect(toggle)
 	set_open(false)
 
 func _exit_tree() -> void:
@@ -72,11 +74,12 @@ func _on_submitted(text: String) -> void:
 
 ## Closing the chat hands the mouse back to the local player's camera (only
 ## while the window is focused, mirroring player_instance._capture_mouse).
+## The main-lobby (main_lobby.gd) has no _characters, so this is a no-op there.
 func _release_mouse() -> void:
 	if not get_window().has_focus():
 		return
 	var lobby := get_tree().get_first_node_in_group("lobby")
-	if lobby == null:
+	if lobby == null or not ("_characters" in lobby):
 		return
 	var character: Node = lobby._characters.get(Fusion.get_local_player_id())
 	if character and character.replicator.has_input_authority():
@@ -84,11 +87,13 @@ func _release_mouse() -> void:
 
 @rpc("any_peer", "call_local")
 func submit_chat(player_id: int, sender_name: String, text: String) -> void:
-	var number := 0
+	var display_name := sender_name
 	var lobby := get_tree().get_first_node_in_group("lobby")
-	if lobby:
-		number = int(lobby._number_registry.get(player_id, 0))
-	var prefix := "[#%03d] %s" % [number, sender_name] if not sender_name.is_empty() else "[#%03d]" % number
+	# In the lobby the display name comes from the name registry (podiums);
+	# in the game scene the numeric registry gives the "#NNN" prefix.
+	if lobby and lobby.has_method("_player_name"):
+		display_name = lobby._player_name(player_id)
+	var prefix := "[#%03d] %s" % [player_id, display_name]
 	append_message(prefix, text)
 
 func append_message(prefix: String, text: String) -> void:

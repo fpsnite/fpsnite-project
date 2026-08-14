@@ -29,11 +29,31 @@ var player_id := -1
 ## Login token from Discord /register - the credential the backend accepts.
 var auth_token := ""
 
+## Mouse look (Settings > Controls tab), applied live by FirstPersonCamera:
+## hipfire sensitivity, per-axis multipliers, and the multiplier applied
+## while ADS (aim) is held.
+var mouse_sensitivity := 0.0025
+var ads_sensitivity_multiplier := 0.6
+var sens_x := 1.0
+var sens_y := 1.0
+
+## Defaults for the Settings > Controls "reset" button.
+const CONTROLS_DEFAULTS := {
+	"mouse_sensitivity": 0.0025,
+	"ads_sensitivity_multiplier": 0.6,
+	"sens_x": 1.0,
+	"sens_y": 1.0,
+}
+
 ## Transient navigation flags for the settings-page round trip (not saved):
 ## set by the pause drawer so the settings back button returns to the game
 ## (and reopens the drawer) instead of the main menu.
 var return_to_lobby := false
 var open_drawer_on_return := false
+
+## Transient game-state passthrough (not saved): the mode the arena match is
+## running at, set by the menu right before the scene switch.
+var pending_mode := "ffa"
 
 func _init() -> void:
 	var profile := OS.get_environment("FPSNITE_PROFILE").strip_edges()
@@ -107,6 +127,8 @@ func save_settings() -> void:
 	config.set_value("player", "name", player_name)
 	config.set_value("account", "player_id", player_id)
 	config.set_value("account", "auth_token", auth_token)
+	for key: String in CONTROLS_DEFAULTS:
+		config.set_value("controls", key, get(key))
 	config.save(save_path)
 
 func load_settings() -> void:
@@ -124,3 +146,5 @@ func load_settings() -> void:
 	player_name = config.get_value("player", "name", "")
 	player_id = config.get_value("account", "player_id", -1)
 	auth_token = config.get_value("account", "auth_token", "")
+	for key: String in CONTROLS_DEFAULTS:
+		set(key, config.get_value("controls", key, CONTROLS_DEFAULTS[key]))

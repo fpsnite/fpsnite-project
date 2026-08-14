@@ -15,6 +15,15 @@ const STAMINA_LOCK_MIN := 20.0
 ## quicker rise and a faster return to the floor.
 const JUMP_GRAVITY := 14.0
 
+## CS:GO / Source-engine style acceleration model.
+## Ground: accelerate toward max speed, friction stops you when idle.
+## Air: accel is intentionally low -> this is what produces "air strafing".
+const GROUND_ACCEL := 14.0
+const GROUND_FRICTION := 10.0
+const AIR_ACCEL := 2.2
+## Caps how much speed you can gain from air-strafe input per frame.
+const AIR_CAP := 0.85
+
 @onready var replicator: FusionServerReplicator = $FusionServerReplicator
 @onready var mesh_pivot: Node3D = $MeshPivot
 @onready var camera_3d: Camera3D = $CameraPivot/Camera3D
@@ -25,6 +34,9 @@ var player_id := 0
 var spectating := false
 var player_number := 0  # assigned by the lobby master, 000-456
 var speed_scale := 1.0  # per-round difficulty multiplier set by the lobby
+
+## Combat state, written by the server (WeaponSystem) via sync_health.
+var health := 100.0
 
 var _prev_jump_pressed := false
 var _round: Node
@@ -160,26 +172,54 @@ func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, i
 	var sprinting := payload.decode_u8(12) == 1
 	var jump_press := payload.decode_u8(13) == 1
 
+	# CS:GO / Source-engine acceleration model. Deterministic math only - this
+	# runs on the Fusion simulation thread on both the predicting client and
+	# the server, so never touch the scene tree here.
 	var speed := (sprint_speed if sprinting else walk_speed) * speed_scale
-	var direction := transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)
-	direction.y = 0.0
-	direction = direction.normalized() if direction.length_squared() > 0.0 else Vector3.ZERO
+	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
-	## Runs on the Fusion simulation thread on the server - never touch the
-	## scene tree here (get_tree/group lookups) or the main thread deadlocks.
 	if not is_on_floor():
 		velocity.y -= JUMP_GRAVITY * delta_time
 	elif jump_press:
 		velocity.y = jump_velocity
 
-	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+	if is_on_floor():
+		if input_dir == Vector2.ZERO:
+			_apply_ground_friction(delta_time)
+		else:
+			_accelerate(wish_dir, speed, GROUND_ACCEL, delta_time)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, speed)
-		velocity.z = move_toward(velocity.z, 0.0, speed)
+		# Low air accel + per-frame cap = the classic air-strafe feel.
+		_accelerate(wish_dir, speed, AIR_ACCEL, delta_time, AIR_CAP)
 
 	move_and_slide()
+
+## Source-engine ground friction: exponential decay of horizontal velocity
+## when no movement input is held.
+func _apply_ground_friction(delta_time: float) -> void:
+	var h_speed := Vector2(velocity.x, velocity.z).length()
+	if h_speed <= 0.0:
+		return
+	var drop := h_speed * GROUND_FRICTION * delta_time
+	var scale := maxf(h_speed - drop, 0.0) / h_speed
+	velocity.x *= scale
+	velocity.z *= scale
+
+## Quake/Source acceleration: only add speed toward the wish direction, up to
+## the target speed. Scaled by how much you're already moving that way - this
+## is what makes strafe-jumping/air-strafing work.
+func _accelerate(wish_dir: Vector3, target_speed: float, accel: float,
+		delta_time: float, cap: float = -1.0) -> void:
+	var current_speed := Vector3(velocity.x, 0.0, velocity.z).dot(wish_dir)
+	var add_speed := target_speed - current_speed
+	if add_speed <= 0.0:
+		return
+	var accel_speed := accel * target_speed * delta_time
+	if cap > 0.0:
+		accel_speed = minf(accel_speed, cap * target_speed)
+	accel_speed = minf(accel_speed, add_speed)
+	velocity.x += accel_speed * wish_dir.x
+	velocity.z += accel_speed * wish_dir.z
 
 # --- Visual sync (broadcast RPCs) ---
 
@@ -215,11 +255,35 @@ func become_eliminated() -> void:
 	spectating = true
 	_set_body_visible(false)
 
+## Killed by weapon fire (server-driven). Body hidden, collisions dropped so
+## dead players neither block movement nor eat bullets; the local player's
+## viewmodel is hidden too. Respawn handled by WeaponSystem.
+func become_dead() -> void:
+	spectating = true
+	_set_body_visible(false)
+	set_deferred("collision_layer", 0)
+	_weapon_visible(false)
+
 ## Next round: alive again (mesh restored, input allowed). If the local
 ## player was spectating, game_round stops the spectate mode for them.
 func become_alive() -> void:
 	spectating = false
 	_set_body_visible(true)
+	set_deferred("collision_layer", 1)
+	_weapon_visible(true)
+
+## Teleport + revive, driven by the server's broadcast_respawn.
+func respawn_at(position: Vector3, rotation_y: float) -> void:
+	global_position = position
+	rotation.y = rotation_y
+	become_alive()
+
+func _weapon_visible(visible_flag: bool) -> void:
+	if not replicator.has_input_authority():
+		return
+	var weapon := get_node_or_null("CameraPivot/Weapon")
+	if weapon:
+		weapon.visible = visible_flag
 
 ## Local FPS players never see their own body - not even when spectate mode
 ## stops and tries to restore it. Remote bodies are always visible.

@@ -2,12 +2,22 @@
 
 [ext_resource type="Script" uid="uid://bh6vphh02jxql" path="res://Scripts/player_instance.gd" id="1_bai1d"]
 [ext_resource type="Material" uid="uid://bsbux05305a7v" path="res://skins/default_skin.tres" id="2_tnxv2"]
-[ext_resource type="Script" uid="uid://fpsc4m3r4nd0m" path="res://Scripts/first_person_camera.gd" id="3_cam"]
+[ext_resource type="Script" uid="uid://buehjk6jkgh8u" path="res://Scripts/first_person_camera.gd" id="3_cam"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="4_cm5vb"]
+[ext_resource type="Script" uid="uid://bq3pvd071renv" path="res://Scripts/weapon_data.gd" id="5b_wd"]
+[ext_resource type="Script" uid="uid://bb1lpx10r4eom" path="res://Scripts/weapon.gd" id="5_weapon"]
+[ext_resource type="Resource" path="res://Resources/Weapons/rifle.tres" id="6_rifle"]
+[ext_resource type="Resource" path="res://Resources/Weapons/knife.tres" id="7_knife"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dj3i2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_en1b1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(0.9063843, 1.4, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_head"]
+size = Vector3(0.7234375, 0.45390624, 0.745752)
 
 [node name="PlayerInstance" type="CharacterBody3D" unique_id=1447604464]
 script = ExtResource("1_bai1d")
@@ -27,11 +37,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_dj3i2")
 surface_material_override/0 = ExtResource("2_tnxv2")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="MeshPivot" unique_id=414873450]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-mesh = SubResource("CapsuleMesh_dj3i2")
-surface_material_override/0 = ExtResource("2_tnxv2")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=804431824]
 shape = SubResource("CapsuleShape3D_en1b1")
 
@@ -40,6 +45,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 script = ExtResource("3_cam")
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=2080243921]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9462637, -0.3350593)
+
+[node name="Weapon" type="Node3D" parent="CameraPivot/Camera3D" unique_id=2080243929]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.47205818, -0.25855815, 0.6275248)
+script = ExtResource("5_weapon")
+loadout = Array[ExtResource("5b_wd")]([ExtResource("6_rifle"), ExtResource("7_knife")])
+
+[node name="BodyHitbox" type="Area3D" parent="." unique_id=2080243930]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03487277)
+collision_layer = 4
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BodyHitbox" unique_id=2080243931]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0066467524, -0.030403256, 0)
+shape = SubResource("BoxShape3D_body")
+debug_color = Color(0, 0.8547487, 1, 0.41960785)
+
+[node name="HeadHitbox" type="Area3D" parent="." unique_id=2080243932]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHitbox" unique_id=2080243933]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4169683e-05, 0.86395204, -0.0035888478)
+shape = SubResource("BoxShape3D_head")
+debug_color = Color(0, 0.8547487, 1, 0.41960785)
 
 [node name="PlayerNameLabel" type="Label3D" parent="." unique_id=1974409492]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2279269, 0)

@@ -20,6 +20,15 @@ const ACTIONS := [
 @onready var keybinds_box: VBoxContainer = %KeybindsBox
 @onready var status_label: Label = %StatusLabel
 
+## [settings key, %Slider node, %ValueLabel node, value format] - one row per
+## Controls tab slider. Values are applied to Settings live and persisted.
+const CONTROLS_ROWS := [
+	["mouse_sensitivity", "SensitivitySlider", "SensitivityValueLabel", "%.4f"],
+	["ads_sensitivity_multiplier", "AdsSensitivitySlider", "AdsSensitivityValueLabel", "%.0f%%"],
+	["sens_x", "SensXSlider", "SensXValueLabel", "%.2fx"],
+	["sens_y", "SensYSlider", "SensYValueLabel", "%.2fx"],
+]
+
 var _awaiting_action := ""
 var _keybind_buttons: Dictionary = {}
 
@@ -28,6 +37,11 @@ func _ready() -> void:
 	_fill_options()
 	_build_keybind_rows()
 	_load_current_values()
+	for entry: Array in CONTROLS_ROWS:
+		var slider: HSlider = get_node("%" + entry[1])
+		slider.value_changed.connect(
+			_on_controls_changed.bind(entry[0], slider, get_node("%" + entry[2]), entry[3]))
+	%ResetControlsButton.pressed.connect(_on_reset_controls_pressed)
 
 func _fill_options() -> void:
 	fps_option.clear()
@@ -50,6 +64,11 @@ func _load_current_values() -> void:
 	fullscreen_check.set_pressed_no_signal(Settings.fullscreen)
 	scaling_slider.set_value_no_signal(Settings.scaling_3d)
 	_update_scaling_label(Settings.scaling_3d)
+	for entry: Array in CONTROLS_ROWS:
+		var slider: HSlider = get_node("%" + entry[1])
+		slider.set_value_no_signal(Settings.get(entry[0]))
+		var label: Label = get_node("%" + entry[2])
+		label.text = entry[3] % Settings.get(entry[0])
 
 func _build_keybind_rows() -> void:
 	for entry: Array in ACTIONS:
@@ -123,6 +142,20 @@ func _on_scaling_slider_changed(value: float) -> void:
 
 func _update_scaling_label(value: float) -> void:
 	scaling_value_label.text = "%.0f%%" % (value * 100.0)
+
+## Controls tab: a slider moved - apply to Settings live and persist.
+## FirstPersonCamera reads these values on every look event.
+func _on_controls_changed(value: float, key: String, slider: HSlider,
+		label: Label, fmt: String) -> void:
+	Settings.set(key, value)
+	Settings.save_settings()
+	label.text = fmt % value
+
+func _on_reset_controls_pressed() -> void:
+	for key: String in Settings.CONTROLS_DEFAULTS:
+		Settings.set(key, Settings.CONTROLS_DEFAULTS[key])
+	Settings.save_settings()
+	_load_current_values()
 
 func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://Scenes/mainui.tscn")

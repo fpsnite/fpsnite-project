@@ -16,16 +16,14 @@ bg_color = Color(0.3019608, 0.6392157, 1, 0.45882353)
 
 [node name="ChatPanel" type="Control" unique_id=384104093]
 layout_mode = 3
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -420.0
+offset_left = 16.0
 offset_top = -210.0
-offset_right = -16.0
+offset_right = 420.0
 offset_bottom = -50.0
-grow_horizontal = 0
+grow_horizontal = 1
 grow_vertical = 0
 script = ExtResource("1_chat")
 
@@ -69,3 +67,17 @@ size_flags_horizontal = 3
 theme_override_fonts/font = ExtResource("3_xdxew")
 placeholder_text = "Message (Enter to send, Esc to close)"
 max_length = 200
+
+[node name="ToggleButton" type="Button" parent="." unique_id=798311221]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = 8.0
+offset_bottom = 48.0
+offset_right = 110.0
+grow_horizontal = 1
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_a84i8")
+theme_override_font_sizes/font_size = 24
+text = "CHAT"

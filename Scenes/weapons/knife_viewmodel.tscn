@@ -1,0 +1,47 @@
+[gd_scene load_steps=7 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_light"]
+albedo_color = Color(0.78, 0.8, 0.84, 1)
+roughness = 0.35
+metallic = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_dark"]
+albedo_color = Color(0.2, 0.16, 0.11, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_blade"]
+size = Vector3(0.035, 0.07, 0.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tip"]
+size = Vector3(0.025, 0.05, 0.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_handle"]
+size = Vector3(0.045, 0.07, 0.14)
+
+[sub_resource type="BoxMesh" id="BoxMesh_guard"]
+size = Vector3(0.06, 0.09, 0.03)
+
+[node name="KnifeViewmodel" type="Node3D"]
+
+[node name="Blade" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.22)
+mesh = SubResource("BoxMesh_blade")
+surface_material_override/0 = SubResource("Mat_light")
+
+[node name="Tip" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.46)
+mesh = SubResource("BoxMesh_tip")
+surface_material_override/0 = SubResource("Mat_light")
+
+[node name="Handle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.05)
+mesh = SubResource("BoxMesh_handle")
+surface_material_override/0 = SubResource("Mat_dark")
+
+[node name="Guard" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.02)
+mesh = SubResource("BoxMesh_guard")
+surface_material_override/0 = SubResource("Mat_light")
+
+[node name="Muzzle" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.45)

@@ -4,6 +4,7 @@
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_188kt"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_imajn"]
 [ext_resource type="Texture2D" uid="uid://b5hlu8nr61l53" path="res://Assets/Health.png" id="4_2627f"]
+[ext_resource type="Texture2D" uid="uid://cjrrak6fn3e0l" path="res://Assets/Shield.png" id="5_188kt"]
 [ext_resource type="Texture2D" uid="uid://bqimceq1wb2mx" path="res://Assets/locker-ver-2.png1.png" id="5_tfrlj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_bg"]
@@ -13,15 +14,15 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_health"]
-bg_color = Color(0.28627452, 0.9372549, 0.08235294, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_shield"]
+bg_color = Color(0.2, 0.55, 1, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_shield"]
-bg_color = Color(0.2, 0.55, 1, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hudbar_health"]
+bg_color = Color(0.28627452, 0.9372549, 0.08235294, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -53,9 +54,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -568.0
-offset_top = -164.0
+offset_top = -189.0
 offset_right = -228.0
-offset_bottom = -36.0
+offset_bottom = -34.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 6
@@ -89,6 +90,24 @@ theme_override_font_sizes/font_size = 28
 text = "30 / 90"
 horizontal_alignment = 1
 
+[node name="ShieldRow" type="HBoxContainer" parent="Box" unique_id=422497218]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TextureRect" type="TextureRect" parent="Box/ShieldRow" unique_id=1813273389]
+layout_mode = 2
+texture = ExtResource("5_188kt")
+expand_mode = 3
+
+[node name="ShieldBar" type="ProgressBar" parent="Box/ShieldRow" unique_id=1437609734]
+custom_minimum_size = Vector2(240, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_shield")
+value = 100.0
+show_percentage = false
+
 [node name="HealthRow" type="HBoxContainer" parent="Box" unique_id=1516398406]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -107,18 +126,9 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_health")
 value = 100.0
 show_percentage = false
 
-[node name="ShieldRow" type="HBoxContainer" parent="Box" unique_id=422497218]
+[node name="Control" type="Control" parent="Box" unique_id=4252268]
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="ShieldBar" type="ProgressBar" parent="Box/ShieldRow" unique_id=1437609734]
-custom_minimum_size = Vector2(240, 14)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/background = SubResource("StyleBoxFlat_hudbar_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_hudbar_shield")
-value = 100.0
-show_percentage = false
 
 [node name="SprintRow" type="HBoxContainer" parent="Box" unique_id=2070697381]
 layout_mode = 2

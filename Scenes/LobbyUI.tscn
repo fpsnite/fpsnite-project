@@ -11,9 +11,9 @@
 [ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
 [ext_resource type="Script" uid="uid://dxhksd0u5jtj3" path="res://Scripts/lobby_hud.gd" id="7_hud"]
 [ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="8_wxnpe"]
+[ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="9_chatp"]
 [ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="10_4k33x"]
 [ext_resource type="Texture2D" uid="uid://bu7nxrlxrrx8s" path="res://Assets/finger_icon.png" id="10_f21u2"]
-[ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="9_chatp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
@@ -38,14 +38,14 @@ bg_color = Color(0.1995164, 0.3551537, 0.59478575, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2s04"]
 bg_color = Color(0.29203483, 0.50551265, 0.83106637, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i3k5f"]
+bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_syw83"]
 bg_color = Color(0.3019608, 0.6392157, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i3k5f"]
-bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wn18v"]
 bg_color = Color(0.20784314, 0.45490196, 0.72156864, 1)
@@ -273,11 +273,11 @@ text = "     READY UP     "
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_fonts/font = ExtResource("2_gfoai")
-theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.6, 0.95, 0.65, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
 theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("2_gfoai")
+theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 
 [node name="Locker" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=868965008]
@@ -351,7 +351,7 @@ custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 size_flags_vertical = 8
 offset_transform_enabled = true
-offset_transform_position = Vector2(280, 35)
+offset_transform_position = Vector2(340, 35)
 offset_transform_visual_only = false
 theme_override_constants/tab_separation = 5
 theme_override_constants/icon_max_width = 41
@@ -404,6 +404,9 @@ unique_name_in_owner = true
 [node name="FPSTimer" type="Timer" parent="Root" unique_id=1051395437]
 unique_name_in_owner = true
 
+[node name="ChatPanel" parent="Root" unique_id=798311220 instance=ExtResource("9_chatp")]
+layout_mode = 1
+
 [node name="PopupPanel" type="Control" parent="." unique_id=646265303]
 unique_name_in_owner = true
 visible = false
@@ -446,17 +449,20 @@ columns = 4
 [node name="GameModeItem" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=567813932 instance=ExtResource("1_wvbee")]
 layout_mode = 2
 mode_id = "ffa"
-mode_name = "Free For All\nMAX 8"
+mode_name = "Free For All
+MAX 8"
 
 [node name="GameModeItem2" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734579 instance=ExtResource("1_wvbee")]
 layout_mode = 2
 mode_id = "tdm"
-mode_name = "Team Deathmatch\nMAX 8"
+mode_name = "Team Deathmatch
+MAX 8"
 
 [node name="GameModeItem3" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734580 instance=ExtResource("1_wvbee")]
 layout_mode = 2
 mode_id = "test"
-mode_name = "Test Mode\nMAX 4"
+mode_name = "Test Mode
+MAX 4"
 
 [node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]
 layout_mode = 2
@@ -476,9 +482,6 @@ text = "   Close   "
 [node name="Control" type="Control" parent="PopupPanel/VBoxContainer" unique_id=2076778798]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
-
-[node name="ChatPanel" parent="Root" unique_id=798311220 instance=ExtResource("9_chatp")]
-layout_mode = 1
 
 [connection signal="pressed" from="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/Control/GameModeButton" to="." method="_on_game_mode_button_pressed"]
 [connection signal="pressed" from="PopupPanel/VBoxContainer/Button" to="." method="_on_close_button_pressed"]

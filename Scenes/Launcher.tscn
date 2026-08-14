@@ -1,10 +1,14 @@
 [gd_scene format=3 uid="uid://cydsij7oitmrg"]
 
 [ext_resource type="Script" uid="uid://kuxg8y065jgy" path="res://Scripts/launcher.gd" id="1_launch"]
+[ext_resource type="Texture2D" uid="uid://d2hl7nggycyfc" path="res://Assets/FPS NITE BACKGROUND.png" id="2_n5014"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_v4bqi"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_xxyg4"]
 [ext_resource type="Texture2D" uid="uid://tbqnrd2xrww3" path="res://Assets/38481-discord.png" id="4_xxyg4"]
 [ext_resource type="Script" uid="uid://cuwh1df5f2hbs" path="res://Scripts/Discord_button.gd" id="5_50dw1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ft03"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n5014"]
 bg_color = Color(0.043137256, 0.12156863, 0.22745098, 0.95686275)
@@ -38,6 +42,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_launch")
 
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2109873539]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_n5014")
+expand_mode = 1
+
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1583824854]
 layout_mode = 1
 anchors_preset = 15
@@ -45,6 +59,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8ft03")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=362547599]
 layout_mode = 2
@@ -127,6 +142,7 @@ horizontal_alignment = 1
 [node name="ConnectingLabel" type="Label" parent="PanelContainer/MarginContainer/ConnectingPanel" unique_id=1510271210]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
 size_flags_vertical = 2
 theme_override_fonts/font = ExtResource("2_v4bqi")
 theme_override_font_sizes/font_size = 30
@@ -139,6 +155,10 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(340, 18)
 layout_mode = 2
 size_flags_vertical = 10
+offset_transform_enabled = true
+offset_transform_position = Vector2(-55, 0)
+offset_transform_scale = Vector2(0.9, 0.9)
+offset_transform_visual_only = false
 theme_override_styles/background = SubResource("StyleBoxFlat_thkdr")
 theme_override_styles/fill = SubResource("StyleBoxFlat_o8ayb")
 show_percentage = false

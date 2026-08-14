@@ -83,10 +83,11 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_drawer")
-current_tab = 0
+current_tab = 2
 tabs_visible = false
 
 [node name="Info" type="VBoxContainer" parent="Panel/VBox/DrawerTabs" unique_id=1592201838]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 metadata/_tab_index = 0
@@ -174,7 +175,6 @@ theme_override_font_sizes/font_size = 30
 text = "Quit"
 
 [node name="Players" type="VBoxContainer" parent="Panel/VBox/DrawerTabs" unique_id=1592201846]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 4
 metadata/_tab_index = 2

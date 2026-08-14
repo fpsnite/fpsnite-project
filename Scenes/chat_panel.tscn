@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://ec3y1mp1qqar" path="res://Scripts/chat_panel.gd" id="1_chat"]
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_a84i8"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_xdxew"]
+[ext_resource type="Texture2D" uid="uid://b8qere4btbqpo" path="res://Assets/Chat.png" id="4_xdxew"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_chat"]
 bg_color = Color(0.08, 0.1, 0.12, 0.45)
@@ -23,7 +24,6 @@ offset_left = 16.0
 offset_top = -210.0
 offset_right = 420.0
 offset_bottom = -50.0
-grow_horizontal = 1
 grow_vertical = 0
 script = ExtResource("1_chat")
 
@@ -50,7 +50,8 @@ custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
 size_flags_vertical = 3
 focus_mode = 2
-theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
 theme_override_fonts/normal_font = ExtResource("2_a84i8")
 theme_override_fonts/bold_italics_font = ExtResource("3_xdxew")
 theme_override_styles/normal = SubResource("StyleBoxFlat_6jvu3")
@@ -74,10 +75,11 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = 8.0
-offset_bottom = 48.0
 offset_right = 110.0
-grow_horizontal = 1
+offset_bottom = 48.0
 grow_vertical = 0
 theme_override_fonts/font = ExtResource("2_a84i8")
 theme_override_font_sizes/font_size = 24
 text = "CHAT"
+icon = ExtResource("4_xdxew")
+expand_icon = true

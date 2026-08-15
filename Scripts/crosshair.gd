@@ -14,14 +14,29 @@ const LINE_LENGTH := 10.0
 const LINE_WIDTH := 2.0
 const CROSSHAIR_COLOR := Color(1.0, 1.0, 1.0, 1.0)
 
-## The arena scene - the crosshair is only shown while it is the current
-## scene (not in the menu lobby, settings, launcher, etc).
-const GAME_SCENE := "res://Scenes/lobby.tscn"
+## In-game scenes - the crosshair is only shown while one of these is the
+## current scene (not in the menu lobby, settings, launcher, etc).
+const GAME_SCENES := ["res://Scenes/lobby.tscn", "res://GameScenes/AimTraining/aim_training.tscn"]
 
 var _movement_spread := 0.0  # 0..1, set every physics frame
 var _shot_spread := 0.0      # decays over time after each shot
+var _force: int = -1         # -1 = auto (scene check), 0 = hide, 1 = show
+var _style := "default"      # "default" = four lines, "square" = corner brackets
 
 var _panel: Control
+
+## Scene-level override: the aim training hub hides the crosshair (it is a
+## menu, not combat), arenas force it on. Any scene that sets an override
+## owns it from then on.
+func set_override(visible: bool) -> void:
+	_force = 1 if visible else 0
+
+## Weapon-driven shape: "default" (four lines) or "square" (squared corner
+## brackets, no fill) - the shotgun uses the square style.
+func set_style(style: String) -> void:
+	if _style != style:
+		_style = style
+		_redraw()
 
 func _ready() -> void:
 	layer = 100
@@ -34,9 +49,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var in_game := get_tree().current_scene != null \
-		and get_tree().current_scene.scene_file_path == GAME_SCENE
-	if _panel.visible != in_game:
-		_panel.visible = in_game
+		and get_tree().current_scene.scene_file_path in GAME_SCENES
+	var show := in_game if _force < 0 else _force == 1
+	if _panel.visible != show:
+		_panel.visible = show
 	if _shot_spread > 0.0:
 		_shot_spread = maxf(_shot_spread - RECOVER_SPEED * delta, 0.0)
 		_redraw()
@@ -58,7 +74,29 @@ func _redraw() -> void:
 func _on_draw() -> void:
 	var center := _panel.size / 2.0
 	var gap := BASE_GAP + (_movement_spread * MAX_MOVEMENT_GAP) + _shot_spread
+	if _style == "square":
+		_draw_square(center, gap)
+		return
 	_panel.draw_line(center + Vector2(0, -gap), center + Vector2(0, -gap - LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(0, gap), center + Vector2(0, gap + LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(-gap, 0), center + Vector2(-gap - LINE_LENGTH, 0), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(gap, 0), center + Vector2(gap + LINE_LENGTH, 0), CROSSHAIR_COLOR, LINE_WIDTH)
+
+## Squared crosshair: four corner brackets (no fill, no center lines), sized
+## by the same spread-driven gap. The corners point INWARD at the target.
+## Used by the shotgun.
+func _draw_square(center: Vector2, gap: float) -> void:
+	var h := gap + LINE_LENGTH   # distance of each bracket from center
+	var arm := LINE_LENGTH       # length of each bracket arm
+	# Top-left corner (arms point right + down, toward center)
+	_panel.draw_line(center + Vector2(-h, -h), center + Vector2(-h + arm, -h), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(-h, -h), center + Vector2(-h, -h + arm), CROSSHAIR_COLOR, LINE_WIDTH)
+	# Top-right corner (arms point left + down)
+	_panel.draw_line(center + Vector2(h, -h), center + Vector2(h - arm, -h), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(h, -h), center + Vector2(h, -h + arm), CROSSHAIR_COLOR, LINE_WIDTH)
+	# Bottom-left corner (arms point right + up)
+	_panel.draw_line(center + Vector2(-h, h), center + Vector2(-h + arm, h), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(-h, h), center + Vector2(-h, h - arm), CROSSHAIR_COLOR, LINE_WIDTH)
+	# Bottom-right corner (arms point left + up)
+	_panel.draw_line(center + Vector2(h, h), center + Vector2(h - arm, h), CROSSHAIR_COLOR, LINE_WIDTH)
+	_panel.draw_line(center + Vector2(h, h), center + Vector2(h, h - arm), CROSSHAIR_COLOR, LINE_WIDTH)

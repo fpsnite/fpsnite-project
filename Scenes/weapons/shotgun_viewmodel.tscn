@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_dark"]
+albedo_color = Color(0.16, 0.17, 0.19, 1)
+roughness = 0.6
+metallic = 0.35
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.24, 0.13, 0.06, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+size = Vector3(0.09, 0.13, 0.48)
+
+[sub_resource type="CylinderMesh" id="CylMesh_barrel"]
+top_radius = 0.03
+bottom_radius = 0.03
+height = 0.62
+
+[sub_resource type="BoxMesh" id="BoxMesh_pump"]
+size = Vector3(0.07, 0.09, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_stock"]
+size = Vector3(0.08, 0.12, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sight"]
+size = Vector3(0.04, 0.05, 0.14)
+
+[node name="ShotgunViewmodel" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
+mesh = SubResource("BoxMesh_body")
+surface_material_override/0 = SubResource("Mat_dark")
+
+[node name="Barrel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, -0.31)
+mesh = SubResource("CylMesh_barrel")
+surface_material_override/0 = SubResource("Mat_dark")
+
+[node name="Pump" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, -0.2)
+mesh = SubResource("BoxMesh_pump")
+surface_material_override/0 = SubResource("Mat_dark")
+
+[node name="Stock" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.26)
+mesh = SubResource("BoxMesh_stock")
+surface_material_override/0 = SubResource("Mat_wood")
+
+[node name="Sight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.2)
+mesh = SubResource("BoxMesh_sight")
+surface_material_override/0 = SubResource("Mat_dark")
+
+[node name="Muzzle" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.62)

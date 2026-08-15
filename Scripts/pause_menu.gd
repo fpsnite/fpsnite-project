@@ -25,12 +25,15 @@ func _ready() -> void:
 		call_deferred("set_open", true)
 
 ## No reason to show the room code when playing solo: hide the code and the
-## copy button while this client is the only one in the room.
+## copy button while this client is the only one in the room. Works without
+## a lobby node too (e.g. aim training) by reading the Fusion room directly.
 func _refresh_room_code_visibility() -> void:
 	var alone := true
 	var lobby := get_tree().get_first_node_in_group("lobby")
 	if lobby and "_characters" in lobby:
 		alone = lobby._characters.size() <= 1
+	elif Fusion.is_in_room():
+		alone = Fusion.get_room().get_players().size() <= 1
 	$Drawer/VBox/RoomCodeLabel.visible = not alone
 	$Drawer/VBox/CopyCodeButton.visible = not alone
 
@@ -75,10 +78,12 @@ func _on_copy_code_pressed() -> void:
 	if is_inside_tree():
 		button.text = "COPY ROOM CODE"
 
-## Opens the settings page; the back button there returns to the game with
-## this drawer open again. Must unpause before switching scenes or the new
+## Opens the settings page; the back button there returns to the current
+## scene (drawer reopens). Must unpause before switching scenes or the new
 ## scene loads frozen.
 func _on_settings_pressed() -> void:
+	var current := get_tree().current_scene
+	Settings.return_to_scene = current.scene_file_path if current else ""
 	Settings.return_to_lobby = true
 	Settings.open_drawer_on_return = true
 	get_tree().paused = false

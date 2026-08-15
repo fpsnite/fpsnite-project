@@ -1,7 +1,8 @@
 extends Node3D
 ## Spectate mode: H toggles it. Hides your own body (locally), freezes your
 ## input, and follows the selected player with a dedicated camera.
-## Prev/next buttons cycle through the other players in the room.
+## Prev/next buttons cycle through the other living players in the room.
+## Spectating is only available in TDM/1v1 (FFA uses instant respawn).
 
 var _active := false
 var _target_ids: Array = []
@@ -22,9 +23,15 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not _active:
 		return
+	# In FFA spectating shouldn't be active (instant respawn), but guard anyway.
 	var round_node := get_tree().get_first_node_in_group("round")
-	if not _target_ids.is_empty() and round_node and round_node.eliminated.has(_target_ids[_target_index % _target_ids.size()]):
-		_cycle(1)
+	var mode: String = round_node.get_mode() if round_node and round_node.has_method("get_mode") else "ffa"
+	if mode == "ffa":
+		_stop()
+		return
+	_rebuild_targets()
+	if _target_ids.is_empty():
+		_stop()
 		return
 	var target := current_target()
 	if target == null:
@@ -66,18 +73,18 @@ func _cycle(step: int) -> void:
 	if _target_index < 0:
 		_target_index += _target_ids.size()
 
-## Cycle targets are the players still in the match - eliminated players are
-## skipped so spectating only follows survivors.
+## Rebuild the target list: all living players except the local player.
 func _rebuild_targets() -> void:
 	_target_ids.clear()
 	var lobby := get_tree().get_first_node_in_group("lobby")
 	if lobby == null:
 		return
-	var round_node := get_tree().get_first_node_in_group("round")
+	var weapon_system := get_tree().get_first_node_in_group("weapon_system")
 	var local_pid := Fusion.get_local_player_id()
 	for pid in lobby._characters:
 		if pid != local_pid:
-			if round_node and round_node.eliminated.has(pid):
+			# Skip dead players (waiting for respawn)
+			if weapon_system and weapon_system._dead.get(pid, false):
 				continue
 			_target_ids.append(pid)
 
@@ -101,7 +108,6 @@ func _hide_local_body(hidden: bool) -> void:
 	if player == null:
 		return
 	player.spectating = hidden
-	# Respect the FPS rule: the local player's body stays hidden forever.
 	player._set_body_visible(not hidden)
 
 func _restore_local_camera() -> void:

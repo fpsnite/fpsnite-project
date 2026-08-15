@@ -8,6 +8,9 @@ extends Node3D
 ## Clients never trust their own raycasts or health - they only send requests.
 
 signal local_damage_taken(damage: float)
+## Emitted on all clients when a player dies (killer_id, target_id).
+## game_round.gd listens to count kills toward the match score.
+signal player_killed(killer_id: int, target_id: int)
 
 const MAX_HEALTH := 100.0
 ## Shield absorbs damage before health (a second bar, drained first).
@@ -17,10 +20,7 @@ const BODY_LAYER := 4   # BodyHitbox area
 const HEAD_LAYER := 8   # HeadHitbox area
 const WORLD_LAYER := 1
 
-const WEAPON_TABLES: Array[WeaponData] = [
-	preload("res://Resources/Weapons/rifle.tres"),
-	preload("res://Resources/Weapons/knife.tres"),
-]
+const WEAPONS_DIR := "res://Resources/Weapons"
 
 var _weapons: Dictionary = {}       # weapon_id -> WeaponData (authoritative tables)
 var _health: Dictionary = {}        # player_id -> float
@@ -29,16 +29,35 @@ var _dead: Dictionary = {}          # player_id -> bool
 var _last_shot_ms: Dictionary = {}  # player_id -> int, rate limiting
 var _spawn_points: Array[Marker3D] = []
 var _lobby: Node
+var _holes: BulletHoles
 
 func _ready() -> void:
 	add_to_group("weapon_system")
 	_lobby = get_tree().get_first_node_in_group("lobby")
-	for data in WEAPON_TABLES:
-		_weapons[data.weapon_id] = data
+	# Every .tres in Resources/Weapons becomes an authoritative table - each
+	# weapon's own damage, fire rate, headshot multiplier, range and melee
+	# stats are used, no per-weapon code to maintain.
+	for path in _list_weapon_tres():
+		var data := load(path) as WeaponData
+		if data != null:
+			_weapons[data.weapon_id] = data
+	_holes = BulletHoles.new()
+	add_child(_holes)
 	Fusion.register_broadcast_receiver(self)
 	Fusion.player_joined.connect(_on_player_joined)
 	Fusion.player_left.connect(_on_player_left)
 	call_deferred("_collect_spawn_points")
+
+func _list_weapon_tres() -> Array[String]:
+	var paths: Array[String] = []
+	var dir := DirAccess.open(WEAPONS_DIR)
+	if dir == null:
+		push_warning("weapon_system: cannot open %s" % WEAPONS_DIR)
+		return paths
+	for file in dir.get_files():
+		if file.ends_with(".tres"):
+			paths.append(WEAPONS_DIR.path_join(file))
+	return paths
 
 func _exit_tree() -> void:
 	Fusion.unregister_broadcast_receiver(self)
@@ -136,12 +155,26 @@ func _resolve_shot(shooter_id: int, origin: Vector3, direction: Vector3, data: W
 			Fusion.rpc(broadcast_hit, shooter_id, 0, 0.0, false,
 				position, hit.normal, data.weapon_id)
 			return
+		# Team damage guard: same-team hits do nothing in TDM.
+		if _same_team(shooter_id, target_id):
+			Fusion.rpc(broadcast_hit, shooter_id, 0, 0.0, false,
+				position, hit.normal, data.weapon_id)
+			return
 		var headshot: bool = collider.name == "HeadHitbox"
 		var damage: float = base_damage * (data.headshot_multiplier if headshot else 1.0)
 		_apply_damage(shooter_id, target_id, damage, headshot, position, hit.normal, data.weapon_id)
 	else:
 		Fusion.rpc(broadcast_hit, shooter_id, 0, 0.0, false,
 			position, hit.normal, data.weapon_id)
+
+## Returns true if both players are on the same team (TDM only).
+func _same_team(id_a: int, id_b: int) -> bool:
+	var round_node := get_tree().get_first_node_in_group("round")
+	if round_node == null:
+		return false
+	if not round_node.has_method("get_team"):
+		return false
+	return round_node.get_team(id_a) == round_node.get_team(id_b)
 
 func _exclusions_for(shooter_id: int) -> Array[RID]:
 	var shooter: Node = _character(shooter_id)
@@ -180,16 +213,22 @@ func _apply_damage(killer_id: int, target_id: int, damage: float, headshot: bool
 
 @rpc("any_peer", "call_local")
 func broadcast_hit(shooter_id: int, target_id: int, damage: float, headshot: bool,
-		position: Vector3, _normal: Vector3, _weapon_id: String) -> void:
+		position: Vector3, normal: Vector3, _weapon_id: String) -> void:
 	var local_id := Fusion.get_local_player_id()
 	if shooter_id != local_id:
 		return
 	var shooter := _character(shooter_id)
 	if shooter == null:
 		return
-	var weapon := shooter.get_node_or_null("CameraPivot/Weapon")
+	var weapon := shooter.get_node_or_null("CameraPivot/Camera3D/Weapon")
 	if weapon:
 		weapon.show_tracer(weapon.muzzle_global_position(), position)
+		weapon.show_bullet(weapon.muzzle_global_position(), position)
+	# Missed everything (wall/floor): leave a bullet hole, except for melee
+	# swings - bullets only. The server's word on the surface normal is used.
+	if target_id == 0 and not normal.is_zero_approx() \
+			and (weapon == null or not weapon.current_data.melee):
+		_holes.spawn(position, normal)
 	if damage > 0.0:
 		var numbers := get_tree().get_first_node_in_group("damage_numbers")
 		if numbers:
@@ -214,7 +253,15 @@ func broadcast_death(killer_id: int, target_id: int, headshot: bool) -> void:
 	var character := _character(target_id)
 	if character:
 		character.become_dead()
-	if target_id == Fusion.get_local_player_id():
+	player_killed.emit(killer_id, target_id)
+	# FFA: instant respawn. TDM/1v1: delayed respawn with spectate option.
+	var round_node := get_tree().get_first_node_in_group("round")
+	var mode: String = round_node.get_mode() if round_node and round_node.has_method("get_mode") else "ffa"
+	if mode == "ffa":
+		# Instant respawn for FFA — no spectate
+		get_tree().create_timer(0.5).timeout \
+			.connect(func() -> void: request_respawn(target_id), CONNECT_ONE_SHOT)
+	elif target_id == Fusion.get_local_player_id():
 		get_tree().create_timer(RESPAWN_TIME).timeout \
 			.connect(_on_respawn_timeout, CONNECT_ONE_SHOT)
 

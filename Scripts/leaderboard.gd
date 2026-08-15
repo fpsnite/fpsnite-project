@@ -1,15 +1,14 @@
 extends CanvasLayer
 ## Top-right leaderboard: one row per player (name + score), sorted by score.
-## Reads the lobby's character list and score registry; scores are granted by
-## the master when a round finishes (all players in the room +1).
+## Reads the round's kill score registry and the lobby's character list.
 
 @onready var rows_box: VBoxContainer = $Root/Panel/Margin/Rows
 
 var _row_labels: Dictionary = {}  # player_id -> Label
 
 func _process(_delta: float) -> void:
-	var round: Node = get_tree().get_first_node_in_group("round")
-	visible = round != null and round.is_round_active()
+	var round_node: Node = get_tree().get_first_node_in_group("round")
+	visible = round_node != null and round_node.is_round_active()
 	if not visible:
 		return
 	var lobby := get_tree().get_first_node_in_group("lobby")
@@ -18,10 +17,13 @@ func _process(_delta: float) -> void:
 	var entries: Array[Dictionary] = []
 	for pid: int in lobby._characters:
 		var character: Node = lobby._characters[pid]
+		var score := 0
+		if round_node.has_method("get_kill_score"):
+			score = round_node.get_kill_score(pid)
 		entries.append({
 			"id": pid,
 			"name": _name_for(character),
-			"score": int(lobby._score_registry.get(pid, 0)),
+			"score": score,
 		})
 	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return a["score"] > b["score"])

@@ -211,6 +211,10 @@ func leave_party() -> void:
 func set_mode(mode_id: String) -> void:
 	if mode_id == _selected_mode:
 		return
+	if GameModes.is_solo(mode_id) and _player_count() > 1:
+		_log("set_mode rejected: '%s' is solo, %d players in room" % [mode_id, _player_count()])
+		Toasts.show_message("%s is for 1 player only" % GameModes.mode_name(mode_id))
+		return
 	_selected_mode = mode_id
 	_log("mode set to '%s' (max %d players)" % [mode_id, GameModes.max_players(mode_id)])
 	Fusion.rpc(submit_mode, mode_id)
@@ -564,8 +568,11 @@ func submit_countdown(seconds_left: int) -> void:
 ## Everyone changes scene together when the countdown ends.
 @rpc("any_peer", "call_local")
 func start_match(mode_id: String) -> void:
-	_log("start_match: loading arena at mode '%s'" % mode_id)
+	_log("start_match: loading '%s'" % mode_id)
 	Settings.pending_mode = mode_id
+	if GameModes.is_solo(mode_id):
+		get_tree().change_scene_to_file("res://GameScenes/AimTraining/aim_training.tscn")
+		return
 	get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
 
 # --- Kick (master only) ---

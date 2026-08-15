@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://viuiokivmaii"]
+
+[ext_resource type="Script" uid="uid://6d5ulltl624e" path="res://GameScenes/AimTraining/tracking_arena.gd" id="1_track"]
+[ext_resource type="PackedScene" uid="uid://viuiokakavii" path="res://GameScenes/AimTraining/rooms/close_room.tscn" id="2_room"]
+[ext_resource type="PackedScene" uid="uid://impad000001" path="res://GameScenes/AimTraining/aim_pad.tscn" id="3_pad"]
+
+[node name="CloseArena" type="Node3D" unique_id=1731819492]
+script = ExtResource("1_track")
+target_hp = 5
+arena_id = "close"
+arena_name = "CLOSE TRACKING"
+player_spawn_local = Vector3(0, 1, 5.5)
+
+[node name="Room" parent="." unique_id=227644096 instance=ExtResource("2_room")]
+
+[node name="ExitPad" parent="." unique_id=820107170 instance=ExtResource("3_pad")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0001297, 0, 0.40592527)

@@ -164,11 +164,15 @@ func _on_reset_controls_pressed() -> void:
 	Settings.save_settings()
 	_load_current_values()
 
-## Back returns where the settings were opened from: the arena lobby (the
-## game) when opened via the pause drawer - which reopens the drawer on
-## return - or the main menu when opened from there.
+## Back returns where the settings were opened from: the exact scene (e.g.
+## aim training, arena) when opened via the pause drawer - which reopens the
+## drawer on return - or the main menu when opened from there.
 func _on_back_pressed() -> void:
-	if Settings.return_to_lobby:
+	if not Settings.return_to_scene.is_empty():
+		var scene_path := Settings.return_to_scene
+		Settings.return_to_scene = ""
+		get_tree().change_scene_to_file(scene_path)
+	elif Settings.return_to_lobby:
 		Settings.return_to_lobby = false
 		get_tree().change_scene_to_file("res://Scenes/lobby.tscn")
 	else:

@@ -53,12 +53,22 @@ func _process(_delta: float) -> void:
 func _update_ammo(weapon: Node) -> void:
 	if weapon.current_data.infinite_ammo:
 		ammo_label.text = "INFINITE"
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.9, 0.45, 1))
 	elif weapon.reloading:
 		ammo_label.text = "RELOADING..."
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.9, 0.45, 1))
+	elif weapon.current_data.infinite_reserve_ammo:
+		ammo_label.text = "%d / INF" % weapon.mag
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.9, 0.45, 1))
+	elif weapon.mag <= 0 and weapon.reserve <= 0:
+		ammo_label.text = "NO AMMO"
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.3, 0.3))
 	elif weapon.mag <= 0:
 		ammo_label.text = "EMPTY - PRESS R TO RELOAD"
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.9, 0.45, 1))
 	else:
 		ammo_label.text = "%d / %d" % [weapon.mag, weapon.reserve]
+		ammo_label.add_theme_color_override("font_color", Color(1, 0.9, 0.45, 1))
 
 ## (Re)builds the slot labels once, then only updates the highlight.
 func _update_weapon_bar(weapon: Node) -> void:

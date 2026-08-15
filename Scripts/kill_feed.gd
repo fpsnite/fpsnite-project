@@ -1,7 +1,7 @@
 extends CanvasLayer
-## Kill feed: recent match events (joins, leaves, finish-line reaches, red-light
-## strikes, champion) stacked on the right side. Newest line goes on top, and
-## each line fades out a few seconds after it appears.
+## Kill feed: recent match events (joins, leaves, kills, headshots, respawns)
+## stacked on the right side. Newest line goes on top, and each line fades
+## out a few seconds after it appears.
 
 const MAX_LINES := 6
 const HOLD_TIME := 5.0
@@ -12,8 +12,8 @@ const FADE_TIME := 1.5
 func _ready() -> void:
 	add_to_group("kill_feed")
 
-## kind: "joined", "left", "win", "strike", "champion", "kill", "headshot" or
-## "respawn". "kill"/"headshot" additionally take the victim's player id.
+## kind: "joined", "left", "kill", "headshot", "respawn".
+## "kill"/"headshot" additionally take the victim's player id.
 func add_event(kind: StringName, player_id: int, target_id: int = 0) -> void:
 	var prefix := _prefix_for(player_id)
 	match kind:
@@ -21,12 +21,6 @@ func add_event(kind: StringName, player_id: int, target_id: int = 0) -> void:
 			_add_line("%s joined the room" % prefix, Color(0.6, 0.9, 0.65))
 		&"left":
 			_add_line("%s left the room" % prefix, Color(0.75, 0.75, 0.75))
-		&"win":
-			_add_line("%s reached the end of the line" % prefix, Color(0.4, 1.0, 0.5))
-		&"strike":
-			_add_line("%s got striked" % prefix, Color(1.0, 0.55, 0.3))
-		&"champion":
-			_add_line("%s WON THE GAME" % prefix, Color(1.0, 0.85, 0.3))
 		&"kill":
 			_add_line("%s killed %s" % [prefix, _prefix_for(target_id)], Color(1.0, 0.85, 0.3))
 		&"headshot":

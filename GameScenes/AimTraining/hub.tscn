@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://chubpad00001"]
+
+[ext_resource type="Script" path="res://GameScenes/AimTraining/aim_hub.gd" id="1_hub"]
+[ext_resource type="PackedScene" path="res://GameScenes/AimTraining/aim_pad.tscn" id="2_pad"]
+[ext_resource type="PackedScene" path="res://GameScenes/AimTraining/rooms/hub_room.tscn" id="3_room"]
+
+[node name="Hub" type="Node3D"]
+script = ExtResource("1_hub")
+
+[node name="Room" parent="." instance=ExtResource("3_room")]
+
+[node name="PadClose" parent="." instance=ExtResource("2_pad")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, -5)
+pad_id = "close"
+label_text = "CLOSE TRACKING"
+pad_color = Color(0.95, 0.35, 0.15, 1)
+
+[node name="PadLong" parent="." instance=ExtResource("2_pad")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
+pad_id = "long"
+label_text = "LONG TRACKING"
+pad_color = Color(0.15, 0.75, 0.95, 1)
+
+[node name="PadWall" parent="." instance=ExtResource("2_pad")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, -5)
+pad_id = "wall"
+label_text = "ONE-SHOT WALL"
+pad_color = Color(0.95, 0.2, 0.9, 1)

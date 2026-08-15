@@ -1,0 +1,186 @@
+[gd_scene format=3 uid="uid://baimtrain0001"]
+
+[ext_resource type="Script" uid="uid://bd0qanxhdq6n4" path="res://GameScenes/AimTraining/aim_training.gd" id="1_rt"]
+[ext_resource type="Script" uid="uid://edlo77m2nrgn" path="res://GameScenes/AimTraining/aim_hud.gd" id="2_hud"]
+[ext_resource type="Script" uid="uid://vl06gon8uwbf" path="res://GameScenes/AimTraining/aim_system.gd" id="3_sys"]
+[ext_resource type="PackedScene" uid="uid://dldqutmeae0xw" path="res://GameScenes/AimTraining/aim_player.tscn" id="4_plr"]
+[ext_resource type="PackedScene" uid="uid://imhub000001" path="res://GameScenes/AimTraining/hub.tscn" id="5_hub"]
+[ext_resource type="PackedScene" uid="uid://viuiokivmaii" path="res://GameScenes/AimTraining/close_tracking_arena.tscn" id="6_close"]
+[ext_resource type="PackedScene" uid="uid://imlong000001" path="res://GameScenes/AimTraining/long_tracking_arena.tscn" id="7_long"]
+[ext_resource type="PackedScene" uid="uid://imwall000001" path="res://GameScenes/AimTraining/one_shot_wall_arena.tscn" id="8_wall"]
+[ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="9_fnt"]
+[ext_resource type="PackedScene" uid="uid://daaxbodwdu77d" path="res://Scenes/pause_menu.tscn" id="10_pause"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_at"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_at"]
+sky_material = SubResource("SkyMat_at")
+
+[sub_resource type="Environment" id="Env_at"]
+background_mode = 2
+sky = SubResource("Sky_at")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.35
+
+[sub_resource type="LabelSettings" id="LS_title"]
+font = ExtResource("9_fnt")
+font_size = 32
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="LabelSettings" id="LS_score"]
+font = ExtResource("9_fnt")
+font_size = 46
+font_color = Color(1, 0.5, 0.1, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="LabelSettings" id="LS_best"]
+font = ExtResource("9_fnt")
+font_size = 20
+font_color = Color(1, 1, 1, 0.75)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.5)
+
+[sub_resource type="LabelSettings" id="LS_hint"]
+font = ExtResource("9_fnt")
+font_size = 20
+font_color = Color(1, 1, 1, 0.9)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.5)
+
+[sub_resource type="LabelSettings" id="LS_ammo"]
+font = ExtResource("9_fnt")
+font_size = 30
+font_color = Color(1, 1, 1, 0.95)
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.6)
+
+[sub_resource type="LabelSettings" id="LS_weapon"]
+font = ExtResource("9_fnt")
+font_size = 20
+font_color = Color(1, 0.85, 0.3, 1)
+outline_size = 5
+outline_color = Color(0, 0, 0, 0.5)
+
+[node name="AimTraining" type="Node3D" unique_id=1515660701]
+script = ExtResource("1_rt")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=80525758]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=392769965]
+environment = SubResource("Env_at")
+
+[node name="AimSystem" type="Node3D" parent="." unique_id=592099375]
+script = ExtResource("3_sys")
+
+[node name="AimPlayer" parent="." unique_id=429588575 instance=ExtResource("4_plr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="AimHUD" type="CanvasLayer" parent="." unique_id=1684884187]
+script = ExtResource("2_hud")
+
+[node name="TitleLabel" type="Label" parent="AimHUD" unique_id=929606487]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 14.0
+offset_right = 300.0
+offset_bottom = 60.0
+grow_horizontal = 2
+text = "MAIN HUB"
+label_settings = SubResource("LS_title")
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="AimHUD" unique_id=195874593]
+unique_name_in_owner = true
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 180.0
+offset_bottom = 74.0
+text = "0"
+label_settings = SubResource("LS_score")
+
+[node name="BestLabel" type="Label" parent="AimHUD" unique_id=42773996]
+unique_name_in_owner = true
+offset_left = 26.0
+offset_top = 80.0
+offset_right = 220.0
+offset_bottom = 110.0
+text = "BEST 0"
+label_settings = SubResource("LS_best")
+
+[node name="HintLabel" type="Label" parent="AimHUD" unique_id=460861558]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -44.0
+offset_right = 300.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "WALK ONTO A PAD TO START TRAINING"
+label_settings = SubResource("LS_hint")
+horizontal_alignment = 1
+
+[node name="WeaponLabel" type="Label" parent="AimHUD" unique_id=201010101]
+unique_name_in_owner = true
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -96.0
+offset_right = 300.0
+offset_bottom = -72.0
+grow_vertical = 0
+text = "RIFLE"
+label_settings = SubResource("LS_weapon")
+
+[node name="MagBar" type="ProgressBar" parent="AimHUD" unique_id=201010102]
+unique_name_in_owner = true
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -66.0
+offset_right = 260.0
+offset_bottom = -58.0
+grow_vertical = 0
+show_percentage = false
+
+[node name="AmmoLabel" type="Label" parent="AimHUD" unique_id=201010103]
+unique_name_in_owner = true
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -52.0
+offset_right = 300.0
+offset_bottom = -12.0
+grow_vertical = 0
+text = "30 / 90"
+label_settings = SubResource("LS_ammo")
+
+[node name="Hub" parent="." unique_id=1421472683 instance=ExtResource("5_hub")]
+
+[node name="CloseArena" parent="." unique_id=1585374918 instance=ExtResource("6_close")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 0)
+
+[node name="LongArena" parent="." unique_id=1649389859 instance=ExtResource("7_long")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 0)
+
+[node name="WallArena" parent="." unique_id=1034650980 instance=ExtResource("8_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 40)
+spawn_delay = 0.1
+
+[node name="PauseMenu" parent="." unique_id=201010201 instance=ExtResource("10_pause")]

@@ -45,7 +45,7 @@ const CROUCH_LERP_SPEED := 10.0
 var player_id := 0
 var spectating := false
 var player_number := 0  # assigned by the lobby master, 000-456
-var speed_scale := 1.0  # per-round difficulty multiplier set by the lobby
+
 
 ## Combat state, written by the server (WeaponSystem) via sync_health.
 var health := 100.0
@@ -58,7 +58,6 @@ var shield := 100.0
 var crouching := false
 
 var _prev_jump_pressed := false
-var _round: Node
 var sprint_active := false  # read by FirstPersonCamera for the sprint FOV
 var _sprint_locked := false
 
@@ -66,7 +65,6 @@ var _sprint_locked := false
 var stamina := 100.0
 
 func _ready() -> void:
-	_round = get_tree().get_first_node_in_group("round")
 	replicator.spawned.connect(_on_replicator_spawned)
 	replicator.on_process_input.connect(_on_process_input)
 	get_window().focus_entered.connect(_on_window_focused)
@@ -199,7 +197,7 @@ func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, i
 	# CS:GO / Source-engine acceleration model. Deterministic math only - this
 	# runs on the Fusion simulation thread on both the predicting client and
 	# the server, so never touch the scene tree here.
-	var speed := (CROUCH_SPEED if crouching else (sprint_speed if sprinting else walk_speed)) * speed_scale
+	var speed := CROUCH_SPEED if crouching else (sprint_speed if sprinting else walk_speed)
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
 	if not is_on_floor():
@@ -300,13 +298,7 @@ func apply_number(number: int) -> void:
 func _format_number(number: int) -> String:
 	return "%03d" % number
 
-# --- Elimination (driven by game_round via broadcast RPCs) ---
-
-## Killed by the doll during red light: the body disappears locally and the
-## owner is auto-put into spectate mode if the scene has a SpectateManager.
-func become_eliminated() -> void:
-	spectating = true
-	_set_body_visible(false)
+# --- Death (driven by weapon_system via broadcast RPCs) ---
 
 ## Killed by weapon fire (server-driven). Body hidden, collisions dropped so
 ## dead players neither block movement nor eat bullets; the local player's
@@ -317,8 +309,8 @@ func become_dead() -> void:
 	set_deferred("collision_layer", 0)
 	_weapon_visible(false)
 
-## Next round: alive again (mesh restored, input allowed). If the local
-## player was spectating, game_round stops the spectate mode for them.
+## Respawned: alive again (mesh restored, input allowed). If the local
+## player was spectating, spectate mode is stopped for them.
 func become_alive() -> void:
 	spectating = false
 	_set_body_visible(true)

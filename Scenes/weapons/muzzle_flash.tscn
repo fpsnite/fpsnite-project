@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="Gradient" id="Grad_flash"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.92, 0.55, 1, 1, 0.75, 0.35, 0.9, 1, 0.55, 0.2, 0)
+
+[sub_resource type="ParticleProcessMaterial" id="Mat_particles"]
+direction = Vector3(0, 0, -1)
+spread = 30
+initial_velocity_min = 2.5
+initial_velocity_max = 5.5
+gravity = Vector3(0, 0, 0)
+lifetime_randomness = 0.25
+scale_min = 0.02
+scale_max = 0.055
+color_ramp = SubResource("Grad_flash")
+
+[sub_resource type="QuadMesh" id="Quad_particle"]
+size = Vector2(0.07, 0.07)
+
+[sub_resource type="StandardMaterial3D" id="Mat_particle"]
+shading_mode = 0
+albedo_color = Color(1, 0.92, 0.55, 1)
+emission_enabled = true
+emission = Color(1, 0.85, 0.4, 1)
+emission_energy_multiplier = 3
+
+[node name="MuzzleFlash" type="Node3D"]
+
+[node name="FlashLight" type="OmniLight3D" parent="."]
+visible = false
+light_color = Color(1, 0.85, 0.4, 1)
+light_energy = 3
+omni_range = 4
+
+[node name="Particles" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 24
+lifetime = 0.15
+one_shot = true
+explosiveness = 1
+process_material = SubResource("Mat_particles")
+material_override = SubResource("Mat_particle")
+draw_pass_1 = SubResource("Quad_particle")

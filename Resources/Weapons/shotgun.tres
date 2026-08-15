@@ -1,0 +1,26 @@
+[gd_resource type="Resource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/weapon_data.gd" id="1_wd"]
+[ext_resource type="PackedScene" path="res://Scenes/weapons/shotgun_viewmodel.tscn" id="2_vm"]
+
+[resource]
+script = ExtResource("1_wd")
+weapon_id = "shotgun"
+weapon_name = "Shotgun"
+auto = false
+damage = 25.0
+headshot_multiplier = 1.5
+fire_rate = 1.6
+spread_rad = 0.04
+range = 80.0
+mag_size = 6
+reserve_ammo = 24
+reload_time = 2.2
+moving_spread_deg = 5.0
+recoil_kick_deg = 1.6
+melee = false
+melee_damage = 55.0
+melee_range = 2.5
+melee_time = 0.45
+pellets = 3
+viewmodel = ExtResource("2_vm")

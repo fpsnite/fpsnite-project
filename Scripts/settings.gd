@@ -56,6 +56,10 @@ const CONTROLS_DEFAULTS := {
 ## (and reopens the drawer) instead of the main menu.
 var return_to_lobby := false
 var open_drawer_on_return := false
+## Exact scene path the settings back button should return to (set by the
+## pause drawer to the current scene, e.g. aim training). Takes priority over
+## return_to_lobby.
+var return_to_scene := ""
 
 ## Transient game-state passthrough (not saved): the mode the arena match is
 ## running at, set by the menu right before the scene switch.

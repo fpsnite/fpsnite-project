@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://imwall000001"]
+
+[ext_resource type="Script" uid="uid://buctv2hnqdmd0" path="res://GameScenes/AimTraining/wall_arena.gd" id="1_wall"]
+[ext_resource type="PackedScene" uid="uid://v3jfhw6j8aii" path="res://GameScenes/AimTraining/rooms/wall_room.tscn" id="2_room"]
+[ext_resource type="PackedScene" uid="uid://impad000001" path="res://GameScenes/AimTraining/aim_pad.tscn" id="3_pad"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_practice"]
+size = Vector3(13, 7.2, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Mat_practice"]
+albedo_color = Color(0.32, 0.1, 0.13, 1)
+emission_enabled = true
+emission = Color(0.32, 0.1, 0.13, 1)
+emission_energy_multiplier = 0.35
+
+[sub_resource type="BoxShape3D" id="Shape_practice"]
+size = Vector3(13, 7.2, 0.5)
+
+[node name="WallArena" type="Node3D" unique_id=1575906498]
+script = ExtResource("1_wall")
+arena_id = "wall"
+arena_name = "ONE-SHOT WALL"
+player_spawn_local = Vector3(0, 1, 5.5)
+
+[node name="Room" parent="." unique_id=2084566300 instance=ExtResource("2_room")]
+
+[node name="ExitPad" parent="." unique_id=1729886650 instance=ExtResource("3_pad")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12414932, 0, -5.4302998)
+
+[node name="PracticeWall" type="StaticBody3D" parent="." unique_id=1395091098]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.8276224)
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PracticeWall" unique_id=98618935]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
+mesh = SubResource("BoxMesh_practice")
+surface_material_override/0 = SubResource("Mat_practice")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PracticeWall" unique_id=290033213]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
+shape = SubResource("Shape_practice")

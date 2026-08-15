@@ -9,6 +9,10 @@ extends Node3D
 
 const TRACER_POOL := 16
 const TRACER_LIFE := 0.06
+const BULLET_POOL := 10
+const BULLET_TIME := 0.05
+
+const MuzzleFlashScene := preload("res://Scenes/weapons/muzzle_flash.tscn")
 
 signal ammo_changed(mag: int, reserve: int)
 signal weapon_changed(weapon_name: String)
@@ -29,18 +33,23 @@ var _muzzle: Node3D
 var _owner: CharacterBody3D
 var _tracers: Array[MeshInstance3D] = []
 var _tracer_index := 0
-var _flash: OmniLight3D
+var _bullets: Array[Node3D] = []
+var _bullet_index := 0
+var _flash: Node3D
+var _flash_light: OmniLight3D
+var _flash_particles: GPUParticles3D
 var _flash_left := 0.0
+var _shoot_tween: Tween
+var _reload_tween: Tween
 var _melee_index := 0
 
 func _ready() -> void:
 	_owner = _find_owner()
 	_tracers = _make_tracer_pool()
-	_flash = OmniLight3D.new()
-	_flash.light_color = Color(1.0, 0.85, 0.4)
-	_flash.light_energy = 3.0
-	_flash.omni_range = 4.0
-	_flash.visible = false
+	_bullets = _make_bullet_pool()
+	_flash = MuzzleFlashScene.instantiate()
+	_flash_light = _flash.get_node("FlashLight") as OmniLight3D
+	_flash_particles = _flash.get_node("Particles") as GPUParticles3D
 	_melee_index = _find_melee_index()
 	_equip(_melee_index)
 
@@ -64,7 +73,7 @@ func _find_melee_index() -> int:
 
 func _process(delta: float) -> void:
 	_flash_left = maxf(_flash_left - delta, 0.0)
-	_flash.visible = _flash_left > 0.0
+	_flash_light.visible = _flash_left > 0.0
 	if not _can_act():
 		return
 	if current_data.melee:
@@ -78,10 +87,16 @@ func _process(delta: float) -> void:
 			if _reload_left <= 0.0:
 				_finish_reload()
 		elif Input.is_action_just_pressed("reload") \
-				and not current_data.infinite_ammo and mag < current_data.mag_size and reserve > 0:
+				and not current_data.infinite_ammo and mag < current_data.mag_size \
+				and (current_data.infinite_reserve_ammo or reserve > 0):
 			_start_reload()
-		elif Input.is_action_pressed("fire") and _cooldown <= 0.0 and mag > 0:
-			_shoot()
+		elif Input.is_action_pressed("fire") and _cooldown <= 0.0:
+			if mag > 0:
+				_shoot()
+			elif not current_data.infinite_ammo \
+					and (current_data.infinite_reserve_ammo or reserve > 0):
+				# Empty trigger: auto-reload immediately instead of dry-firing.
+				_start_reload()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _can_act():
@@ -94,10 +109,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_equip(_melee_index)
 
 func _can_act() -> bool:
-	return _owner != null \
-		and _owner.replicator.has_input_authority() \
-		and not _owner.spectating \
-		and not _owner._chat_open()
+	if _owner == null:
+		return false
+	# Networked players act only with input authority. Offline scenes (aim
+	# training) have no replicator - treat them as always in control.
+	if "replicator" in _owner and not _owner.replicator.has_input_authority():
+		return false
+	if "spectating" in _owner and _owner.spectating:
+		return false
+	if _owner.has_method("_chat_open") and _owner._chat_open():
+		return false
+	return true
 
 func _equip(index: int) -> void:
 	weapon_index = index % loadout.size()
@@ -112,12 +134,23 @@ func _equip(index: int) -> void:
 		_muzzle = _viewmodel.get_node_or_null("Muzzle")
 		if _flash.get_parent():
 			_flash.get_parent().remove_child(_flash)
-		_viewmodel.add_child(_flash)
+		# Anchor the flash at the barrel tip (Muzzle marker) so it appears at
+		# the muzzle; falls back to the viewmodel root when there is no marker.
+		(_muzzle if _muzzle != null else _viewmodel).add_child(_flash)
+	_rebuild_bullets()
+	_notify_crosshair_style()
 	mag = current_data.mag_size
 	reserve = current_data.reserve_ammo
 	reloading = false
 	weapon_changed.emit(current_data.weapon_name)
 	ammo_changed.emit(mag, reserve)
+
+## The crosshair shape follows the weapon: rifle = classic four lines,
+## shotgun = squared corner brackets (no fill).
+func _notify_crosshair_style() -> void:
+	var crosshair := get_node_or_null("/root/Crosshair")
+	if crosshair and crosshair.has_method("set_style"):
+		crosshair.set_style("square" if current_data.weapon_id == "shotgun" else "default")
 
 # --- Firing ---
 
@@ -135,17 +168,19 @@ func _shoot() -> void:
 	var basis: Basis = camera.global_transform.basis
 	# CS:GO-style accuracy: spread lerps from the base cone to the moving cone
 	# by current speed. Cosmetic only - the server validates with its own
-	# weapons table.
+	# weapons table. Shotguns fire `pellets` rays, each with its own jitter.
 	var h_speed := Vector2(_owner.velocity.x, _owner.velocity.z).length()
 	var speed_ratio := clampf(h_speed / 9.0, 0.0, 1.0)
 	var spread := lerpf(current_data.spread_rad,
 		deg_to_rad(current_data.moving_spread_deg), speed_ratio)
-	var direction: Vector3 = (basis * Vector3(
-		randf_range(-spread, spread), randf_range(-spread, spread), -1.0)).normalized()
 	var sys := get_tree().get_first_node_in_group("weapon_system")
-	if sys:
-		sys.request_shoot(_owner.player_id, _shot_origin(), direction, current_data.weapon_id)
+	for i in maxi(current_data.pellets, 1):
+		var direction: Vector3 = (basis * Vector3(
+			randf_range(-spread, spread), randf_range(-spread, spread), -1.0)).normalized()
+		if sys:
+			sys.request_shoot(_owner.player_id, _shot_origin(), direction, current_data.weapon_id)
 	_show_muzzle_flash()
+	_animate_shoot()
 	_apply_recoil()
 	_notify_crosshair_shot()
 
@@ -179,30 +214,85 @@ func _melee_attack() -> void:
 			current_data.weapon_id)
 
 func _show_muzzle_flash() -> void:
-	_flash.visible = true
-	_flash_left = 0.03
+	_flash_light.visible = true
+	_flash_left = 0.05
+	# One-shot GPU particle burst (spraying amber sparks + smoke fade).
+	# one_shot systems re-arm automatically when emitting goes true after the
+	# burst completes - no restart() call, which can hitch on some GPUs.
+	_flash_particles.emitting = true
+
+## Viewmodel recoil: quick kick back + muzzle-up on the gun model, then a
+## smooth return. Each shot restarts the animation (rapid fire never stacks).
+func _animate_shoot() -> void:
+	if _viewmodel == null:
+		return
+	if _shoot_tween and _shoot_tween.is_valid():
+		_shoot_tween.kill()
+	_shoot_tween = create_tween()
+	_shoot_tween.tween_property(_viewmodel, "position:z", 0.07, 0.045) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_shoot_tween.parallel().tween_property(_viewmodel, "rotation:x", -0.09, 0.045) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_shoot_tween.tween_property(_viewmodel, "position:z", 0.0, 0.12) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_shoot_tween.parallel().tween_property(_viewmodel, "rotation:x", 0.0, 0.12) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+## Reload animation part 1: the gun dips down (mag swap) while the reload
+## timer runs; _finish_reload springs it back up.
+func _animate_reload_down() -> void:
+	if _viewmodel == null:
+		return
+	if _reload_tween and _reload_tween.is_valid():
+		_reload_tween.kill()
+	_reload_tween = create_tween()
+	_reload_tween.set_parallel(true)
+	_reload_tween.tween_property(_viewmodel, "position:y", -0.16, 0.14) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_reload_tween.tween_property(_viewmodel, "rotation:x", 0.55, 0.14) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+## Reload animation part 2: the gun returns to the ready pose.
+func _animate_reload_up() -> void:
+	if _viewmodel == null:
+		return
+	if _reload_tween and _reload_tween.is_valid():
+		_reload_tween.kill()
+	_reload_tween = create_tween()
+	_reload_tween.set_parallel(true)
+	_reload_tween.tween_property(_viewmodel, "position:y", 0.0, 0.12) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_reload_tween.tween_property(_viewmodel, "rotation:x", 0.0, 0.12) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 # --- Reloading ---
 
 func _start_reload() -> void:
 	reloading = true
 	_reload_left = current_data.reload_time
+	_animate_reload_down()
 	ammo_changed.emit(mag, reserve)
 
 func _finish_reload() -> void:
 	var need := current_data.mag_size - mag
-	var take := mini(need, reserve)
+	var take := need if current_data.infinite_reserve_ammo else mini(need, reserve)
 	mag += take
-	reserve -= take
+	if not current_data.infinite_reserve_ammo:
+		reserve -= take
 	reloading = false
+	_animate_reload_up()
 	ammo_changed.emit(mag, reserve)
 
 # --- Visuals driven by broadcast_hit (server result) ---
 
-## Draws the tracer from the muzzle to the confirmed hit point.
+## Draws the tracer from the muzzle to the confirmed hit point. Pooled
+## instances carry a hide token so a reused tracer's stale hide timer can
+## never hide a newer line mid-display.
 func show_tracer(from: Vector3, to: Vector3) -> void:
 	var instance := _tracers[_tracer_index]
 	_tracer_index = (_tracer_index + 1) % _tracers.size()
+	var token: int = int(instance.get_meta("hide_token", 0)) + 1
+	instance.set_meta("hide_token", token)
 	var mesh: ImmediateMesh = instance.mesh
 	mesh.clear_surfaces()
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
@@ -210,11 +300,29 @@ func show_tracer(from: Vector3, to: Vector3) -> void:
 	mesh.surface_add_vertex(to)
 	mesh.surface_end()
 	instance.visible = true
-	instance.get_tree().create_timer(TRACER_LIFE).timeout \
-		.connect(_on_tracer_timeout.bind(instance))
+	instance.get_tree().create_timer(TRACER_LIFE).timeout.connect(func() -> void:
+		if int(instance.get_meta("hide_token", -1)) == token:
+			instance.visible = false)
 
-func _on_tracer_timeout(instance: MeshInstance3D) -> void:
-	instance.visible = false
+## Animates a glowing bullet from the muzzle to the resolved hit point over
+## ~50ms. Purely cosmetic - the bullet is a small emissive cylinder flying
+## nose-first along a straight line, matching the tracer line's path.
+func show_bullet(from: Vector3, to: Vector3) -> void:
+	var instance := _bullets[_bullet_index]
+	_bullet_index = (_bullet_index + 1) % _bullets.size()
+	if instance.has_meta("bullet_tween") and (instance.get_meta("bullet_tween") as Tween).is_valid():
+		(instance.get_meta("bullet_tween") as Tween).kill()
+	var direction := (to - from).normalized()
+	var up := Vector3.UP if absf(direction.y) < 0.9 else Vector3.RIGHT
+	instance.global_position = from
+	# Guard against point-blank hits: look_at needs a non-zero forward.
+	if to.distance_to(from) > 0.01:
+		instance.look_at(to, up)
+	instance.visible = true
+	var tween := create_tween()
+	instance.set_meta("bullet_tween", tween)
+	tween.tween_property(instance, "global_position", to, BULLET_TIME).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func() -> void: instance.visible = false)
 
 func muzzle_global_position() -> Vector3:
 	return _shot_origin()
@@ -235,3 +343,45 @@ func _make_tracer_pool() -> Array[MeshInstance3D]:
 		add_child(instance)
 		pool.append(instance)
 	return pool
+
+## Pooled bullet visuals: each is a Node3D wrapper around one emissive mesh.
+## Rifles fire little cylinders (child pre-rotated so the long Y axis maps to
+## the wrapper's -Z, which look_at() points toward the target). Shotguns fire
+## chunky rectangle pellets (BoxMesh, long axis already on Z - no child
+## rotation needed).
+func _make_bullet_pool() -> Array[Node3D]:
+	var pool: Array[Node3D] = []
+	var is_shotgun: bool = current_data != null and current_data.weapon_id == "shotgun"
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.95, 0.7)
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.85, 0.4)
+	material.emission_energy_multiplier = 3.0
+	for i in BULLET_POOL:
+		var root := Node3D.new()
+		var instance := MeshInstance3D.new()
+		if is_shotgun:
+			var box := BoxMesh.new()
+			box.size = Vector3(0.07, 0.07, 0.14)
+			instance.mesh = box
+		else:
+			var cylinder := CylinderMesh.new()
+			cylinder.top_radius = 0.02
+			cylinder.bottom_radius = 0.02
+			cylinder.height = 0.09
+			instance.mesh = cylinder
+			instance.rotation.x = -PI / 2
+		instance.material_override = material
+		root.add_child(instance)
+		root.visible = false
+		add_child(root)
+		pool.append(root)
+	return pool
+
+## Rebuilds the bullet pool when the weapon changes (mesh shape differs
+## between rifle cylinders and shotgun pellets).
+func _rebuild_bullets() -> void:
+	for bullet in _bullets:
+		bullet.queue_free()
+	_bullets = _make_bullet_pool()

@@ -31,3 +31,13 @@ func set_selected(value: bool) -> void:
 	style.border_width_top = 3 if value else 1
 	style.border_width_bottom = 3 if value else 1
 	add_theme_stylebox_override("panel", style)
+
+## Locks the card (solo modes with other players in the room): clicks pass
+## through and the card is dimmed so it cannot be selected.
+func set_locked(locked: bool) -> void:
+	if locked:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		modulate = Color(1, 1, 1, 0.35)
+	else:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		modulate = Color(1, 1, 1, 1)

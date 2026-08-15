@@ -24,11 +24,11 @@ func apply_skin(index: int) -> void:
 func update_name(player_name: String) -> void:
 	name_label.text = player_name
 
-## Lobby ready-state marker above the preview: green READY / amber WAITING.
+## Lobby ready-state marker above the preview: green READY / red UNREADY.
 func set_ready(ready: bool) -> void:
 	if ready:
 		ready_label.text = "READY"
 		ready_label.modulate = Color(0.35, 1.0, 0.4)
 	else:
-		ready_label.text = "WAITING"
-		ready_label.modulate = Color(1.0, 0.82, 0.3)
+		ready_label.text = "UNREADY"
+		ready_label.modulate = Color(1.0, 0.35, 0.35)

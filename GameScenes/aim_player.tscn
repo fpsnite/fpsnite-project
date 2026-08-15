@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://biv1030vpnjdk"]
+
+[ext_resource type="Script" path="res://GameScenes/aim_player.gd" id="1_ap"]
+[ext_resource type="Script" uid="uid://buehjk6jkgh8u" path="res://Scripts/first_person_camera.gd" id="2_cam"]
+[ext_resource type="Script" uid="uid://bb1lpx10r4eom" path="res://Scripts/weapon.gd" id="3_wp"]
+[ext_resource type="Script" uid="uid://bq3pvd071renv" path="res://Scripts/weapon_data.gd" id="4_wd"]
+[ext_resource type="Resource" path="res://Resources/Weapons/rifle.tres" id="5_rifle"]
+[ext_resource type="Resource" path="res://Resources/Weapons/knife.tres" id="6_knife"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ap"]
+
+[node name="AimPlayer" type="CharacterBody3D" unique_id=839714353]
+script = ExtResource("1_ap")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=273323319]
+shape = SubResource("CapsuleShape3D_ap")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=76359616]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+script = ExtResource("2_cam")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=584112839]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9462637, -0.3350593)
+
+[node name="Weapon" type="Node3D" parent="CameraPivot/Camera3D" unique_id=820809884]
+transform = Transform3D(0.98006755, -0.02378211, -0.1972345, 0, 0.99280864, -0.11971226, 0.19866933, 0.11733003, 0.9730417, 0.42, -0.34, -0.5)
+script = ExtResource("3_wp")
+loadout = Array[ExtResource("4_wd")]([ExtResource("5_rifle"), ExtResource("6_knife")])

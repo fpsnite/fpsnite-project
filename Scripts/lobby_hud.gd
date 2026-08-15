@@ -33,6 +33,9 @@ var _code_box_mode := "copy"
 ## button shows immediately (even while still alone) instead of the local
 ## illusion. Cleared on leave, kick/dissolve, or connection failure.
 var _party_intent := false
+## True while the match countdown is running: party buttons are hidden so
+## nobody can create/join/leave mid-start.
+var _starting := false
 
 func _log(msg: String) -> void:
 	print("[HUD] lobby_hud: " + msg)
@@ -58,6 +61,7 @@ func _process(delta: float) -> void:
 	if _counter_accum < 0.25:
 		return
 	_counter_accum = 0.0
+	_refresh_mode_locks()
 	var connected := Fusion.is_connected_to_photon()
 	var ping := "-" if not connected else "%.0f" % (Fusion.get_rtt() * 1000.0)
 	region_text.text = "%s ms  %d" % [ping, Engine.get_frames_per_second()]
@@ -97,6 +101,17 @@ func _on_mode_selected(mode_id: String) -> void:
 
 # --- Mode label + ready toggle ---
 
+## Solo-mode cards (aim training) lock while the room holds more than one
+## player - the second player could never join such a match.
+func _refresh_mode_locks() -> void:
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	var count := 0
+	if lobby and lobby.has_method("_player_count"):
+		count = lobby._player_count()
+	for card in mode_grid.get_children():
+		if card.mode_id == "aim":
+			card.set_locked(count > 1)
+
 ## Mode label shows name + current/max players (updated on mode/join/leave).
 ## Clicking it opens the mode popup.
 func set_mode_text(mode_id: String, player_count: int) -> void:
@@ -107,6 +122,9 @@ func set_mode_text(mode_id: String, player_count: int) -> void:
 ## is ready it shows the countdown (disabled). countdown: -1 = none, >0 = secs.
 func update_ready_ui(local_ready: bool, ready_count: int, player_count: int,
 		max_players: int, countdown: int) -> void:
+	_starting = countdown > 0
+	if _starting:
+		set_party_buttons(false, 0)
 	if countdown > 0:
 		play_button.disabled = true
 		play_button.text = "STARTING IN %d" % countdown
@@ -136,13 +154,15 @@ func _on_play_pressed() -> void:
 
 ## In a party (explicit Create/Join intent, or in a room with 2+ players):
 ## only Leave Party shows. Otherwise - alone in the auto-created hidden room
-## or outside a room - it looks local: Create/Join show.
+## or outside a room - it looks local: Create/Join show. While the match is
+## starting (countdown) every party button hides.
 func set_party_buttons(in_room: bool, player_count: int = 0) -> void:
 	var party := _party_intent or (in_room and player_count >= 2)
-	create_party_button.visible = not party
-	join_party_button.visible = not party
-	leave_party_button.visible = party
-	_log("party buttons: %s (players=%d, intent=%s)" % ["leave" if party else "create/join", player_count, _party_intent])
+	create_party_button.visible = not party and not _starting
+	join_party_button.visible = not party and not _starting
+	leave_party_button.visible = party and not _starting
+	_log("party buttons: %s (players=%d, intent=%s, starting=%s)" % [
+		"leave" if party else "create/join", player_count, _party_intent, _starting])
 
 ## Explicit party intent; used by main_lobby to restore the local look after
 ## a kick/dissolve or connection failure.

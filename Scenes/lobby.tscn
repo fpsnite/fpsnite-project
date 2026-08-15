@@ -8,10 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="8_chat"]
 [ext_resource type="PackedScene" uid="uid://b2iv0wr7vqwh1" path="res://Scenes/player_hud.tscn" id="8_gdlty"]
 [ext_resource type="PackedScene" uid="uid://daaxbodwdu77d" path="res://Scenes/pause_menu.tscn" id="9_jjrc4"]
-[ext_resource type="PackedScene" uid="uid://iamasxceih8s" path="res://Scenes/fps_map.tscn" id="10_map"]
 [ext_resource type="Script" uid="uid://c5idgjao48okc" path="res://Scripts/weapon_system.gd" id="11_wpnsys"]
 [ext_resource type="Script" uid="uid://dp6k547l5sr3e" path="res://Scripts/damage_numbers.gd" id="12_dmg"]
 [ext_resource type="PackedScene" uid="uid://o3gk4rv08dma" path="res://Scenes/kill_feed.tscn" id="12_pvv31"]
+[ext_resource type="PackedScene" path="res://Scenes/round_end.tscn" id="13_roundend"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ll2xe"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -280,7 +280,7 @@ shape = SubResource("BoxShape3D_ceiling")
 
 [node name="PauseMenu" parent="." unique_id=1515345558 instance=ExtResource("9_jjrc4")]
 
-[node name="GameArena" parent="." unique_id=395524904 instance=ExtResource("10_map")]
+[node name="GameArena" type="Node3D" parent="." unique_id=395524904]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.26533, 0, 0)
 
 [node name="ChatPanel" parent="." unique_id=878473322 instance=ExtResource("8_chat")]
@@ -290,3 +290,4 @@ offset_right = 1138.0
 offset_bottom = -62.0
 
 [node name="KillFeed" parent="." unique_id=714734938 instance=ExtResource("12_pvv31")]
+[node name="RoundEnd" parent="." unique_id=712345680 instance=ExtResource("13_roundend")]

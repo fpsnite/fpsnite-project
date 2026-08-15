@@ -32,6 +32,15 @@ const STAND_EYE := 1.6
 const CROUCH_EYE := 0.9
 const CROUCH_LERP_SPEED := 10.0
 
+## Slide: pressing crouch while moving fast kicks into a low glide that
+## carries momentum and decays. All derived from payload + velocity, so the
+## deterministic sim (client + server) stays in lockstep without state.
+const SLIDE_SPEED := 11.0       # target speed while sliding (sprint is 9.0)
+const SLIDE_ACCEL := 6.0        # steering accel while holding forward
+const SLIDE_DECEL := 7.0        # linear decay: 11 -> 5.5 in ~0.8s
+const SLIDE_MIN_SPEED := 5.5    # below this the slide ends (crouch crawl)
+const SLIDE_TRIGGER_SPEED := 5.0  # minimum speed for a crouch press to kick
+
 @onready var replicator: FusionServerReplicator = $FusionServerReplicator
 @onready var mesh_pivot: Node3D = $MeshPivot
 @onready var camera_3d: Camera3D = $CameraPivot/Camera3D
@@ -59,7 +68,12 @@ var crouching := false
 
 var _prev_jump_pressed := false
 var sprint_active := false  # read by FirstPersonCamera for the sprint FOV
+var sliding := false        # read by FirstPersonCamera for the slide FOV
 var _sprint_locked := false
+## Crouch is a toggle: pressing the key flips this; the current level is
+## packed into the input payload so the sim (and remote bodies) agree.
+var _crouch_toggled := false
+var _prev_crouch_pressed := false
 
 ## HUD state, driven on the main thread, read by player_hud.
 var stamina := 100.0
@@ -97,7 +111,12 @@ func _physics_process(delta: float) -> void:
 		if not spectating and not camera_3d.current:
 			camera_3d.current = true
 		sprint_active = _can_sprint()
-		if sprint_active:
+		sliding = crouching and is_on_floor() and \
+			Vector2(velocity.x, velocity.z).length() > SLIDE_MIN_SPEED
+		# Free Build: infinite sprint - the bar never drains.
+		if GameModes.is_build(Settings.pending_mode):
+			stamina = 100.0
+		elif sprint_active:
 			stamina = maxf(stamina - STAMINA_DRAIN * delta, 0.0)
 			if stamina <= 0.0:
 				sprint_active = false
@@ -171,7 +190,7 @@ func _chat_open() -> bool:
 
 func _create_input() -> PackedByteArray:
 	var buf := PackedByteArray()
-	buf.resize(15)
+	buf.resize(16)
 	var input_dir := Vector2.ZERO
 	if not spectating and not _chat_open():
 		input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
@@ -182,21 +201,36 @@ func _create_input() -> PackedByteArray:
 	var jump_pressed := Input.is_action_pressed("jump")
 	buf.encode_u8(13, 1 if jump_pressed and not _prev_jump_pressed else 0)
 	_prev_jump_pressed = jump_pressed
-	buf.encode_u8(14, 1 if Input.is_action_pressed("crouch") else 0)
+	# Crouch toggle: a fresh press flips the level (guarded while spectating
+	# or chatting), and the press edge rides along for the slide trigger.
+	var crouch_pressed := Input.is_action_pressed("crouch")
+	var crouch_edge := crouch_pressed and not _prev_crouch_pressed
+	_prev_crouch_pressed = crouch_pressed
+	if crouch_edge and not spectating and not _chat_open():
+		_crouch_toggled = not _crouch_toggled
+		buf.encode_u8(15, 1)
+	buf.encode_u8(14, 1 if _crouch_toggled else 0)
 	return buf
 
 func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, is_new: bool) -> void:
-	if payload.size() < 15:
+	if payload.size() < 16:
 		return
 	var input_dir := Vector2(payload.decode_float(0), payload.decode_float(4))
 	rotation.y = payload.decode_float(8)
 	var sprinting := payload.decode_u8(12) == 1
 	var jump_press := payload.decode_u8(13) == 1
 	crouching = payload.decode_u8(14) == 1
+	var crouch_edge := payload.decode_u8(15) == 1
 
 	# CS:GO / Source-engine acceleration model. Deterministic math only - this
 	# runs on the Fusion simulation thread on both the predicting client and
 	# the server, so never touch the scene tree here.
+	var h_speed := Vector2(velocity.x, velocity.z).length()
+	var sliding := crouching and is_on_floor() and h_speed > SLIDE_MIN_SPEED
+	# Crouch pressed while moving fast: kick straight into the slide (also
+	# carries the toggled-on frame, when crouching just flipped to true).
+	var slide_boost := crouch_edge and crouching and is_on_floor() \
+		and h_speed >= SLIDE_TRIGGER_SPEED
 	var speed := CROUCH_SPEED if crouching else (sprint_speed if sprinting else walk_speed)
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
@@ -205,13 +239,29 @@ func _on_process_input(tick: int, delta_time: float, payload: PackedByteArray, i
 	elif jump_press:
 		velocity.y = jump_velocity
 
+	if slide_boost:
+		var slide_dir := wish_dir
+		if input_dir == Vector2.ZERO:
+			var hv := Vector2(velocity.x, velocity.z)
+			slide_dir = Vector3(hv.x, 0.0, hv.y).normalized() if hv.length() > 0.001 else -transform.basis.z
+		velocity.x = slide_dir.x * SLIDE_SPEED
+		velocity.z = slide_dir.z * SLIDE_SPEED
+
 	if is_on_floor():
-		# Friction runs every ground tick (not just when idle) - this is what
-		# keeps velocity aligned with the wish direction. Without it, any
-		# small yaw/view mismatch accumulates as lateral drift while moving.
-		_apply_ground_friction(delta_time)
-		if input_dir != Vector2.ZERO:
-			_accelerate(wish_dir, speed, GROUND_ACCEL, delta_time)
+		if sliding:
+			# Momentum carries laterally; holding forward steers toward
+			# SLIDE_SPEED, otherwise the slide decays at a constant rate.
+			if input_dir != Vector2.ZERO and h_speed < SLIDE_SPEED:
+				_accelerate(wish_dir, SLIDE_SPEED, SLIDE_ACCEL, delta_time)
+			else:
+				_apply_slide_decay(delta_time)
+		else:
+			# Friction runs every ground tick (not just when idle) - this is what
+			# keeps velocity aligned with the wish direction. Without it, any
+			# small yaw/view mismatch accumulates as lateral drift while moving.
+			_apply_ground_friction(delta_time)
+			if input_dir != Vector2.ZERO:
+				_accelerate(wish_dir, speed, GROUND_ACCEL, delta_time)
 	else:
 		# Low air accel + per-frame cap = the classic air-strafe feel.
 		_accelerate(wish_dir, speed, AIR_ACCEL, delta_time, AIR_CAP)
@@ -226,6 +276,17 @@ func _apply_ground_friction(delta_time: float) -> void:
 		return
 	var drop := h_speed * GROUND_FRICTION * delta_time
 	var scale := maxf(h_speed - drop, 0.0) / h_speed
+	velocity.x *= scale
+	velocity.z *= scale
+
+## Slide decay: constant (linear) horizontal deceleration so the slide glides
+## out instead of dying exponentially like ground friction.
+func _apply_slide_decay(delta_time: float) -> void:
+	var hv := Vector2(velocity.x, velocity.z)
+	var h := hv.length()
+	if h <= 0.0:
+		return
+	var scale := maxf(h - SLIDE_DECEL * delta_time, 0.0) / h
 	velocity.x *= scale
 	velocity.z *= scale
 
@@ -313,6 +374,7 @@ func become_dead() -> void:
 ## player was spectating, spectate mode is stopped for them.
 func become_alive() -> void:
 	spectating = false
+	_crouch_toggled = false
 	_set_body_visible(true)
 	set_deferred("collision_layer", 1)
 	_weapon_visible(true)

@@ -1,0 +1,82 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://GameScenes/FreeBuild/free_build.gd" id="1_map"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(120, 1, 120)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wallnorth"]
+size = Vector3(121, 12, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_walleast"]
+size = Vector3(1, 12, 121)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.42, 0.47, 0.55, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wall"]
+albedo_color = Color(0.58, 0.6, 0.65, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(120, 1, 120)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wallnorth"]
+size = Vector3(121, 12, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_walleast"]
+size = Vector3(1, 12, 121)
+
+[node name="FreeBuild" type="Node3D"]
+script = ExtResource("1_map")
+
+[node name="Geometry" type="StaticBody3D" parent="."]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="WallNorth" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -60.5)
+mesh = SubResource("BoxMesh_wallnorth")
+surface_material_override/0 = SubResource("StandardMaterial3D_wall")
+
+[node name="WallNorthCollision" type="CollisionShape3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -60.5)
+shape = SubResource("BoxShape3D_wallnorth")
+
+[node name="WallSouth" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 60.5)
+mesh = SubResource("BoxMesh_wallnorth")
+surface_material_override/0 = SubResource("StandardMaterial3D_wall")
+
+[node name="WallSouthCollision" type="CollisionShape3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 60.5)
+shape = SubResource("BoxShape3D_wallnorth")
+
+[node name="WallWest" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.5, 6, 0)
+mesh = SubResource("BoxMesh_walleast")
+surface_material_override/0 = SubResource("StandardMaterial3D_wall")
+
+[node name="WallWestCollision" type="CollisionShape3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.5, 6, 0)
+shape = SubResource("BoxShape3D_walleast")
+
+[node name="WallEast" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.5, 6, 0)
+mesh = SubResource("BoxMesh_walleast")
+surface_material_override/0 = SubResource("StandardMaterial3D_wall")
+
+[node name="WallEastCollision" type="CollisionShape3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.5, 6, 0)
+shape = SubResource("BoxShape3D_walleast")
+
+[node name="Spawners" type="Node" parent="."]
+
+[node name="Pspawn1" type="Marker3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

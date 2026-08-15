@@ -101,15 +101,15 @@ func _on_mode_selected(mode_id: String) -> void:
 
 # --- Mode label + ready toggle ---
 
-## Solo-mode cards (aim training) lock while the room holds more than one
-## player - the second player could never join such a match.
+## Solo-mode cards (aim training, free build) lock while the room holds more
+## than one player - the second player could never join such a match.
 func _refresh_mode_locks() -> void:
 	var lobby := get_tree().get_first_node_in_group("lobby")
 	var count := 0
 	if lobby and lobby.has_method("_player_count"):
 		count = lobby._player_count()
 	for card in mode_grid.get_children():
-		if card.mode_id == "aim":
+		if GameModes.is_solo(card.mode_id):
 			card.set_locked(count > 1)
 
 ## Mode label shows name + current/max players (updated on mode/join/leave).
@@ -120,8 +120,10 @@ func set_mode_text(mode_id: String, player_count: int) -> void:
 
 ## The PLAY button is the ready toggler: READY UP <-> CANCEL. While everyone
 ## is ready it shows the countdown (disabled). countdown: -1 = none, >0 = secs.
+## min_players: the room must hold at least this many before the countdown
+## can start - everyone ready but short of it shows a hint instead.
 func update_ready_ui(local_ready: bool, ready_count: int, player_count: int,
-		max_players: int, countdown: int) -> void:
+		max_players: int, min_players: int, countdown: int) -> void:
 	_starting = countdown > 0
 	if _starting:
 		set_party_buttons(false, 0)
@@ -134,10 +136,13 @@ func update_ready_ui(local_ready: bool, ready_count: int, player_count: int,
 	play_button.disabled = false
 	if local_ready:
 		play_button.text = "CANCEL"
-		ready_label.text = "READY - WAITING FOR %d/%d" % [ready_count, player_count]
+		if ready_count == player_count and player_count < min_players:
+			ready_label.text = "NEED %d PLAYERS TO START" % min_players
+		else:
+			ready_label.text = "READY - WAITING FOR %d/%d" % [ready_count, player_count]
 	else:
 		play_button.text = "READY UP"
-		ready_label.text = "PLAYERS %d/%d  -  %d READY" % [player_count, max_players, ready_count]
+		ready_label.text = "PLAYERS %d/%d (MIN %d)" % [player_count, max_players, min_players]
 	ready_label.visible = player_count > 0
 	_log("ready ui: local=%s ready=%d/%d players=%d/%d countdown=%d" % [
 		local_ready, ready_count, player_count, player_count, max_players, countdown])
@@ -169,6 +174,15 @@ func set_party_buttons(in_room: bool, player_count: int = 0) -> void:
 func set_party_intent(value: bool) -> void:
 	_party_intent = value
 	_log("party intent: %s" % value)
+
+## Current party intent (true = the Leave Party + code look is active).
+func is_party_intent() -> bool:
+	return _party_intent
+
+## The settings round trip reloads this scene, wiping _party_intent: snapshot
+## it so main_lobby can restore the exact party look on return.
+func _exit_tree() -> void:
+	Settings.return_menu_party = _party_intent
 
 func hide_code_box() -> void:
 	code_box.visible = false

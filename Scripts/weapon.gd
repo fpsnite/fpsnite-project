@@ -12,8 +12,6 @@ const TRACER_LIFE := 0.06
 const BULLET_POOL := 10
 const BULLET_TIME := 0.05
 
-const MuzzleFlashScene := preload("res://Scenes/weapons/muzzle_flash.tscn")
-
 signal ammo_changed(mag: int, reserve: int)
 signal weapon_changed(weapon_name: String)
 
@@ -35,10 +33,6 @@ var _tracers: Array[MeshInstance3D] = []
 var _tracer_index := 0
 var _bullets: Array[Node3D] = []
 var _bullet_index := 0
-var _flash: Node3D
-var _flash_light: OmniLight3D
-var _flash_particles: GPUParticles3D
-var _flash_left := 0.0
 var _shoot_tween: Tween
 var _reload_tween: Tween
 var _melee_index := 0
@@ -47,9 +41,6 @@ func _ready() -> void:
 	_owner = _find_owner()
 	_tracers = _make_tracer_pool()
 	_bullets = _make_bullet_pool()
-	_flash = MuzzleFlashScene.instantiate()
-	_flash_light = _flash.get_node("FlashLight") as OmniLight3D
-	_flash_particles = _flash.get_node("Particles") as GPUParticles3D
 	_melee_index = _find_melee_index()
 	_equip(_melee_index)
 
@@ -72,11 +63,10 @@ func _find_melee_index() -> int:
 	return 0
 
 func _process(delta: float) -> void:
-	_flash_left = maxf(_flash_left - delta, 0.0)
-	_flash_light.visible = _flash_left > 0.0
 	if not _can_act():
 		return
 	if current_data.melee:
+		_cooldown = maxf(_cooldown - delta, 0.0)
 		_swing_left = maxf(_swing_left - delta, 0.0)
 		if Input.is_action_just_pressed("fire") and _cooldown <= 0.0 and _swing_left <= 0.0:
 			_melee_attack()
@@ -101,6 +91,11 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _can_act():
 		return
+	# Direct slot select (1/2/3): the slot bar's numbers match loadout indexes.
+	for i in loadout.size():
+		if event.is_action_pressed("weapon_slot_%d" % (i + 1)):
+			_equip(i)
+			return
 	if event.is_action_pressed("next_weapon"):
 		_equip(weapon_index + 1)
 	elif event.is_action_pressed("prev_weapon"):
@@ -132,11 +127,6 @@ func _equip(index: int) -> void:
 		_viewmodel = current_data.viewmodel.instantiate()
 		add_child(_viewmodel)
 		_muzzle = _viewmodel.get_node_or_null("Muzzle")
-		if _flash.get_parent():
-			_flash.get_parent().remove_child(_flash)
-		# Anchor the flash at the barrel tip (Muzzle marker) so it appears at
-		# the muzzle; falls back to the viewmodel root when there is no marker.
-		(_muzzle if _muzzle != null else _viewmodel).add_child(_flash)
 	_rebuild_bullets()
 	_notify_crosshair_style()
 	mag = current_data.mag_size
@@ -146,11 +136,13 @@ func _equip(index: int) -> void:
 	ammo_changed.emit(mag, reserve)
 
 ## The crosshair shape follows the weapon: rifle = classic four lines,
-## shotgun = squared corner brackets (no fill).
+## shotgun = squared corner brackets (no fill), knife/melee = ring + point.
 func _notify_crosshair_style() -> void:
 	var crosshair := get_node_or_null("/root/Crosshair")
 	if crosshair and crosshair.has_method("set_style"):
-		crosshair.set_style("square" if current_data.weapon_id == "shotgun" else "default")
+		var style := "dot" if current_data.melee \
+			else ("square" if current_data.weapon_id == "shotgun" else "default")
+		crosshair.set_style(style)
 
 # --- Firing ---
 
@@ -179,7 +171,6 @@ func _shoot() -> void:
 			randf_range(-spread, spread), randf_range(-spread, spread), -1.0)).normalized()
 		if sys:
 			sys.request_shoot(_owner.player_id, _shot_origin(), direction, current_data.weapon_id)
-	_show_muzzle_flash()
 	_animate_shoot()
 	_apply_recoil()
 	_notify_crosshair_shot()
@@ -212,14 +203,6 @@ func _melee_attack() -> void:
 		var camera: Camera3D = _owner.camera_3d
 		sys.request_melee(_owner.player_id, _shot_origin(), -camera.global_transform.basis.z,
 			current_data.weapon_id)
-
-func _show_muzzle_flash() -> void:
-	_flash_light.visible = true
-	_flash_left = 0.05
-	# One-shot GPU particle burst (spraying amber sparks + smoke fade).
-	# one_shot systems re-arm automatically when emitting goes true after the
-	# burst completes - no restart() call, which can hitch on some GPUs.
-	_flash_particles.emitting = true
 
 ## Viewmodel recoil: quick kick back + muzzle-up on the gun model, then a
 ## smooth return. Each shot restarts the animation (rapid fire never stacks).

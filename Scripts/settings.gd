@@ -20,6 +20,9 @@ const DEFAULT_KEYBINDS := {
 	"next_weapon": KEY_Q,
 	"prev_weapon": KEY_E,
 	"knife": KEY_3,
+	"weapon_slot_1": KEY_1,
+	"weapon_slot_2": KEY_2,
+	"weapon_slot_3": KEY_3,
 	"interact": KEY_F,
 }
 
@@ -60,10 +63,17 @@ var open_drawer_on_return := false
 ## pause drawer to the current scene, e.g. aim training). Takes priority over
 ## return_to_lobby.
 var return_to_scene := ""
+## Transient snapshot of the main menu's party intent, taken when the menu
+## unloads (settings round trip): reapplied on reload so the party UI look
+## (Leave + code) survives the trip instead of falling back to Create/Join.
+var return_menu_party := false
 
 ## Transient game-state passthrough (not saved): the mode the arena match is
 ## running at, set by the menu right before the scene switch.
 var pending_mode := "ffa"
+## The last game mode a match was started in (saved): the main menu restores
+## it, so returning from a match keeps the same game selected.
+var last_mode := "ffa"
 
 func _init() -> void:
 	var profile := OS.get_environment("FPSNITE_PROFILE").strip_edges()
@@ -135,6 +145,7 @@ func save_settings() -> void:
 	config.set_value("keybinds", "actions", keybinds)
 	config.set_value("skins", "index", skin_index)
 	config.set_value("player", "name", player_name)
+	config.set_value("player", "last_mode", last_mode)
 	config.set_value("account", "player_id", player_id)
 	config.set_value("account", "auth_token", auth_token)
 	for key: String in CONTROLS_DEFAULTS:
@@ -154,6 +165,7 @@ func load_settings() -> void:
 		keybinds[action] = saved[action]
 	skin_index = config.get_value("skins", "index", 0)
 	player_name = config.get_value("player", "name", "")
+	last_mode = config.get_value("player", "last_mode", "ffa")
 	player_id = config.get_value("account", "player_id", -1)
 	auth_token = config.get_value("account", "auth_token", "")
 	for key: String in CONTROLS_DEFAULTS:

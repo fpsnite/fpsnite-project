@@ -42,7 +42,18 @@ func _ready() -> void:
 		Settings.player_name = "Player %06d" % randi_range(0, 999999)
 		Settings.save_settings()
 	Network.player_name = Settings.player_name
+	if GameModes.is_known(Settings.last_mode):
+		_selected_mode = Settings.last_mode
+		_log("restored last mode '%s'" % _selected_mode)
 	_collect_podiums()
+	# The settings round trip reloads this scene: reapply the party-intent
+	# snapshot (taken on unload) so the menu looks exactly like it did before
+	# entering settings - a solo party host keeps the Leave/code look instead
+	# of falling back to Create/Join.
+	var hud := get_tree().get_first_node_in_group("lobby_hud")
+	if hud:
+		hud.set_party_intent(Settings.return_menu_party)
+	Settings.return_menu_party = false
 	_show_local_preview()
 	Fusion.register_broadcast_receiver(self)
 	Network.connected_to_photon.connect(_on_connected_to_photon)
@@ -59,6 +70,13 @@ func _ready() -> void:
 		# The illusion lobby room already exists (autoload created it): the
 		# load is done, hide the overlay right away.
 		_hide_loading_overlay()
+		# No room_joined event will follow (already connected): sync the party
+		# buttons, podiums and code box immediately.
+		_refresh_podiums()
+		if hud and hud.is_party_intent():
+			hud.show_party_code(Network.room_code())
+		elif hud:
+			hud.hide_code_box()
 	Network.connect_to_photon()
 
 func _exit_tree() -> void:
@@ -254,12 +272,12 @@ func _on_room_joined() -> void:
 	Fusion.rpc(submit_mode, _selected_mode)
 	if _ready_states.has(Fusion.get_local_player_id()):
 		Fusion.rpc(submit_ready, Fusion.get_local_player_id(), _ready_states[Fusion.get_local_player_id()])
-	if _reveal_code:
-		_reveal_code = false
-		if hud:
+	if hud:
+		if _reveal_code or hud.is_party_intent():
 			hud.show_party_code(room.get_room_name())
-	elif hud:
-		hud.hide_code_box()
+		else:
+			hud.hide_code_box()
+	_reveal_code = false
 	if hud:
 		hud.set_mode_text(_selected_mode, _player_count())
 
@@ -485,7 +503,8 @@ func _reset_ready_state() -> void:
 	_countdown_active = false
 	var hud := get_tree().get_first_node_in_group("lobby_hud")
 	if hud:
-		hud.update_ready_ui(false, 0, _player_count(), GameModes.max_players(_selected_mode), -1)
+		hud.update_ready_ui(false, 0, _player_count(), GameModes.max_players(_selected_mode),
+			GameModes.min_players(_selected_mode), -1)
 
 func _player_count() -> int:
 	return Network.room_player_ids().size() if Fusion.is_in_room() else 0
@@ -508,11 +527,14 @@ func _refresh_ready_state() -> void:
 	if hud:
 		hud.update_ready_ui(
 			bool(_ready_states.get(Fusion.get_local_player_id(), false)),
-			ready_count, total, GameModes.max_players(_selected_mode), _countdown_left)
+			ready_count, total, GameModes.max_players(_selected_mode),
+			GameModes.min_players(_selected_mode), _countdown_left)
 	_refresh_podiums()
 	if not Fusion.is_master_client():
 		return
-	if _all_ready():
+	# The countdown only starts when everyone is ready AND the room holds at
+	# least the mode's minimum player count (e.g. 1v1 needs 2 players).
+	if _all_ready() and total >= GameModes.min_players(_selected_mode):
 		_start_countdown()
 	elif _countdown_active:
 		_cancel_countdown()
@@ -563,14 +585,17 @@ func submit_countdown(seconds_left: int) -> void:
 	if hud:
 		hud.update_ready_ui(
 			bool(_ready_states.get(Fusion.get_local_player_id(), false)),
-			_ready_count(), _player_count(), GameModes.max_players(_selected_mode), seconds_left)
+			_ready_count(), _player_count(), GameModes.max_players(_selected_mode),
+			GameModes.min_players(_selected_mode), seconds_left)
 
 ## Everyone changes scene together when the countdown ends.
 @rpc("any_peer", "call_local")
 func start_match(mode_id: String) -> void:
 	_log("start_match: loading '%s'" % mode_id)
 	Settings.pending_mode = mode_id
-	if GameModes.is_solo(mode_id):
+	Settings.last_mode = mode_id
+	Settings.save_settings()
+	if mode_id == "aim":
 		get_tree().change_scene_to_file("res://GameScenes/AimTraining/aim_training.tscn")
 		return
 	get_tree().change_scene_to_file("res://Scenes/lobby.tscn")

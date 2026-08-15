@@ -9,6 +9,10 @@ extends Node
 
 const MENU_SCENE := "res://Scenes/mainui.tscn"
 
+## Slow-motion burst when a match ends, then the end screen.
+const SLOWMO_SCALE := 0.25
+const SLOWMO_DURATION := 1.5
+
 enum State { WAITING = 0, STARTING = 1, PLAYING = 2, VICTORY = 3 }
 
 signal kill_scored(killer_id: int)
@@ -38,6 +42,8 @@ var _kill_scores: Dictionary = {}
 @onready var light_label: Label = get_node("../RoundHUD/LightLabel")
 
 var _weapon_system: Node = null
+var _end_screen: CanvasLayer = null
+var _end_screen_shown := false
 
 func _ready() -> void:
 	add_to_group("round")
@@ -45,6 +51,7 @@ func _ready() -> void:
 	Fusion.register_broadcast_receiver(self)
 	Fusion.player_joined.connect(_on_player_joined)
 	Fusion.player_left.connect(_on_player_left)
+	_end_screen = get_node_or_null("../RoundEnd")
 	_fsm.add_state(&"waiting", _enter_waiting, Callable(), _tick_waiting)
 	_fsm.add_state(&"starting", _enter_starting, Callable(), _tick_countdown)
 	_fsm.add_state(&"playing", _enter_playing, Callable(), _tick_playing)
@@ -88,6 +95,10 @@ func _update_debug() -> void:
 
 func is_round_active() -> bool:
 	return _mirror_state == State.PLAYING
+
+## True once the match has ended (no kills / respawns should happen).
+func is_match_over() -> bool:
+	return _mirror_state == State.VICTORY
 
 func is_red_light() -> bool:
 	return false
@@ -188,6 +199,19 @@ func _enter_victory() -> void:
 	_remaining = victory_delay
 	_broadcast_state(State.VICTORY)
 	Fusion.rpc(submit_victory, _champion_pid, _champion_team)
+	_start_slowmo()
+
+## Slow-mo on the final kill: master starts it locally and mirrors it to
+## every client. Each client restores the time scale on its own timer.
+func _start_slowmo() -> void:
+	sync_slowmo(SLOWMO_SCALE, SLOWMO_DURATION)
+	Fusion.rpc(sync_slowmo, SLOWMO_SCALE, SLOWMO_DURATION)
+
+@rpc("any_peer", "call_local")
+func sync_slowmo(scale: float, duration: float) -> void:
+	Engine.time_scale = scale
+	get_tree().create_timer(duration, true, false, true).timeout \
+		.connect(func() -> void: Engine.time_scale = 1.0, CONNECT_ONE_SHOT)
 
 func _tick_victory(delta: float) -> void:
 	_remaining -= delta
@@ -196,6 +220,7 @@ func _tick_victory(delta: float) -> void:
 
 func return_to_menu() -> void:
 	get_tree().paused = false
+	Engine.time_scale = 1.0
 	Fusion.rpc(submit_return_to_menu)
 	get_tree().change_scene_to_file(MENU_SCENE)
 
@@ -307,6 +332,7 @@ func submit_return_to_menu() -> void:
 	if Fusion.is_master_client():
 		return
 	get_tree().paused = false
+	Engine.time_scale = 1.0
 	get_tree().change_scene_to_file(MENU_SCENE)
 
 ## Match reset: wipe all scores, teams, and champion state.
@@ -329,6 +355,10 @@ func submit_match_reset() -> void:
 # --- HUD ---
 
 func _apply_ui() -> void:
+	if _mirror_state != State.VICTORY:
+		_end_screen_shown = false
+		if _end_screen:
+			_end_screen.hide_result()
 	match _mirror_state:
 		State.WAITING:
 			var count := Fusion.get_room().get_players().size() if Fusion.is_in_room() else 0
@@ -347,6 +377,23 @@ func _apply_ui() -> void:
 			status_label.text = _winner_text()
 			timer_label.text = "returning to menu in %d" % ceili(_remaining)
 			light_label.text = ""
+			_show_end_screen()
+			_update_end_countdown()
+
+## Shows the VICTORY / DEFEAT / DRAW screen once per match end (every client).
+func _show_end_screen() -> void:
+	if _end_screen == null or _end_screen_shown:
+		return
+	_end_screen_shown = true
+	var local := Fusion.get_local_player_id()
+	var draw := _champion_pid <= 0
+	var won := not draw and _champion_pid == local
+	var winner_name := _player_name(_champion_pid) if not draw else ""
+	_end_screen.show_result(draw, won, winner_name, _1v1_score_text())
+
+func _update_end_countdown() -> void:
+	if _end_screen:
+		_end_screen.update_countdown(ceili(_remaining))
 
 func _score_text() -> String:
 	if _current_mode == "ffa":
@@ -396,7 +443,8 @@ func _timer_text() -> String:
 	if _current_mode == "ffa":
 		return ""
 	if _remaining > 0.0:
-		return str(ceili(_remaining))
+		var total := ceili(_remaining)
+		return "%d:%02d" % [total / 60, total % 60]
 	return ""
 
 func _winner_text() -> String:

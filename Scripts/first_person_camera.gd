@@ -28,6 +28,7 @@ const BASE_MOUSE_SENSITIVITY := 0.0025
 @export_group("Field of View")
 @export var base_fov: float = 75.0
 @export var sprint_fov: float = 85.0
+@export var slide_fov: float = 92.0
 @export var aim_fov: float = 55.0
 @export var fov_smoothing: float = 10.0
 
@@ -117,7 +118,11 @@ func _update_fov(delta: float) -> void:
 	var sprint := false
 	if _player_root.get("sprint_active") is bool:
 		sprint = _player_root.sprint_active
-	var target_fov := aim_fov if _is_aiming else (sprint_fov if sprint else base_fov)
+	var sliding := false
+	if _player_root.get("sliding") is bool:
+		sliding = _player_root.sliding
+	var target_fov := aim_fov if _is_aiming else \
+		(slide_fov if sliding else (sprint_fov if sprint else base_fov))
 	camera.fov = lerpf(camera.fov, target_fov, 1.0 - exp(-fov_smoothing * delta))
 
 func _update_head_bob(delta: float) -> void:

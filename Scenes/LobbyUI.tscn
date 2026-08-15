@@ -189,6 +189,7 @@ theme_override_constants/separation = 8
 
 [node name="CodeBox" type="HBoxContainer" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox" unique_id=1592201823]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -219,6 +220,7 @@ theme_override_constants/separation = 8
 
 [node name="CreatePartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201827]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
@@ -230,6 +232,7 @@ expand_icon = true
 
 [node name="JoinPartyButton" type="Button" parent="Root/Overlay/TabContainer/Screen/RightPanel/StartMenu/Panel/VBoxContainer/PartyVBox/PartyButtons" unique_id=1592201828]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 2
@@ -666,6 +669,12 @@ MAX 2"
 layout_mode = 2
 mode_id = "aim"
 mode_name = "Aim Training
+1 PLAYER"
+
+[node name="GameModeItem5" parent="PopupPanel/VBoxContainer/CenterContainer/ModeGrid" unique_id=898734582 instance=ExtResource("1_wvbee")]
+layout_mode = 2
+mode_id = "build"
+mode_name = "Free Build
 1 PLAYER"
 
 [node name="Label" type="Label" parent="PopupPanel/VBoxContainer" unique_id=1816402552]

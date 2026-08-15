@@ -31,8 +31,8 @@ var _panel: Control
 func set_override(visible: bool) -> void:
 	_force = 1 if visible else 0
 
-## Weapon-driven shape: "default" (four lines) or "square" (squared corner
-## brackets, no fill) - the shotgun uses the square style.
+## Weapon-driven shape: "default" (four lines), "square" (squared corner
+## brackets, no fill) or "dot" (static ring + center point for melee).
 func set_style(style: String) -> void:
 	if _style != style:
 		_style = style
@@ -77,6 +77,9 @@ func _on_draw() -> void:
 	if _style == "square":
 		_draw_square(center, gap)
 		return
+	if _style == "dot":
+		_draw_dot(center)
+		return
 	_panel.draw_line(center + Vector2(0, -gap), center + Vector2(0, -gap - LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(0, gap), center + Vector2(0, gap + LINE_LENGTH), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(-gap, 0), center + Vector2(-gap - LINE_LENGTH, 0), CROSSHAIR_COLOR, LINE_WIDTH)
@@ -100,3 +103,10 @@ func _draw_square(center: Vector2, gap: float) -> void:
 	# Bottom-right corner (arms point left + up)
 	_panel.draw_line(center + Vector2(h, h), center + Vector2(h - arm, h), CROSSHAIR_COLOR, LINE_WIDTH)
 	_panel.draw_line(center + Vector2(h, h), center + Vector2(h, h - arm), CROSSHAIR_COLOR, LINE_WIDTH)
+
+## Dot crosshair: a ring with a filled center point, used by melee weapons
+## (the knife). Static - spread is meaningless for melee, so the shape never
+## moves with movement speed or shots.
+func _draw_dot(center: Vector2) -> void:
+	_panel.draw_circle(center, 2.5, CROSSHAIR_COLOR)
+	_panel.draw_arc(center, 10.0, 0.0, TAU, 48, CROSSHAIR_COLOR, LINE_WIDTH)

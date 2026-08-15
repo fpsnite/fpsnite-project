@@ -68,11 +68,17 @@ func _collect_spawn_points() -> void:
 	if arena == null:
 		return
 	var ffa := arena.get_node_or_null("FFASpawns")
-	if ffa == null:
+	if ffa != null:
+		for child in ffa.get_children():
+			if child is Marker3D:
+				_spawn_points.append(child)
 		return
-	for child in ffa.get_children():
-		if child is Marker3D:
-			_spawn_points.append(child)
+	# Custom maps expose their own spawn markers (see GameScenes/1v1Map/map.gd).
+	for map_node in arena.get_children():
+		if map_node.has_method("get_spawn_markers"):
+			for marker in map_node.get_spawn_markers() as Array[Marker3D]:
+				_spawn_points.append(marker)
+			return
 
 func _on_player_joined(player_id: int, _user_id: String) -> void:
 	_health[player_id] = MAX_HEALTH
@@ -191,6 +197,9 @@ func _exclusions_for(shooter_id: int) -> Array[RID]:
 
 func _apply_damage(killer_id: int, target_id: int, damage: float, headshot: bool,
 		position: Vector3, normal: Vector3, weapon_id: String) -> void:
+	# Free Build is a creative sandbox: damage never lands (infinite health).
+	if GameModes.is_build(Settings.pending_mode):
+		return
 	Fusion.rpc(broadcast_hit, killer_id, target_id, damage, headshot,
 		position, normal, weapon_id)
 	# Shield absorbs damage first; only overflow reaches health.
@@ -221,7 +230,9 @@ func broadcast_hit(shooter_id: int, target_id: int, damage: float, headshot: boo
 	if shooter == null:
 		return
 	var weapon := shooter.get_node_or_null("CameraPivot/Camera3D/Weapon")
-	if weapon:
+	# Bullets visuals (tracer + flying bullet) are ranged-only: knife swings
+	# must not draw a shot line to the hit point.
+	if weapon and not weapon.current_data.melee:
 		weapon.show_tracer(weapon.muzzle_global_position(), position)
 		weapon.show_bullet(weapon.muzzle_global_position(), position)
 	# Missed everything (wall/floor): leave a bullet hole, except for melee
@@ -276,6 +287,10 @@ func request_respawn_rpc(player_id: int) -> void:
 	if not Fusion.is_master_client():
 		return
 	if not _dead.get(player_id, false):
+		return
+	# No respawns after the match has ended (end screen is up).
+	var round_node := get_tree().get_first_node_in_group("round")
+	if round_node and round_node.has_method("is_match_over") and round_node.is_match_over():
 		return
 	_dead[player_id] = false
 	_health[player_id] = MAX_HEALTH

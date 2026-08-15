@@ -26,9 +26,38 @@ func _ready() -> void:
 	spawner.despawned.connect(_on_spawner_despawned)
 	Fusion.player_joined.connect(_on_player_joined)
 	Fusion.player_left.connect(_on_player_left)
+	_install_map()
 	if Fusion.is_master_client():
 		call_deferred("_spawn_existing_players")
 	Fusion.room_joined.connect(_on_room_joined)
+
+## Instances the mode's map scene under GameArena (weapon_system.gd reads
+## ../GameArena for spawn points). Custom maps replace the box room and the
+## lobby's own lighting so the map's environment and sky take over.
+func _install_map() -> void:
+	var path := GameModes.map_scene(Settings.pending_mode)
+	var scene := load(path) as PackedScene
+	if scene == null:
+		print("[NET] ERROR: cannot load map '%s'" % path)
+		return
+	$GameArena.add_child(scene.instantiate())
+	print("[NET] map loaded: '%s' (mode '%s')" % [path, Settings.pending_mode])
+	if GameModes.uses_custom_map(Settings.pending_mode):
+		_switch_to_custom_map()
+
+func _switch_to_custom_map() -> void:
+	var room := get_node_or_null("Room")
+	if room:
+		room.queue_free()
+	var env := get_node_or_null("WorldEnvironment")
+	if env:
+		env.queue_free()
+	var sun := get_node_or_null("DirectionalLight3D")
+	if sun:
+		sun.queue_free()
+	for child in get_children():
+		if child is OmniLight3D:
+			child.queue_free()
 
 func _on_room_joined() -> void:
 	if Fusion.is_master_client():
@@ -80,8 +109,14 @@ func _on_player_left(player_id: int, is_inactive: bool) -> void:
 func _spawn_player(player_id: int) -> void:
 	if _characters.has(player_id):
 		return
-	print("[NET] spawning player %d" % player_id)
-	var player := spawner.spawn(PlayerScene)
+	# Position is set via the pre-spawn callable: the native spawner bakes the
+	# node's transform into the replicated state when it goes live, so any
+	# assignment after spawn() returns gets reset to the spawner's origin.
+	var spawn_point := _spawn_point_for(player_id)
+	print("[NET] spawning player %d -> spawn_point=%s" % [player_id, spawn_point])
+	var player := spawner.spawn(PlayerScene, func(p: Node) -> void:
+		p.global_position = spawn_point
+		print("[NET] preSpawn: player.global_position=%s parent=%s" % [p.global_position, p.get_parent().get_path()]))
 	if player == null:
 		print("[NET] ERROR: spawn returned null for player %d" % player_id)
 		return
@@ -104,17 +139,40 @@ func _assign_number(player_id: int, player: Node) -> void:
 
 func _configure_player(player: Node, player_id: int) -> void:
 	player.player_id = player_id
-	player.position = _spawn_point_for(player_id)
+	player.global_position = _spawn_point_for(player_id)
 	player.get_node("FusionServerReplicator").set_input_authority(player_id)
+	_apply_mode_weapons(player)
+	print("[NET] _configure_player: player %d global_position=%s" % [player_id, player.global_position])
+
+## Each game mode has its own weapon pool (see game_modes.gd): replace the
+## spawned player's default loadout with the mode's weapons, then re-equip so
+## current_data points into the new pool (the default knife was equipped on
+## _ready, before the loadout was swapped).
+func _apply_mode_weapons(player: Node) -> void:
+	var pool := GameModes.weapon_pool(Settings.pending_mode)
+	if pool.is_empty():
+		return
+	var weapon := player.get_node_or_null("CameraPivot/Camera3D/Weapon")
+	if weapon == null:
+		return
+	weapon.loadout = pool
+	weapon._equip(weapon._find_melee_index())
+	print("[NET] mode weapons applied: %s (%d weapons)" % [Settings.pending_mode, pool.size()])
 
 ## Picks the Marker3D spawn point for a player (stable per player id, wraps
-## around when there are more players than markers). Falls back to a random
-## spot if the scene has no markers.
+## around when there are more players than markers). Custom maps supply their
+## own markers; the default arena falls back to the scene's SpawnPoints.
 func _spawn_point_for(player_id: int) -> Vector3:
-	var markers: Array[Node3D] = []
+	var markers: Array[Marker3D] = []
 	for child in $SpawnPoints.get_children():
 		if child is Marker3D:
 			markers.append(child)
+	for map_node in $GameArena.get_children():
+		if map_node.has_method("get_spawn_markers"):
+			var map_markers := map_node.get_spawn_markers() as Array[Marker3D]
+			if not map_markers.is_empty():
+				markers = map_markers
+			break
 	if markers.is_empty():
 		return Vector3(randf_range(-ROOM_HALF, ROOM_HALF), 1.0, randf_range(-ROOM_HALF, ROOM_HALF))
 	return markers[player_id % markers.size()].global_position

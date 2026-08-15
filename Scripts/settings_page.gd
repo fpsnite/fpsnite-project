@@ -14,6 +14,9 @@ const ACTIONS := [
 	["next_weapon", "Next Weapon"],
 	["prev_weapon", "Previous Weapon"],
 	["knife", "Knife"],
+	["weapon_slot_1", "Weapon Slot 1"],
+	["weapon_slot_2", "Weapon Slot 2"],
+	["weapon_slot_3", "Weapon Slot 3"],
 	["interact", "Interact"],
 	["chat", "Chat"],
 ]

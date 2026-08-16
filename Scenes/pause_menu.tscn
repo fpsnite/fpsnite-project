@@ -4,6 +4,9 @@
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="2_vmyb1"]
 [ext_resource type="FontFile" uid="uid://d3i56sb15a8j" path="res://Fonts/dimbo/Dimbo Italic.ttf" id="3_myy0f"]
 [ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="4_sjs17"]
+[ext_resource type="Texture2D" uid="uid://dau2lmqjxjop5" path="res://Assets/9473-settings.png" id="5_sjs17"]
+[ext_resource type="Texture2D" uid="uid://cmmji3yrea6ci" path="res://Assets/94851-login.png" id="6_u8tnp"]
+[ext_resource type="Texture2D" uid="uid://bg5qpb40l1ghk" path="res://Assets/5639-x.png" id="7_stj27"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_drawer"]
 bg_color = Color(0.07, 0.08, 0.11, 0.98)
@@ -68,6 +71,8 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_vmyb1")
 theme_override_font_sizes/font_size = 20
 text = "SETTINGS"
+icon = ExtResource("5_sjs17")
+expand_icon = true
 
 [node name="Spacer" type="Control" parent="Drawer/VBox" unique_id=985401488]
 custom_minimum_size = Vector2(0, 40)
@@ -79,6 +84,8 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("2_vmyb1")
 theme_override_font_sizes/font_size = 20
 text = "LEAVE ROOM"
+icon = ExtResource("6_u8tnp")
+expand_icon = true
 
 [node name="QuitButton" type="Button" parent="Drawer/VBox" unique_id=1076577676]
 custom_minimum_size = Vector2(0, 52)
@@ -87,6 +94,8 @@ theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_vmyb1")
 theme_override_font_sizes/font_size = 25
 text = "QUIT"
+icon = ExtResource("7_stj27")
+expand_icon = true
 
 [connection signal="pressed" from="Drawer/VBox/CopyCodeButton" to="." method="_on_copy_code_pressed"]
 [connection signal="pressed" from="Drawer/VBox/SettingsButton" to="." method="_on_settings_pressed"]

@@ -9,16 +9,67 @@
 [ext_resource type="Texture2D" uid="uid://o1r60wwriwyq" path="res://Assets/locker-ver-2.png5.png" id="5_o2s04"]
 [ext_resource type="Texture2D" uid="uid://db3ceg1nkyne7" path="res://Assets/lootbox-icon-channel.png" id="6_uqhmi"]
 [ext_resource type="Texture2D" uid="uid://d32thjc0ooqj4" path="res://Assets/race_cup.png" id="6_xg1n4"]
+[ext_resource type="Texture2D" uid="uid://dau2lmqjxjop5" path="res://Assets/9473-settings.png" id="7_anafk"]
 [ext_resource type="Script" uid="uid://dxhksd0u5jtj3" path="res://Scripts/lobby_hud.gd" id="7_hud"]
+[ext_resource type="Texture2D" uid="uid://1a0ltd3dygj1" path="res://Assets/165460-coin.png" id="8_cg1rb"]
 [ext_resource type="Texture2D" uid="uid://detjr47yntun3" path="res://Assets/clipboard-50.png" id="8_wxnpe"]
 [ext_resource type="PackedScene" uid="uid://c1a75k3nt0k1n" path="res://Scenes/chat_panel.tscn" id="9_chatp"]
+[ext_resource type="Texture2D" uid="uid://drn1bbcbpck2l" path="res://Assets/21111-bej2-bluegem.png" id="9_uh1qg"]
 [ext_resource type="Texture2D" uid="uid://d1w8lj7ksb7f3" path="res://Assets/green-ok-sign.png" id="10_4k33x"]
 [ext_resource type="Texture2D" uid="uid://bu7nxrlxrrx8s" path="res://Assets/finger_icon.png" id="10_f21u2"]
+[ext_resource type="Texture2D" uid="uid://tbqnrd2xrww3" path="res://Assets/38481-discord.png" id="10_m12c4"]
+[ext_resource type="Texture2D" uid="uid://cyl3ibqmt6dph" path="res://Assets/607440-people.png" id="11_md32t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n0o7n"]
 bg_color = Color(0.55138963, 0.55138963, 0.55138963, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lu65k"]
+bg_color = Color(0, 0, 0, 0.3764706)
+corner_radius_bottom_left = 19
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uh1qg"]
+bg_color = Color(0, 0, 0, 0.5882353)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m12c4"]
+bg_color = Color(0, 0, 0, 0.5882353)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7trgv"]
+bg_color = Color(0, 0, 0, 0.5882353)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dj3i2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y7kbj"]
+bg_color = Color(0, 0, 0, 0.42745098)
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ciaul"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f38s6"]
+bg_color = Color(0.11764706, 0.43137255, 0.9843137, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_md32t"]
+bg_color = Color(0.062479507, 0.27595732, 0.65221196, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sdjbw"]
+bg_color = Color(0.0627451, 0.27450982, 0.6509804, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_en1b1"]
 font_size = 24
@@ -124,16 +175,82 @@ tab_2/icon = ExtResource("5_60qhp")
 tab_3/title = "LeaderBoard"
 tab_3/icon = ExtResource("6_xg1n4")
 
+[node name="Panel" type="Panel" parent="Root/Overlay/TopBar" unique_id=1247004405]
+custom_minimum_size = Vector2(220, 100)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lu65k")
+
+[node name="Gems" type="Button" parent="Root/Overlay/TopBar/Panel" unique_id=1715163265]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 0
+offset_left = 14.0
+offset_top = 49.0
+offset_right = 124.0
+offset_bottom = 89.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_uh1qg")
+expand_icon = true
+
+[node name="Label" type="Label" parent="Root/Overlay/TopBar/Panel/Gems" unique_id=1836354867]
+layout_mode = 0
+offset_left = 43.0
+offset_top = 6.0
+offset_right = 83.0
+offset_bottom = 37.0
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Coins" type="Button" parent="Root/Overlay/TopBar/Panel" unique_id=80817479]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 0
+offset_left = 13.0
+offset_right = 123.0
+offset_bottom = 40.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_m12c4")
+
+[node name="Label" type="Label" parent="Root/Overlay/TopBar/Panel/Coins" unique_id=506925280]
+layout_mode = 0
+offset_left = 45.0
+offset_top = 6.0
+offset_right = 85.0
+offset_bottom = 37.0
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Settings" type="Button" parent="Root/Overlay/TopBar/Panel" unique_id=414070792]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 155.0
+offset_top = 20.0
+offset_right = 205.0
+offset_bottom = 70.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_7trgv")
+icon = ExtResource("7_anafk")
+icon_alignment = 1
+expand_icon = true
+
+[node name="165460Coin" type="Sprite2D" parent="Root/Overlay/TopBar/Panel" unique_id=1566356460]
+position = Vector2(36, 16)
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("8_cg1rb")
+
+[node name="21111Bej2Bluegem" type="Sprite2D" parent="Root/Overlay/TopBar/Panel" unique_id=1735568323]
+position = Vector2(34, 68)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("9_uh1qg")
+
 [node name="TabContainer" type="TabContainer" parent="Root/Overlay" unique_id=1997990476]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dj3i2")
-current_tab = 3
+current_tab = 0
 tabs_visible = false
 
 [node name="Screen" type="HBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1617358608]
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 metadata/_tab_index = 0
@@ -150,6 +267,42 @@ theme_override_constants/margin_left = 15
 theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 15
 theme_override_constants/margin_bottom = 15
+
+[node name="Panel" type="Panel" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=2059219163]
+custom_minimum_size = Vector2(200, 110)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_y7kbj")
+
+[node name="Button" type="Button" parent="Root/Overlay/TabContainer/Screen/LeftPanel/Panel" unique_id=300866634]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 0
+offset_left = 67.0
+offset_top = 57.0
+offset_right = 117.0
+offset_bottom = 107.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_ciaul")
+icon = ExtResource("10_m12c4")
+expand_icon = true
+
+[node name="Button2" type="Button" parent="Root/Overlay/TabContainer/Screen/LeftPanel/Panel" unique_id=547602237]
+custom_minimum_size = Vector2(170, 50)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -85.0
+offset_top = 7.0
+offset_right = 85.0
+offset_bottom = 57.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_f38s6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_md32t")
+theme_override_styles/hover = SubResource("StyleBoxFlat_sdjbw")
+text = "   Play With Friends"
+icon = ExtResource("11_md32t")
+expand_icon = true
 
 [node name="RegionText" type="Label" parent="Root/Overlay/TabContainer/Screen/LeftPanel" unique_id=1545735858]
 unique_name_in_owner = true
@@ -409,6 +562,7 @@ layout_mode = 2
 metadata/_tab_index = 2
 
 [node name="LeaderBoard" type="VBoxContainer" parent="Root/Overlay/TabContainer" unique_id=1836502263]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 

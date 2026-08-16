@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bb6c41qt758cg" path="res://Scenes/LoadingOverlay.tscn" id="5_loading"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4vhit"]
-load_path = "res://.godot/imported/Epic_GloriousPink_EquiRect.png-6b89fe283a1c057e1f31612a8ca9ea6c.s3tc.ctex"
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_6c4uu"]
 panorama = SubResource("CompressedTexture2D_4vhit")

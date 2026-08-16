@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://pwvvihch8wgk"]
 
-[ext_resource type="Texture2D" uid="uid://yn26obcpfljq" path="res://Assets/AllSkyFree_Skyboxes/Epic_BlueSunset_EquiRect_flat.png" id="1_40gv8"]
 [ext_resource type="Script" uid="uid://ysliy56modu4" path="res://GameScenes/1v1Map/map.gd" id="2_map"]
 [ext_resource type="PackedScene" uid="uid://ba8taod0uui3o" path="res://Assets/Environment/fps_tps Map by theking1322 - wna54gOjL7.glb" id="3_ai7fs"]
 
@@ -13,11 +12,10 @@ size = Vector3(151.37161, 16.604431, 0.5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_wallside"]
 size = Vector3(0.5, 10.2580185, 119.25857)
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_oieod"]
-panorama = ExtResource("1_40gv8")
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ajeh3"]
 
 [sub_resource type="Sky" id="Sky_xy0ev"]
-sky_material = SubResource("PanoramaSkyMaterial_oieod")
+sky_material = SubResource("ProceduralSkyMaterial_ajeh3")
 
 [sub_resource type="Environment" id="Environment_oieod"]
 background_mode = 2

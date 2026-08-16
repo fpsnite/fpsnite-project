@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://bd0qanxhdq6n4" path="res://GameScenes/AimTraining/aim_training.gd" id="1_rt"]
 [ext_resource type="Script" uid="uid://edlo77m2nrgn" path="res://GameScenes/AimTraining/aim_hud.gd" id="2_hud"]
-[ext_resource type="Texture2D" uid="uid://dt1vx2qhnknps" path="res://Assets/AllSkyFree_Skyboxes/Cold Sunset Equirect.png" id="2_lxkca"]
 [ext_resource type="Script" uid="uid://vl06gon8uwbf" path="res://GameScenes/AimTraining/aim_system.gd" id="3_sys"]
 [ext_resource type="PackedScene" uid="uid://dldqutmeae0xw" path="res://GameScenes/AimTraining/aim_player.tscn" id="4_plr"]
 [ext_resource type="PackedScene" uid="uid://chubpad00001" path="res://GameScenes/AimTraining/hub.tscn" id="5_hub"]
@@ -12,11 +11,10 @@
 [ext_resource type="FontFile" uid="uid://ch3l322mrlhm2" path="res://Fonts/dimbo/Dimbo Regular.ttf" id="9_fnt"]
 [ext_resource type="PackedScene" uid="uid://daaxbodwdu77d" path="res://Scenes/pause_menu.tscn" id="10_pause"]
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_jxjwr"]
-panorama = ExtResource("2_lxkca")
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fynhd"]
 
 [sub_resource type="Sky" id="Sky_at"]
-sky_material = SubResource("PanoramaSkyMaterial_jxjwr")
+sky_material = SubResource("ProceduralSkyMaterial_fynhd")
 
 [sub_resource type="Environment" id="Env_at"]
 background_mode = 2

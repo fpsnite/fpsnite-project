@@ -1,14 +1,16 @@
 [gd_scene format=3 uid="uid://brfgfmorhqu6d"]
 
 [ext_resource type="Script" uid="uid://oa1tijkbocbr" path="res://Scripts/main_lobby.gd" id="1_hmkf7"]
-[ext_resource type="Texture2D" uid="uid://fac82ugd2dt8" path="res://Assets/AllSkyFree_Skyboxes/Epic_GloriousPink_EquiRect.png" id="2_c1erm"]
 [ext_resource type="PackedScene" uid="uid://gy8vmp1cb6mg" path="res://Scenes/player_preview.tscn" id="2_preview"]
 [ext_resource type="PackedScene" uid="uid://btbpr7roxyd8q" path="res://Scenes/drawer.tscn" id="4_drawer"]
 [ext_resource type="PackedScene" uid="uid://ebbd8kgmlly4" path="res://Scenes/LobbyUI.tscn" id="4_hmkf7"]
 [ext_resource type="PackedScene" uid="uid://bb6c41qt758cg" path="res://Scenes/LoadingOverlay.tscn" id="5_loading"]
 
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4vhit"]
+load_path = "res://.godot/imported/Epic_GloriousPink_EquiRect.png-6b89fe283a1c057e1f31612a8ca9ea6c.s3tc.ctex"
+
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_6c4uu"]
-panorama = ExtResource("2_c1erm")
+panorama = SubResource("CompressedTexture2D_4vhit")
 
 [sub_resource type="Sky" id="Sky_xrgmn"]
 sky_material = SubResource("PanoramaSkyMaterial_6c4uu")

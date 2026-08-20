@@ -7,7 +7,6 @@ extends CanvasLayer
 ## scores.
 
 @onready var sprint_bar: ProgressBar = $Box/SprintRow/SprintBar
-@onready var force_label: Label = $Box/ForceLabel
 @onready var health_bar: ProgressBar = $Box/HealthRow/HealthBar
 @onready var shield_bar: ProgressBar = $Box/ShieldRow/ShieldBar
 @onready var ammo_label: Label = $Box/AmmoLabel
@@ -70,7 +69,6 @@ func _process(_delta: float) -> void:
 	if player == null:
 		return
 	sprint_bar.value = player.stamina
-	force_label.text = _format_number(player.player_number)
 	health_bar.value = player.health
 	shield_bar.value = player.shield
 	var weapon := player.get_node_or_null("CameraPivot/Camera3D/Weapon")
@@ -171,6 +169,3 @@ func _on_local_damage_taken(_damage: float) -> void:
 	damage_flash.color.a = 0.35
 	_flash_tween = create_tween()
 	_flash_tween.tween_property(damage_flash, "color:a", 0.0, 0.4)
-
-func _format_number(number: int) -> String:
-	return "%03d" % number

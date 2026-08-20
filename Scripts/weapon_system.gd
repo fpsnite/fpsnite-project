@@ -28,6 +28,7 @@ var _shield: Dictionary = {}        # player_id -> float (absorbs damage first)
 var _dead: Dictionary = {}          # player_id -> bool
 var _last_shot_ms: Dictionary = {}  # player_id -> int, rate limiting
 var _spawn_points: Array[Marker3D] = []
+var _map: Node = null               # the active map node (spawn marker source)
 var _lobby: Node
 var _holes: BulletHoles
 
@@ -64,21 +65,66 @@ func _exit_tree() -> void:
 
 func _collect_spawn_points() -> void:
 	_spawn_points.clear()
+	_map = null
 	var arena := get_node_or_null("../GameArena")
 	if arena == null:
 		return
+	# The map lives under GameArena. Prefer its marker API (fps_map exposes
+	# get_spawn_markers / get_spawn_markers_for_team; custom maps expose
+	# get_spawn_markers); fall back to legacy FFASpawns folders directly
+	# under the arena, then the scene's own SpawnPoints.
+	for map_node in arena.get_children():
+		if map_node.has_method("get_spawn_markers") \
+				or map_node.has_method("get_spawn_markers_for_team"):
+			_map = map_node
+			_spawn_points = _map_spawn_markers(-1)
+			return
 	var ffa := arena.get_node_or_null("FFASpawns")
 	if ffa != null:
 		for child in ffa.get_children():
 			if child is Marker3D:
 				_spawn_points.append(child)
 		return
-	# Custom maps expose their own spawn markers (see GameScenes/1v1Map/map.gd).
-	for map_node in arena.get_children():
-		if map_node.has_method("get_spawn_markers"):
-			for marker in map_node.get_spawn_markers() as Array[Marker3D]:
-				_spawn_points.append(marker)
-			return
+	var scene_points := get_node_or_null("SpawnPoints")
+	if scene_points != null:
+		for child in scene_points.get_children():
+			if child is Marker3D:
+				_spawn_points.append(child)
+
+## Resolve a respawn position: team modes use the map's per-team markers so
+## each side respawns on its own end; everything else uses the FFA set.
+## Positions are derived from the map node's to_global() - Marker3D
+## global_position can be stale under plain Node marker folders (FreeBuild).
+func _respawn_point_for(player_id: int) -> Vector3:
+	var team := _team_for(player_id)
+	var markers := _map_spawn_markers(team)
+	if markers.is_empty():
+		markers = _spawn_points
+	if markers.is_empty():
+		return Vector3(0.0, 1.0, 0.0)
+	var marker: Marker3D = markers.pick_random()
+	if _map is Node3D:
+		return (_map as Node3D).to_global(marker.position)
+	return marker.global_position
+
+func _map_spawn_markers(team: int) -> Array[Marker3D]:
+	if _map == null:
+		return []
+	if _map.has_method("get_spawn_markers_for_team"):
+		var team_markers := _map.get_spawn_markers_for_team(team) as Array[Marker3D]
+		if not team_markers.is_empty():
+			return team_markers
+	if _map.has_method("get_spawn_markers"):
+		return _map.get_spawn_markers() as Array[Marker3D]
+	return []
+
+func _team_for(player_id: int) -> int:
+	if not GameModes.is_team_mode(Settings.pending_mode):
+		return -1
+	var round_node := get_tree().get_first_node_in_group("round")
+	if round_node == null or not round_node.has_method("get_team"):
+		return -1
+	return round_node.get_team(player_id)
 
 func _on_player_joined(player_id: int, _user_id: String) -> void:
 	_health[player_id] = MAX_HEALTH
@@ -295,9 +341,7 @@ func request_respawn_rpc(player_id: int) -> void:
 	_dead[player_id] = false
 	_health[player_id] = MAX_HEALTH
 	_shield[player_id] = MAX_SHIELD
-	var position := Vector3(0.0, 1.0, 0.0)
-	if not _spawn_points.is_empty():
-		position = _spawn_points.pick_random().global_position
+	var position := _respawn_point_for(player_id)
 	Fusion.rpc(broadcast_respawn, player_id, position, randf() * TAU)
 	Fusion.rpc(sync_health, player_id, MAX_HEALTH, MAX_SHIELD)
 

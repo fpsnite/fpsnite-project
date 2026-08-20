@@ -29,11 +29,11 @@ func add_event(kind: StringName, player_id: int, target_id: int = 0) -> void:
 			_add_line("%s respawned" % prefix, Color(0.55, 0.85, 1.0))
 
 func _prefix_for(player_id: int) -> String:
-	var number := 0
+	var name := "Player %d" % player_id
 	var lobby := get_tree().get_first_node_in_group("lobby")
-	if lobby:
-		number = int(lobby._number_registry.get(player_id, 0))
-	return "[#%03d]" % number
+	if lobby and lobby.has_method("_player_name"):
+		name = lobby._player_name(player_id)
+	return name
 
 func _add_line(text: String, color: Color) -> void:
 	while box.get_child_count() >= MAX_LINES:

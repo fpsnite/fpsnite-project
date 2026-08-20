@@ -93,7 +93,7 @@ func _on_auth_failed(code: String, message: String) -> void:
 	_auth_error = message
 	if code == "INVALID_TOKEN" and not Settings.auth_token.is_empty():
 		Settings.auth_token = ""
-		Settings.player_id = -1
+		Settings.account_id = ""
 		Settings.save_settings()
 	token_field.text = ""
 	_finish()
@@ -104,10 +104,10 @@ func _finish() -> void:
 	_finished = true
 	if _auth_ok:
 		Settings.auth_token = Backend.auth_token
-		Settings.player_id = _auth_player["id"]
+		Settings.account_id = _auth_player["account_id"]
 		Settings.player_name = _auth_player["name"]
-		if _auth_player.has("skin_index") and _auth_player["skin_index"] != Settings.skin_index:
-			Settings.skin_index = _auth_player["skin_index"]
+		if _auth_player.has("current_skin") and _auth_player["current_skin"] != Settings.skin_index:
+			Settings.skin_index = _auth_player["current_skin"]
 		Settings.save_settings()
 		get_tree().change_scene_to_file("res://Scenes/mainui.tscn")
 	else:

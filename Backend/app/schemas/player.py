@@ -28,18 +28,38 @@ class LoginIn(BaseModel):
 
 
 class PlayerOut(BaseModel):
+    """v2 player profile. account_id is the public identifier (numeric id hidden)."""
+
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    account_id: str
     name: str
-    skin_index: int
+    coins: int
+    current_skin: int
+    skins_locker: list[int]
+    kills: int
+    deaths: int
+    wins: int
+    playtime_seconds: int
+    level: int
+    xp: int
+    is_online: bool
+    in_lobby: bool
+    in_game: bool
     created_at: datetime
 
 
 class PlayerUpdate(BaseModel):
-    skin_index: int = Field(ge=0, le=100)
+    current_skin: int | None = Field(default=None, ge=0, le=100)
+    skins_locker: list[int] | None = None
 
 
 class TokenOut(BaseModel):
     token: str
     player: PlayerOut
+
+
+class PresenceIn(BaseModel):
+    online: bool | None = None
+    in_lobby: bool | None = None
+    in_game: bool | None = None

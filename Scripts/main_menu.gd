@@ -18,6 +18,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	get_tree().paused = false
+	Backend.update_presence(true, true, false)
 	Network.connected_to_photon.connect(_on_connected_to_photon)
 	Network.connection_failed.connect(_on_connection_failed)
 	Network.room_joined.connect(_on_room_joined)

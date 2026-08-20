@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://iamasxceih8s"]
 
+[ext_resource type="Script" uid="uid://c6pixiwedt5b" path="res://Scripts/fps_map.gd" id="1_fpsmap"]
+
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(60, 1, 40)
 
@@ -55,6 +57,7 @@ size = Vector3(2, 0.8, 2)
 size = Vector3(2, 0.8, 4)
 
 [node name="FpsMap" type="Node3D"]
+script = ExtResource("1_fpsmap")
 
 [node name="Geometry" type="StaticBody3D" parent="."]
 

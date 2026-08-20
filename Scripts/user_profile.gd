@@ -19,10 +19,10 @@ func _ready() -> void:
 	save_button.pressed.connect(_apply_name)
 	user_input.text_submitted.connect(func(_t: String) -> void: _apply_name())
 	logout_button.pressed.connect(_on_logout_pressed)
-	var logged_in := Backend.player_id >= 0
+	var logged_in := not Backend.account_id.is_empty()
 	var name := Backend.player_name if logged_in and not Backend.player_name.is_empty() else Settings.player_name
 	user_input.text = name
-	status_label.text = "Account Status : %s" % ("Active (ID %d)" % Backend.player_id if logged_in else "Offline")
+	status_label.text = "Account Status : %s" % ("Active (%s)" % Backend.account_id if logged_in else "Offline")
 	region_label.text = "Region : Local"
 	_log("ready: name='%s', logged_in=%s" % [name, logged_in])
 
@@ -41,9 +41,10 @@ func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://Scenes/mainui.tscn")
 
 func _on_logout_pressed() -> void:
+	Backend.update_presence(false, false, false)
 	Backend.clear_token()
 	Settings.auth_token = ""
-	Settings.player_id = -1
+	Settings.account_id = ""
 	Settings.save_settings()
 	_log("logged out, returning to launcher")
 	get_tree().change_scene_to_file("res://Scenes/Launcher.tscn")

@@ -116,7 +116,7 @@ func _can_act() -> bool:
 		return false
 	return true
 
-func _equip(index: int) -> void:
+func _equip(index: int, from_remote := false) -> void:
 	weapon_index = index % loadout.size()
 	current_data = loadout[weapon_index]
 	if _viewmodel != null:
@@ -134,6 +134,28 @@ func _equip(index: int) -> void:
 	reloading = false
 	weapon_changed.emit(current_data.weapon_name)
 	ammo_changed.emit(mag, reserve)
+	if not from_remote:
+		_sync_weapon_index()
+
+## Broadcasts the equipped loadout index to every client so the replica of
+## this player shows the same weapon. Only the input owner broadcasts
+## (remote clients applying submit_weapon lack input authority, so this
+## never loops). Offline scenes (aim training) have no replicator - skip.
+func _sync_weapon_index() -> void:
+	if _owner == null or not "replicator" in _owner:
+		return
+	# The replicator is an @onready var on the player root: still null while
+	# this weapon's _ready runs (children ready before parents), and absent
+	# on offline scenes (aim training). Either way there is nothing to sync.
+	var replicator: FusionServerReplicator = _owner.replicator
+	if replicator == null or not replicator.has_input_authority():
+		return
+	# submit_weapon lives on the match lobby (registered broadcast receiver);
+	# Fusion routes the Callable's method name to every receiver on all peers.
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby == null:
+		return
+	Fusion.rpc(Callable(lobby, "submit_weapon"), _owner.player_id, weapon_index)
 
 ## The crosshair shape follows the weapon: rifle = classic four lines,
 ## shotgun = squared corner brackets (no fill), knife/melee = ring + point.

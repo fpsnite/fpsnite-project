@@ -19,6 +19,8 @@ const DRAWER_WIDTH := 380.0
 @onready var profile_button: Button = %ProfileButton
 @onready var players_hint: Label = %PlayersHintLabel
 @onready var player_list: VBoxContainer = %DrawerPlayerList
+@onready var rankings_hint: Label = %RankingsHintLabel
+@onready var ranking_list: VBoxContainer = %DrawerRankingList
 
 var _open := false
 var _tween: Tween
@@ -60,6 +62,7 @@ func set_open(open: bool) -> void:
 	if open:
 		_refresh_info()
 		_refresh_players()
+		_refresh_rankings()
 	if _tween:
 		_tween.kill()
 	_tween = create_tween().set_parallel(true)
@@ -88,9 +91,10 @@ func _on_settings_pressed() -> void:
 
 func _on_logout_pressed() -> void:
 	set_open(false)
+	Backend.update_presence(false, false, false)
 	Backend.clear_token()
 	Settings.auth_token = ""
-	Settings.player_id = -1
+	Settings.account_id = ""
 	Settings.save_settings()
 	_log("logged out, returning to launcher")
 	get_tree().change_scene_to_file("res://Scenes/Launcher.tscn")
@@ -98,9 +102,9 @@ func _on_logout_pressed() -> void:
 # --- Info tab ---
 
 func _refresh_info() -> void:
-	var logged_in := Backend.player_id >= 0
+	var logged_in := not Backend.account_id.is_empty()
 	info_name_label.text = "Name: %s" % Settings.player_name
-	info_status_label.text = "Status: %s" % ("Active (ID %d)" % Backend.player_id if logged_in else "Offline")
+	info_status_label.text = "Status: %s" % ("Active (%s)" % Backend.account_id if logged_in else "Offline")
 	info_region_label.text = "Region: Local"
 	if Fusion.is_connected_to_photon():
 		info_session_label.text = "Session ID: %d" % Fusion.get_local_player_id()
@@ -113,6 +117,8 @@ func _refresh_info() -> void:
 ## Everyone in the current room as rows; KICK only shows on the host's client
 ## and never on the player's own row.
 func _refresh_players() -> void:
+	if not is_inside_tree():
+		return
 	for child in player_list.get_children():
 		child.queue_free()
 	var lobby := get_tree().get_first_node_in_group("lobby")
@@ -144,3 +150,43 @@ func _on_kick_pressed(target_id: int) -> void:
 		lobby.request_kick(target_id)
 	else:
 		_log("ERROR: no node in group 'lobby' for kick")
+
+# --- Rankings tab ---
+
+## Top players by kills from the backend leaderboard (global, not this room).
+## Refreshed every time the drawer opens so the list is never stale.
+func _refresh_rankings() -> void:
+	for child in ranking_list.get_children():
+		child.queue_free()
+	rankings_hint.visible = false
+	if Backend.account_id.is_empty():
+		rankings_hint.text = "Log in to see rankings"
+		rankings_hint.visible = true
+		return
+	Backend.fetch_leaderboard("kills", 10, _on_rankings)
+	rankings_hint.text = "Loading..."
+	rankings_hint.visible = true
+
+func _on_rankings(success: bool, entries: Array) -> void:
+	if not is_inside_tree():
+		return
+	rankings_hint.visible = false
+	for child in ranking_list.get_children():
+		child.queue_free()
+	if not success or entries.is_empty():
+		rankings_hint.text = "No data"
+		rankings_hint.visible = true
+		return
+	var rank := 1
+	for entry in entries:
+		var label := Label.new()
+		label.add_theme_font_size_override("font_size", 20)
+		label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.88, 1))
+		var online := "●" if entry.get("is_online", false) else "○"
+		label.text = "%d.  %s  %s  LVL %d" % [
+			rank, str(entry.get("name", "?")).rpad(18), str(entry.get("value", 0)).lpad(4),
+			int(entry.get("level", 0))]
+		label.text += "  %s" % online
+		ranking_list.add_child(label)
+		rank += 1
+	_log("rankings refreshed: %d entries" % entries.size())

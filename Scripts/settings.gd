@@ -34,7 +34,9 @@ var keybinds: Dictionary = {}
 var skin_index := 0
 var player_name := ""
 ## Account session (persisted so the launcher auto-logs in next start).
-var player_id := -1
+## v2: the public identifier is the hex account_id (the numeric row id is
+## internal to the backend and never stored client-side).
+var account_id := ""
 ## Login token from Discord /register - the credential the backend accepts.
 var auth_token := ""
 
@@ -146,7 +148,7 @@ func save_settings() -> void:
 	config.set_value("skins", "index", skin_index)
 	config.set_value("player", "name", player_name)
 	config.set_value("player", "last_mode", last_mode)
-	config.set_value("account", "player_id", player_id)
+	config.set_value("account", "account_id", account_id)
 	config.set_value("account", "auth_token", auth_token)
 	for key: String in CONTROLS_DEFAULTS:
 		config.set_value("controls", key, get(key))
@@ -166,7 +168,7 @@ func load_settings() -> void:
 	skin_index = config.get_value("skins", "index", 0)
 	player_name = config.get_value("player", "name", "")
 	last_mode = config.get_value("player", "last_mode", "ffa")
-	player_id = config.get_value("account", "player_id", -1)
+	account_id = config.get_value("account", "account_id", "")
 	auth_token = config.get_value("account", "auth_token", "")
 	for key: String in CONTROLS_DEFAULTS:
 		set(key, config.get_value("controls", key, CONTROLS_DEFAULTS[key]))

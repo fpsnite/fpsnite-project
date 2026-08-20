@@ -25,18 +25,23 @@ const MODES := {
 		"map": DEFAULT_ARENA,
 		"weapons": ["res://Resources/Weapons/rifle.tres",
 			"res://Resources/Weapons/knife.tres"]},
-	"build": {"name": "Free Build",   "max_players": 1, "min_players": 1, "kill_target": 0,
+	"build": {"name": "Free Build",   "max_players": 8, "min_players": 1, "kill_target": 0,
 		"map": "res://GameScenes/FreeBuild/free_build.tscn",
 		"weapons": ["res://Resources/Weapons/rifle.tres",
 			"res://Resources/Weapons/shotgun.tres",
 			"res://Resources/Weapons/knife.tres"],
-		"infinite_ammo": true},
+		"infinite_ammo": true,
+		"prop_budget": 200},
 }
 
-## Solo modes (aim training, free build) can never run with another player
-## in the room.
+## Free Build supports rooms of up to PROP_BUDGET_MAX props replicated to
+## everyone - the mode's own "prop_budget" caps a room's concurrent builds.
+const PROP_BUDGET_MAX := 200
+
+## Solo modes (aim training) can never run with another player in the room.
+## Free Build is explicitly NOT solo: rooms co-build and builds replicate.
 static func is_solo(mode_id: String) -> bool:
-	return mode_id == "aim" or mode_id == "build"
+	return mode_id == "aim"
 
 ## Free Build is the creative sandbox: infinite health + sprint, no damage.
 static func is_build(mode_id: String) -> bool:
@@ -94,3 +99,8 @@ static func map_scene(mode_id: String) -> String:
 ## True when the mode runs on a custom map instead of the default box arena.
 static func uses_custom_map(mode_id: String) -> bool:
 	return map_scene(mode_id) != DEFAULT_ARENA
+
+## Max props a room may place in build modes (capped by PROP_BUDGET_MAX).
+static func prop_budget(mode_id: String) -> int:
+	return clampi(int(MODES.get(mode_id, {}).get("prop_budget", 0)),
+		0, PROP_BUDGET_MAX)

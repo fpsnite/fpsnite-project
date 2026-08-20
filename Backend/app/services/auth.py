@@ -34,5 +34,10 @@ def generate_token() -> str:
     return secrets.token_urlsafe(32)
 
 
+def generate_account_id() -> str:
+    """16-char lowercase hex UID used as the public player identifier."""
+    return secrets.token_hex(8)
+
+
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()

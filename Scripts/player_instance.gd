@@ -49,11 +49,9 @@ const SLIDE_TRIGGER_SPEED := 5.0  # minimum speed for a crouch press to kick
 @onready var body_hitbox: Area3D = $BodyHitbox
 @onready var head_hitbox: Area3D = $HeadHitbox
 @onready var player_name_label: Label3D = $PlayerNameLabel
-@onready var back_bling_label: Label3D = $BackBlingLabel if has_node("BackBlingLabel") else null
 
 var player_id := 0
 var spectating := false
-var player_number := 0  # assigned by the lobby master, 000-456
 
 
 ## Combat state, written by the server (WeaponSystem) via sync_health.
@@ -154,8 +152,6 @@ func refresh_identity() -> void:
 		# see it, since visibility is only hidden locally).
 		mesh_pivot.visible = false
 		player_name_label.visible = false
-		if back_bling_label:
-			back_bling_label.visible = false
 		_submit_skin(Settings.skin_index)
 	else:
 		camera_3d.current = false
@@ -171,6 +167,13 @@ func _capture_mouse() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _remote_player_name() -> String:
+	# Names are synced explicitly by the match lobby (submit_name) - Photon
+	# players don't reliably expose them, so prefer that registry first.
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby and lobby.has_method("_player_name"):
+		var synced: String = lobby._player_name(player_id)
+		if not synced.is_empty() and synced != "Player %d" % player_id:
+			return synced
 	for p in Fusion.get_room().get_players():
 		if p.get_number() == player_id:
 			var name: String = p.get_name()
@@ -349,15 +352,12 @@ func apply_skin(index: int) -> void:
 		if child is MeshInstance3D:
 			child.material_override = material
 
-## Shows the player's number on their back bling and exposes it to the HUD.
-## Always 3 digits: 7 -> "007", 42 -> "042", 456 -> "456".
-func apply_number(number: int) -> void:
-	player_number = number
-	if back_bling_label:
-		back_bling_label.text = _format_number(number)
-
-func _format_number(number: int) -> String:
-	return "%03d" % number
+## Sets the player's display name on the name label. Called from the match
+## lobby's submit_name RPC (names are synced explicitly - Photon doesn't
+## reliably expose them via get_name()).
+func apply_name(name: String) -> void:
+	if player_name_label:
+		player_name_label.text = name
 
 # --- Death (driven by weapon_system via broadcast RPCs) ---
 
@@ -400,5 +400,3 @@ func _set_body_visible(visible_flag: bool) -> void:
 		hidden = true
 	mesh_pivot.visible = not hidden
 	player_name_label.visible = not hidden
-	if back_bling_label:
-		back_bling_label.visible = not hidden

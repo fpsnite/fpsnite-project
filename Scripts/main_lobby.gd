@@ -233,6 +233,11 @@ func set_mode(mode_id: String) -> void:
 		_log("set_mode rejected: '%s' is solo, %d players in room" % [mode_id, _player_count()])
 		Toasts.show_message("%s is for 1 player only" % GameModes.mode_name(mode_id))
 		return
+	if _player_count() > GameModes.max_players(mode_id):
+		_log("set_mode rejected: '%s' max %d players, %d in room" % [mode_id, GameModes.max_players(mode_id), _player_count()])
+		Toasts.show_message("%s allows max %d players - %d in room" % [
+			GameModes.mode_name(mode_id), GameModes.max_players(mode_id), _player_count()])
+		return
 	_selected_mode = mode_id
 	_log("mode set to '%s' (max %d players)" % [mode_id, GameModes.max_players(mode_id)])
 	Fusion.rpc(submit_mode, mode_id)
@@ -382,6 +387,8 @@ func _show_local_preview() -> void:
 ## then everyone else sorted by player id. Empty slots hide both the stage
 ## mesh and the preview.
 func _refresh_podiums() -> void:
+	if not is_inside_tree():
+		return
 	if not Fusion.is_in_room():
 		_log("refresh_podiums skipped: not in room")
 		return
@@ -521,6 +528,8 @@ func _all_ready() -> bool:
 ## Recompute the ready summary: update the HUD, and on the master start/cancel
 ## the match countdown. Called after every ready/mode/join/leave change.
 func _refresh_ready_state() -> void:
+	if not is_inside_tree():
+		return
 	var total := _player_count()
 	var ready_count := _ready_count()
 	var hud := get_tree().get_first_node_in_group("lobby_hud")
@@ -532,9 +541,11 @@ func _refresh_ready_state() -> void:
 	_refresh_podiums()
 	if not Fusion.is_master_client():
 		return
-	# The countdown only starts when everyone is ready AND the room holds at
-	# least the mode's minimum player count (e.g. 1v1 needs 2 players).
-	if _all_ready() and total >= GameModes.min_players(_selected_mode):
+	# The countdown only starts when everyone is ready, the room holds at
+	# least the mode's minimum player count (e.g. 1v1 needs 2 players), and
+	# never while the room is over the mode's cap.
+	if _all_ready() and total >= GameModes.min_players(_selected_mode) \
+			and total <= GameModes.max_players(_selected_mode):
 		_start_countdown()
 	elif _countdown_active:
 		_cancel_countdown()

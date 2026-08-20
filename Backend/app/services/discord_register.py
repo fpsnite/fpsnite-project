@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.crud import player as player_crud
 from app.models.player import Player
-from app.services.auth import hash_password, hash_token, generate_token
+from app.services.auth import hash_password, hash_token, generate_token, generate_account_id
 
 _USERNAME_ALPHABET = string.digits
 _MAX_USERNAME_RETRIES = 8
@@ -46,6 +46,7 @@ def create_account_from_discord(
             username = _generate_username()
             continue
         created = Player(
+            account_id=generate_account_id(),
             name=username,
             password_hash=hash_password(secrets.token_urlsafe(9)),
             auth_token_hash=hash_token(token),

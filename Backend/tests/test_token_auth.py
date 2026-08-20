@@ -17,6 +17,8 @@ def test_token_issued_with_profile(client):
     assert len(body["token"]) >= 30
     assert body["player"]["name"] == "taro"
     assert "auth_token_hash" not in body["player"]
+    assert "id" not in body["player"]
+    assert "account_id" in body["player"]
 
 
 def test_token_issuance_rejects_wrong_password(client):
@@ -47,23 +49,17 @@ def test_me_without_header(client):
 def test_patch_requires_own_token(client):
     a = _register_and_token(client, "alice")
     b = _register_and_token(client, "bob")
-    alice_id, bob_id = a["player"]["id"], b["player"]["id"]
+    alice_id, bob_id = a["player"]["account_id"], b["player"]["account_id"]
 
-    resp = client.patch(f"/api/players/{alice_id}", json={"skin_index": 3})
+    resp = client.patch(f"/api/players/{alice_id}", json={"current_skin": 3})
     assert resp.status_code == 401
 
-    resp = client.patch(f"/api/players/{alice_id}", json={"skin_index": 3}, headers=_auth_headers(b["token"]))
+    resp = client.patch(f"/api/players/{alice_id}", json={"current_skin": 3}, headers=_auth_headers(b["token"]))
     assert resp.status_code == 403
 
-    resp = client.patch(f"/api/players/{alice_id}", json={"skin_index": 3}, headers=_auth_headers(a["token"]))
+    resp = client.patch(f"/api/players/{alice_id}", json={"current_skin": 3}, headers=_auth_headers(a["token"]))
     assert resp.status_code == 200
-    assert resp.json()["skin_index"] == 3
-
-
-def test_patch_with_unlinked_bearer_still_requires_valid_token(client):
-    body = _register_and_token(client)
-    resp = client.post("/api/auth/me", headers=_auth_headers(body["token"]))
-    assert resp.status_code == 200
+    assert resp.json()["current_skin"] == 3
 
 
 def test_token_rotation_invalidates_old_token(client):
@@ -91,5 +87,5 @@ def test_discord_account_can_auth_with_issued_token(client):
 
     resp = client.post("/api/auth/me", headers=_auth_headers(token))
     assert resp.status_code == 200
-    assert resp.json()["id"] == player.id
+    assert resp.json()["account_id"] == player.account_id
     assert resp.json()["name"] == player.name

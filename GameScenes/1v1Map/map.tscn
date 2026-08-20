@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://pwvvihch8wgk"]
 
 [ext_resource type="Script" uid="uid://ysliy56modu4" path="res://GameScenes/1v1Map/map.gd" id="2_map"]
-[ext_resource type="PackedScene" uid="uid://ba8taod0uui3o" path="res://Assets/Environment/fps_tps Map by theking1322 - wna54gOjL7.glb" id="3_ai7fs"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(149.62369, 1, 99.9727)
@@ -67,6 +66,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.129147, 4.0284348, -0.257
 
 [node name="Pspawn2" type="Marker3D" parent="Spawners" unique_id=80581886]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.301117, 2.7140024, -1.8350563)
-
-[node name="Root Scene" parent="." unique_id=658540850 instance=ExtResource("3_ai7fs")]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -20.514748, 0, 0.084674835)

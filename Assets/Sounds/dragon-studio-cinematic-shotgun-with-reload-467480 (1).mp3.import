@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://5op0vxbx3dm6"
+path="res://.godot/imported/dragon-studio-cinematic-shotgun-with-reload-467480 (1).mp3-934a81d98dde7e33e972208bdeda03da.mp3str"
+
+[deps]
+
+source_file="res://Assets/Sounds/dragon-studio-cinematic-shotgun-with-reload-467480 (1).mp3"
+dest_files=["res://.godot/imported/dragon-studio-cinematic-shotgun-with-reload-467480 (1).mp3-934a81d98dde7e33e972208bdeda03da.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

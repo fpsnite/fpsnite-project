@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cukc5mboq3tvg"
-path="res://.godot/imported/ground.fbx-5843bc391b8c12122aec84e41f240d37.scn"
+uid="uid://dxug6oi0sf6jo"
+path="res://.godot/imported/Build cone (1).glb-9815891b615fd8c5b386824e0b3fb8ba.scn"
 
 [deps]
 
-source_file="res://Assets/Builds/ground.fbx"
-dest_files=["res://.godot/imported/ground.fbx-5843bc391b8c12122aec84e41f240d37.scn"]
+source_file="res://Assets/Builds/Build cone (1).glb"
+dest_files=["res://.godot/imported/Build cone (1).glb-9815891b615fd8c5b386824e0b3fb8ba.scn"]
 
 [params]
 
@@ -32,7 +32,7 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=true
+animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
@@ -40,7 +40,6 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
-fbx/naming_version=2
+gltf/naming_version=2
+gltf/embedded_image_handling=1
+gltf/texture_map_mode=1

@@ -36,6 +36,8 @@ var _champion_team := -1
 var _teams: Dictionary = {}
 ## Kill scores: player_id → kill count.
 var _kill_scores: Dictionary = {}
+## Death scores: player_id → death count (for the backend match report).
+var _death_scores: Dictionary = {}
 
 @onready var status_label: Label = get_node("../RoundHUD/StatusLabel")
 @onready var timer_label: Label = get_node("../RoundHUD/TimerLabel")
@@ -44,11 +46,35 @@ var _kill_scores: Dictionary = {}
 var _weapon_system: Node = null
 var _end_screen: CanvasLayer = null
 var _end_screen_shown := false
+## Elapsed playing time (seconds), tracked for the backend match-result
+## report. Reset when a match starts, frozen at victory.
+var _match_elapsed := 0.0
+
+## True once the master FSM started. The FSM broadcasts RPCs (scores, teams,
+## state) - those are safe only after the lobby's spawn gate finished, so the
+## start is polled from _process instead of _ready.
+var _fsm_started := false
+## Players whose score/team seeds still await their spawn (join happens before
+## their scene loads; broadcasting earlier would be dropped as unknown RPCs).
+var _pending_seeds: Array[int] = []
+
+## Free Build disables the round entirely (no FSM, scores, teams or end
+## screen). The node stays in the "round" group so consumers get safe
+## defaults; the round HUD labels are hidden.
+var _disabled := false
+var _registered := false
 
 func _ready() -> void:
 	add_to_group("round")
 	_current_mode = Settings.pending_mode
+	_disabled = GameModes.is_build(_current_mode)
+	if _disabled:
+		status_label.visible = false
+		timer_label.visible = false
+		light_label.visible = false
+		return
 	Fusion.register_broadcast_receiver(self)
+	_registered = true
 	Fusion.player_joined.connect(_on_player_joined)
 	Fusion.player_left.connect(_on_player_left)
 	_end_screen = get_node_or_null("../RoundEnd")
@@ -58,7 +84,7 @@ func _ready() -> void:
 	_fsm.add_state(&"victory", _enter_victory, Callable(), _tick_victory)
 	call_deferred("_find_weapon_system")
 	if Fusion.is_master_client():
-		_fsm.change(&"waiting")
+		pass  # FSM starts via _try_start_fsm once the lobby spawns everyone
 	else:
 		_apply_ui()
 
@@ -67,21 +93,47 @@ func _find_weapon_system() -> void:
 	if _weapon_system and _weapon_system.has_signal("player_killed"):
 		_weapon_system.player_killed.connect(_on_player_killed)
 
+## Master only: initialize kill scores (and teams for team modes) for the
+## players already in the room. player_joined only fires for newcomers, and
+## _reset_match_state wipes these dicts, so every match start re-seeds them.
+func _seed_existing_players() -> void:
+	for pid in Network.room_player_ids():
+		_kill_scores[pid] = 0
+		_death_scores[pid] = 0
+		Fusion.rpc(submit_kill_score, pid, 0)
+		Fusion.rpc(submit_death_score, pid, 0)
+	if _current_mode in ["tdm", "1v1"]:
+		_assign_teams()
+
 func _exit_tree() -> void:
-	Fusion.unregister_broadcast_receiver(self)
+	if _registered:
+		Fusion.unregister_broadcast_receiver(self)
 
 func _process(delta: float) -> void:
 	if not is_inside_tree():
 		return
+	_update_debug_tick(delta)
+	if _disabled:
+		return
+	# Elapsed playing time accumulates on EVERY client (the mirrored state is
+	# the same everywhere), so the backend match report carries a real
+	# duration for non-hosts too, not just the master's FSM tick.
+	if _mirror_state == State.PLAYING:
+		_match_elapsed += delta
 	if Fusion.is_master_client():
+		_try_start_fsm()
+		if not _pending_seeds.is_empty():
+			_flush_pending_seeds()
 		_fsm.tick(delta)
 		_apply_ui()
+
+var _debug_timer := 0.0
+
+func _update_debug_tick(delta: float) -> void:
 	_debug_timer -= delta
 	if _debug_timer <= 0.0:
 		_debug_timer = 0.2
 		_update_debug()
-
-var _debug_timer := 0.0
 
 func _update_debug() -> void:
 	var dbg: Label = get_node_or_null("../RoundHUD/DebugLabel")
@@ -94,10 +146,14 @@ func _update_debug() -> void:
 # --- Public API ---
 
 func is_round_active() -> bool:
+	if _disabled:
+		return false
 	return _mirror_state == State.PLAYING
 
 ## True once the match has ended (no kills / respawns should happen).
 func is_match_over() -> bool:
+	if _disabled:
+		return false
 	return _mirror_state == State.VICTORY
 
 func is_red_light() -> bool:
@@ -117,9 +173,33 @@ func get_mode() -> String:
 
 # --- FSM states (master only) ---
 
+## Master only: the round's RPC broadcasts are safe only after the lobby's
+## spawn gate finished (every peer's match scene loaded + receivers
+## registered). Poll the lobby instead of broadcasting from _ready, which
+## would race peers still loading.
+func _try_start_fsm() -> void:
+	if _fsm_started:
+		return
+	if not Fusion.is_master_client() or not Fusion.is_in_room():
+		return
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby == null:
+		return
+	for pid in Network.room_player_ids():
+		if not lobby.has_spawned(pid):
+			return
+	_fsm_started = true
+	_flush_pending_seeds()
+	_fsm.change(&"waiting")
+
 func _enter_waiting() -> void:
 	_last_second = -1
+	_match_elapsed = 0.0
 	_reset_match_state()
+	# Re-seed scores/teams for whoever is in the room: player_joined won't
+	# re-fire for players present when the scene loaded, and reset above
+	# wipes teams each round. Runs on the master before the first spawn.
+	_seed_existing_players()
 	_broadcast_state(State.WAITING)
 
 func _tick_waiting(delta: float) -> void:
@@ -229,9 +309,13 @@ func return_to_menu() -> void:
 func _assign_teams() -> void:
 	if _current_mode not in ["tdm", "1v1"]:
 		return
-	var pids: Array[int] = []
+	# Seed from the actual room members (plus any known ids) - the dict is
+	# only populated via submit_team RPCs, so iterating it alone would never
+	# assign the first players a team.
+	var pids := Network.room_player_ids()
 	for pid in _teams:
-		pids.append(pid)
+		if not pids.has(pid):
+			pids.append(pid)
 	pids.sort()
 	for i in pids.size():
 		var team: int
@@ -245,14 +329,16 @@ func _assign_teams() -> void:
 
 # --- Kill scoring (master only) ---
 
-func _on_player_killed(killer_id: int, _target_id: int) -> void:
+func _on_player_killed(killer_id: int, target_id: int) -> void:
 	if not Fusion.is_master_client():
 		return
-	if killer_id <= 0:
-		return
-	_kill_scores[killer_id] = int(_kill_scores.get(killer_id, 0)) + 1
-	Fusion.rpc(submit_kill_score, killer_id, int(_kill_scores[killer_id]))
-	kill_scored.emit(killer_id)
+	if killer_id > 0:
+		_kill_scores[killer_id] = int(_kill_scores.get(killer_id, 0)) + 1
+		Fusion.rpc(submit_kill_score, killer_id, int(_kill_scores[killer_id]))
+		kill_scored.emit(killer_id)
+	if target_id > 0:
+		_death_scores[target_id] = int(_death_scores.get(target_id, 0)) + 1
+		Fusion.rpc(submit_death_score, target_id, int(_death_scores[target_id]))
 
 func _team_kill_totals() -> Dictionary:
 	var totals := {0: 0, 1: 0}
@@ -266,20 +352,46 @@ func _team_kill_totals() -> Dictionary:
 func _on_player_joined(player_id: int, _extra: Variant) -> void:
 	if Fusion.is_master_client():
 		_kill_scores[player_id] = 0
-		if _current_mode in ["tdm", "1v1"]:
-			_assign_teams()
-		Fusion.rpc(submit_kill_score, player_id, 0)
+		_death_scores[player_id] = 0
+		# The newcomer joins before their match scene loads - broadcast their
+		# seeds (and team) only once the lobby spawned them (see _flush_pending_seeds).
+		if not _pending_seeds.has(player_id):
+			_pending_seeds.append(player_id)
+		_flush_pending_seeds()
 	else:
 		_apply_ui()
 
 func _on_player_left(player_id: int, _extra: Variant) -> void:
 	if Fusion.is_master_client():
 		_kill_scores.erase(player_id)
+		_death_scores.erase(player_id)
 		_teams.erase(player_id)
+		_pending_seeds.erase(player_id)
 		if _current_mode in ["tdm", "1v1"]:
 			_assign_teams()
 	else:
 		_apply_ui()
+
+## Master only: broadcast a joined player's score/team seeds once the lobby
+## has spawned them - i.e. their scene acked - so no broadcast RPC ever lands
+## on a peer still loading its match scene.
+func _flush_pending_seeds() -> void:
+	if not Fusion.is_master_client():
+		return
+	var lobby := get_tree().get_first_node_in_group("lobby")
+	if lobby == null:
+		return
+	var i := 0
+	while i < _pending_seeds.size():
+		var pid: int = _pending_seeds[i]
+		if lobby.has_spawned(pid):
+			if _current_mode in ["tdm", "1v1"]:
+				_assign_teams()
+			Fusion.rpc(submit_kill_score, pid, 0)
+			Fusion.rpc(submit_death_score, pid, 0)
+			_pending_seeds.remove_at(i)
+		else:
+			i += 1
 
 # --- Networking ---
 
@@ -316,10 +428,29 @@ func submit_kill_score(player_id: int, score: int) -> void:
 	_apply_ui()
 
 @rpc("any_peer", "call_local")
+func submit_death_score(player_id: int, score: int) -> void:
+	_death_scores[player_id] = score
+
+@rpc("any_peer", "call_local")
 func submit_victory(champion_pid: int, champion_team: int) -> void:
 	_champion_pid = champion_pid
 	_champion_team = champion_team
 	_apply_ui()
+	# Report the finished match to the backend (fire-and-forget, local player
+	# only): kills/deaths for stats + leaderboard, win flag for coins/xp.
+	if _current_mode != "ffa":
+		var local := Fusion.get_local_player_id()
+		if local <= 0:
+			return
+		var won := champion_pid == local
+		if champion_team >= 0:
+			won = _teams.get(local, -1) == champion_team
+		var duration := int(_match_elapsed)
+		Backend.report_match_result(
+			int(_kill_scores.get(local, 0)),
+			int(_death_scores.get(local, 0)),
+			won,
+			duration)
 
 @rpc("any_peer", "call_local")
 func submit_feed(kind: StringName, player_id: int) -> void:
@@ -338,6 +469,7 @@ func submit_return_to_menu() -> void:
 ## Match reset: wipe all scores, teams, and champion state.
 func _reset_match_state() -> void:
 	_kill_scores.clear()
+	_death_scores.clear()
 	_teams.clear()
 	_champion_pid = -1
 	_champion_team = -1
@@ -346,6 +478,7 @@ func _reset_match_state() -> void:
 @rpc("any_peer", "call_local")
 func submit_match_reset() -> void:
 	_kill_scores.clear()
+	_death_scores.clear()
 	_teams.clear()
 	_champion_pid = -1
 	_champion_team = -1

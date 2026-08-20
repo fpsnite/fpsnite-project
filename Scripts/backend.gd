@@ -4,6 +4,10 @@ extends Node
 ## validated on every launch via /auth/me and stored in Settings.
 ## One-shot requests: each call spawns its own HTTPRequest child, so calls can
 ## overlap safely. Account state is mirrored so UI code can read it directly.
+## v2 API: the public player identifier is `account_id` (hex string); the
+## numeric row id is internal and never sent to the client. Skins are stored
+## as `current_skin`. Leaderboards, presence and match results round out the
+## client-facing surface.
 ## BACKEND_URL resolution (first match wins):
 ##   1. FPSNITE_BACKEND_URL env var
 ##   2. res://backend_url.cfg (gitignored, editor-only override for dev
@@ -33,7 +37,7 @@ func _init() -> void:
 	if not configured.is_empty():
 		backend_url = configured
 
-var player_id := -1
+var account_id := ""
 var player_name := ""
 var player_skin := 0
 var auth_token := ""
@@ -46,26 +50,53 @@ func login_with_token(token: String) -> void:
 
 ## Fire-and-forget skin sync; errors are logged, never surfaced in UI.
 func update_skin(index: int) -> void:
-	if player_id < 0:
+	if account_id.is_empty():
 		return
-	_send(HTTPClient.METHOD_PATCH, "/api/players/%d" % player_id,
-		{"skin_index": index}, func(_ok: bool) -> void: pass)
+	_send(HTTPClient.METHOD_PATCH, "/api/players/%s" % account_id,
+		{"current_skin": index}, func(_ok: bool, _data: Variant) -> void: pass)
+
+## Presence heartbeat: online / in-lobby / in-game state, mirrored on the
+## profile for the leaderboard's online dot.
+func update_presence(online: bool = true, in_lobby: bool = false, in_game: bool = false) -> void:
+	if account_id.is_empty():
+		return
+	_send(HTTPClient.METHOD_POST, "/api/players/%s/presence" % account_id,
+		{"online": online, "in_lobby": in_lobby, "in_game": in_game}, func(_ok: bool, _data: Variant) -> void: pass)
+
+## Reports a finished match (kills, deaths, win flag, duration); the backend
+## awards coins/xp and replies with the deltas. Fire-and-forget for now.
+func report_match_result(kills: int, deaths: int, won: bool, duration_seconds: int) -> void:
+	if account_id.is_empty():
+		return
+	_send(HTTPClient.METHOD_POST, "/api/players/%s/match-result" % account_id,
+		{"kills": kills, "deaths": deaths, "won": won, "duration_seconds": duration_seconds},
+		func(_ok: bool, _data: Variant) -> void: pass)
+
+## Global leaderboard: top `limit` players by a stat (kills/wins/level/coins/
+## playtime_seconds/xp). on_done(success, entries) with entries being an array
+## of {"account_id", "name", "value", "level", "is_online"} dicts.
+func fetch_leaderboard(stat: String, limit: int, on_done: Callable) -> void:
+	_send(HTTPClient.METHOD_GET,
+		"/api/leaderboard?stat=%s&limit=%d" % [stat, limit], {},
+		func(success: bool, data: Variant) -> void:
+			var entries: Array = data if success and data is Array else []
+			on_done.call(success, entries))
 
 func clear_token() -> void:
 	auth_token = ""
-	player_id = -1
+	account_id = ""
 	player_name = ""
 	player_skin = 0
 
 func _on_account_response(success: bool, data: Variant) -> void:
 	if not success:
 		return
-	if not data is Dictionary or not data.has("id"):
+	if not data is Dictionary or not data.has("account_id"):
 		auth_failed.emit("BAD_RESPONSE", "Server sent an unexpected response.")
 		return
-	player_id = data["id"]
+	account_id = data["account_id"]
 	player_name = data.get("name", "")
-	player_skin = data.get("skin_index", 0)
+	player_skin = data.get("current_skin", 0)
 	account_ready.emit(data)
 
 func _send(method: HTTPClient.Method, path: String, payload: Dictionary, on_done: Callable) -> void:
@@ -89,11 +120,11 @@ func _parse_body(code: int, body: PackedByteArray) -> Variant:
 		auth_failed.emit("HTTP_%d" % code, "Request failed (%s)." % _http_status_text(code))
 		return null
 	var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
-	if not parsed is Dictionary:
+	if not (parsed is Dictionary or parsed is Array):
 		return null
 	if code >= 200 and code < 300:
 		return parsed
-	var detail: Variant = parsed.get("detail", {})
+	var detail: Variant = parsed.get("detail", {}) if parsed is Dictionary else {}
 	if detail is Dictionary and detail.has("code"):
 		auth_failed.emit(detail["code"], detail.get("message", "Request failed."))
 	else:

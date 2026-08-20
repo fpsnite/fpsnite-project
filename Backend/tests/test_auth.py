@@ -6,9 +6,13 @@ def test_register_creates_account(client):
     assert resp.status_code == 201
     body = resp.json()
     assert body["name"] == "azumi"
-    assert body["skin_index"] == 0
-    assert "id" in body
+    assert body["current_skin"] == 0
+    assert len(body["account_id"]) == 16
+    assert "id" not in body
     assert "password" not in body
+    assert body["coins"] == 0
+    assert body["level"] == 1
+    assert body["is_online"] is False
 
 
 def test_register_rejects_duplicate_name_case_insensitive(client):
@@ -39,25 +43,30 @@ def test_login_with_wrong_password(client):
 
 def test_get_profile(client):
     created = client.post("/api/auth/register", json={"name": "sora", "password": "hunter2"}).json()
-    resp = client.get(f"/api/players/{created['id']}")
+    resp = client.get(f"/api/players/{created['account_id']}")
     assert resp.status_code == 200
     assert resp.json()["name"] == "sora"
 
 
 def test_get_profile_not_found(client):
-    resp = client.get("/api/players/99999")
+    resp = client.get("/api/players/0000000000000000")
     assert resp.status_code == 404
 
 
-def test_patch_skin_index(client):
+def test_patch_skin_and_locker(client):
     client.post("/api/auth/register", json={"name": "ren", "password": "hunter2"})
     issued = client.post("/api/auth/token", json={"name": "ren", "password": "hunter2"}).json()
     headers = {"Authorization": f"Bearer {issued['token']}"}
-    player_id = issued["player"]["id"]
-    resp = client.patch(f"/api/players/{player_id}", json={"skin_index": 3}, headers=headers)
+    account_id = issued["player"]["account_id"]
+    resp = client.patch(
+        f"/api/players/{account_id}",
+        json={"current_skin": 3, "skins_locker": [0, 3]},
+        headers=headers,
+    )
     assert resp.status_code == 200
-    assert resp.json()["skin_index"] == 3
+    assert resp.json()["current_skin"] == 3
+    assert resp.json()["skins_locker"] == [0, 3]
     assert resp.json()["name"] == "ren"
 
-    fetched = client.get(f"/api/players/{player_id}").json()
-    assert fetched["skin_index"] == 3
+    fetched = client.get(f"/api/players/{account_id}").json()
+    assert fetched["current_skin"] == 3

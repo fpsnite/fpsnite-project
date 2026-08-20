@@ -122,11 +122,22 @@ func set_mode_text(mode_id: String, player_count: int) -> void:
 ## is ready it shows the countdown (disabled). countdown: -1 = none, >0 = secs.
 ## min_players: the room must hold at least this many before the countdown
 ## can start - everyone ready but short of it shows a hint instead.
+## Over the mode cap (player_count > max_players) the button is disabled for
+## everyone and a TOO MANY PLAYERS notice is shown - the countdown never runs.
 func update_ready_ui(local_ready: bool, ready_count: int, player_count: int,
 		max_players: int, min_players: int, countdown: int) -> void:
+	if not is_inside_tree():
+		return
 	_starting = countdown > 0
 	if _starting:
 		set_party_buttons(false, 0)
+	if player_count > max_players:
+		play_button.disabled = true
+		play_button.text = "ROOM FULL"
+		ready_label.text = "TOO MANY PLAYERS - MAX %d" % max_players
+		ready_label.visible = true
+		_log("ready ui: over cap %d/%d countdown=%d" % [player_count, max_players, countdown])
+		return
 	if countdown > 0:
 		play_button.disabled = true
 		play_button.text = "STARTING IN %d" % countdown
